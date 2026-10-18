@@ -191,20 +191,6 @@ export const RUNBOOK_SECTIONS_301 = [
           "Use the accessibility-manual-reviewer subagent on this branch to confirm each fix. Report any remaining failure with the page, the key pressed, the expected focus, and a screenshot.",
       },
       {
-        id: "open-contrast-hook",
-        title: "Show the pre-staged contrast hook",
-        promptType: "none",
-        detail:
-          "Open .cursor/hooks.json and .cursor/hooks/contrast-collect.sh. Point out the filter for {{ shared color token files }} and the contrast test from {{ test library path }}.",
-      },
-      {
-        id: "token-edit-fires-hook",
-        title: "Prove the hook fires on a token edit",
-        promptType: "adaptable",
-        detail: "",
-        example: "The brand is moving lighter. Change the muted text color token to #B0B0B0 in the shared theme tokens.",
-      },
-      {
         id: "optional-bugbot",
         title: "Optional: Run Bugbot",
         optional: true,

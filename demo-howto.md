@@ -25,7 +25,7 @@ The 301 track has four sections. Open `runbooks.html?track=301` and copy a card 
 
 1. **How do you break down tasks for agents?** Open a local agent, create accessibility-auditor, use a cost-efficient model, optionally move to a Cloud Agent, `/multitask` the audit
 2. **How do multiple agents go from plan to PR?** Optionally start a Project, list collections issues, plan and build, `/side`, consolidate into a PR
-3. **How do you scale AI code reviews?** Feature branch, `hooks.json`, change reviewer subagent, highest-risk slice
+3. **How do you scale AI code reviews?** Feature branch, change reviewer subagent, highest-risk slice
 4. **How do coworkers share ownership safely?** Shift findings left, optional Reviewer automation, files that might conflict
 
 ---
@@ -424,8 +424,6 @@ Open a new local agent and change to the feature branch:
 ```text
 Change the branch to the collections command center feature.
 ```
-
-Open `.cursor/hooks.json` in the demo repo.
 
 Run the change reviewer subagent:
 

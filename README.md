@@ -89,7 +89,7 @@ Open `runbooks.html?track=301`, or switch to 301 with the Catalog menu in the Ca
 
 1. **How do you break down tasks for agents?** Open a local agent, create accessibility-auditor, point the subagent at a faster cost-efficient model, optionally move to a Cloud Agent, `/multitask` the audit, and watch the Working tab.
 2. **How do multiple agents go from plan to PR?** Optionally start and stage a Project, list collections issues, plan and build, `/side`, consolidate into a PR, and fall back to repo issues if Linear MCP is unavailable.
-3. **How do you scale AI code reviews?** Feature branch, `hooks.json`, change reviewer subagent, high severity issues, optional Bugbot, highest-risk slice.
+3. **How do you scale AI code reviews?** Feature branch, change reviewer subagent, high severity issues, optional Bugbot, highest-risk slice.
 4. **How do coworkers share ownership safely?** Shift findings into a rule, skill, hook, test, subagent, or a person, optional Reviewer automation, and files that might conflict.
 
 ## Create the private Linear team (manual)

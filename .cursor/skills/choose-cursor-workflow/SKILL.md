@@ -38,7 +38,7 @@ Start a demo session with `npm run demo:session -- start`. Record every rule, sk
 
 1. **How do you break down tasks for agents?** Open a local agent, create accessibility-auditor, point the subagent at a faster cost-efficient model, optionally move to a Cloud Agent, `/multitask` the audit, and watch the Working tab.
 2. **How do multiple agents go from plan to PR?** Optionally start and stage a Project, list open collections issues, plan and build, use `/side`, consolidate into a PR, and fall back to repo issue descriptions if Linear MCP is unavailable.
-3. **How do you scale AI code reviews?** Open the feature branch, open hooks.json, run the change reviewer subagent, check high severity issues, optionally run Bugbot, and read the highest-risk slice.
+3. **How do you scale AI code reviews?** Open the feature branch, run the change reviewer subagent, check high severity issues, optionally run Bugbot, and read the highest-risk slice.
 4. **How do coworkers share ownership safely?** Shift review findings into a rule, skill, hook, test, subagent, or a person, optionally create a Reviewer automation, and list files that might conflict.
 
 ## Choose the mode

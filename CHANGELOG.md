@@ -10,15 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### In progress
 
 - **201 track** — Runbooks track `201` / `RUNBOOK_SECTIONS_201` is on main for CE workshop demos (Outline Show beats, Linear staging, disk plugin) but is not a formal release in this cut.
-- **301 track.** Runbooks track `301` / `RUNBOOK_SECTIONS_301` adds the Outline Show for orchestrating agents, tasks, and coworkers (four sections, 34 beats). Not a formal release in this cut.
+- **301 track.** Runbooks track `301` / `RUNBOOK_SECTIONS_301` adds the Outline Show for orchestrating agents, tasks, and coworkers (four sections, 32 beats). Not a formal release in this cut.
 
 ### Added
 
 - `change-reviewer` project agent. Read-only diff inspection for the 301 review beat. It owns the closer-inspection list: authentication, payments, personal data, permissions, or secrets; difficult rollback; missing tests; a test an agent edited; scope outside the plan; and new dependencies or shell commands. Like `ledgerly-reviewer`, it reports Passed and Incomplete, with high, warning, and suggestion inside Incomplete.
 
+### Removed
+
+- Contrast hook for shared color tokens (`.cursor/hooks.json`, `contrast-collect.sh`, `contrast-check.mjs`) and the two 301 beats that opened it.
+
 ### Changed
 
-- **301 beats synced to Outline 0.8.** Show 11 plans the command center in a separate agent, shows the invoices focus problem by hand, then builds `accessibility-manual-reviewer` and runs three page walkthroughs. Show 16 plans the remediation. Show 21 adds the keyboard check and contrast hook beats. Show 25 returns to the plan.
+- **301 beats synced to Outline 0.8.** Show 11 plans the command center in a separate agent, shows the invoices focus problem by hand, then builds `accessibility-manual-reviewer` and runs three page walkthroughs. Show 16 plans the remediation. Show 21 adds the keyboard check. Show 25 returns to the plan.
 - `ledgerly-reviewer` no longer carries the closer-inspection list. It confirms the claimed work runs, then checks the catalog, seed, and protected paths.
 - Runbooks left the app. The catalog is `runbooks.html`, rendered in a Cursor Canvas by `start-ledgerly`.
 
