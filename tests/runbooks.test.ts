@@ -787,9 +787,14 @@ describe("runbook catalog", () => {
     expect(files.agents).toContain("settings/teams/LY");
   });
 
-  it("stage-linear and reset-demo-state confirm the private team before writing", () => {
+  it("stage-linear and reset-demo-state confirm the team before writing", () => {
     const stage = readFileSync(join(root, ".cursor/skills/stage-linear/SKILL.md"), "utf8");
     const reset = readFileSync(join(root, ".cursor/skills/reset-demo-state/SKILL.md"), "utf8");
+
+    expect(stage, "stage accepts a public team").toContain("Public and private teams are both valid");
+    expect(stage, "stage must not ban public teams").not.toContain("Never stage onto a public");
+    expect(reset, "reset accepts a public team").toContain("Public and private teams are both valid");
+    expect(reset, "reset must not ban public-team teardown").not.toContain("Never cancel Linear issues on a public");
 
     for (const [name, contents] of Object.entries({ stage, reset })) {
       expect(contents, `${name} is missing a confirm-team step`).toMatch(/confirm/i);

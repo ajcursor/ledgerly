@@ -18,7 +18,7 @@ The 201 track has four sections. Open `runbooks.html?track=201` and copy a card 
 
 1. **How do you manage context?** — rename agents, Ask DDD, check context usage, compare agents, ask across chats
 2. **How do you standardize agent behavior?** — [create-api skill](#create-api-skill), promote it
-3. **How do you connect an agent to external tools?** — [private Linear team](#create-the-private-linear-team-manual), Linear MCP, list open issues, import plugin from disk
+3. **How do you connect an agent to external tools?** — [Linear team](#choose-the-linear-team-manual), Linear MCP, list open issues, import plugin from disk
 4. **How do you parallelize a task?** — [open a new agent](#open-the-plan), resolve-dispute plan, `/multitask`, Canvas subagent progress, ledgerly-reviewer check
 
 The 301 track has four sections. Open `runbooks.html?track=301` and copy a card for any beat. Optional cards stay hidden until Include optional cards is checked.
@@ -76,19 +76,19 @@ npm run demo:reset
 
 Then complete only the remaining MCP cleanup reported by the script. Empty dashboard: `npm run db:reset`.
 
-### Create the private Linear team (manual)
+### Choose the Linear team (manual)
 
-Linear MCP cannot create teams. Do this in the Linear UI **before** the 201 MCP section, on the presenter’s account only.
+Linear MCP cannot create teams. Public and private teams are both valid. Do this in the Linear UI **before** the 201 MCP section when the presenter does not already have a team.
 
 1. Open Linear → **Settings → Teams → New team**.
 2. Name it for this operator only (example: `{displayName}-field-demos`).
-3. Turn on **Make team private**. Team key can be **LY**. Confirm it at `https://linear.app/<workspace>/settings/teams/LY`.
-4. Members: **only you**. Do not add any other team.
+3. Leave it public, or turn on **Make team private**. Team key can be **LY**. Confirm it at `https://linear.app/<workspace>/settings/teams/LY`.
+4. When the team is private, members are **only you**.
 5. In Grok Build, run `stage-linear`. That skill creates or reconciles project `ce-field-demos` on this team with the three Fieldnote issues plus the nine Collections Command Center slices, tagged as that feature.
 
-`stage-linear` never guesses the team — it lists your private teams and asks you to **confirm the exact one** before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project (issues stay linked; the team is retained).
+`stage-linear` never guesses the team — it lists your teams and asks you to **confirm the exact one** before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project (issues stay linked; the team is retained).
 
-Do not skip the private-team step. A project on a public team is visible to that team.
+A public team makes the project visible to that team.
 
 ---
 
@@ -305,7 +305,7 @@ npm run demo:session -- record project-path .cursor/skills/create-api
 
 ### How do you connect an agent to external tools?
 
-Create the private Linear team by hand first ([steps above](#create-the-private-linear-team-manual)): Settings → Teams → New team, **Make team private**, members = you only. Then run `stage-linear`.
+Use a public or private Linear team ([steps above](#choose-the-linear-team-manual)): Settings → Teams → New team when you need a new one, or leave an existing team public. **Make team private** is optional. Then run `stage-linear`.
 
 Review MCP servers in Customize → MCPs. Enable the Linear MCP server. Check the MCP allowlist under Settings → Agents → Execution and Approvals. Then:
 

@@ -15,7 +15,7 @@ This plugin ships the Linear MCP server (`https://mcp.linear.app/mcp`). If Linea
 
 Call Linear MCP:
 
-1. `list_projects` query `ce-field-demos` — use the project whose team is the operator’s private field-demos team, not a public or shared team.
+1. `list_projects` query `ce-field-demos` — use the project on the confirmed team. Public and private teams are both valid.
 2. `list_issues` on that project. Match `FIELD_DEMO_ISSUES` titles in `runbooks/linear-field-demos.ts` when the user passed a title (the 201 paste uses titles).
 3. `get_issue` only when the user passed a real identifier (for example `CE-16`). Do **not** assume `LY-003` is the filter bug. After `stage-linear` on a `LY` team, identifiers follow create order: suggested-credit, then filter, then email — so `LY-003` is the email story.
 

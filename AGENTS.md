@@ -45,19 +45,19 @@ npm run dev
 
 Listens on **43173** (not 3000).
 
-### Private Linear team (manual, before 201 MCP)
+### Linear team (manual, before 201 MCP)
 
-Linear MCP cannot create teams. The operator creates a private team in the Linear UI, then an agent runs `stage-linear`.
+Linear MCP cannot create teams. Public and private teams are both valid. The operator picks a team they belong to, then an agent runs `stage-linear`.
 
-1. Open Linear → **Settings → Teams → New team**.
+1. Open Linear → **Settings → Teams → New team** only when they need a new team.
 2. Name it for this operator only (example: `{displayName}-field-demos`).
-3. Turn on **Make team private**. Team key can be **LY**. Settings URL looks like `https://linear.app/<workspace>/settings/teams/LY`.
-4. Members: **only the operator**. Do not add any other team.
+3. Leave it public, or turn on **Make team private**. Team key can be **LY**. Settings URL looks like `https://linear.app/<workspace>/settings/teams/LY`.
+4. When the team is private, members are **only the operator**.
 5. Run `stage-linear` to create or reconcile project `ce-field-demos` on that team with the three Fieldnote issues plus the nine Collections Command Center slices (same project, tagged with the feature note and a team-scoped label).
 
-`stage-linear` never guesses the team — it lists the operator's private teams and confirms the exact one before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project without unlinking (the team is retained; the next `stage-linear` reactivates the board).
+`stage-linear` never guesses the team — it lists the operator's teams and confirms the exact one before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project without unlinking (the team is retained; the next `stage-linear` reactivates the board).
 
-Do not `save_project` onto a public team. Do not add a local ticket board, ticket API, ticket MCP, or ticket marketplace plugin.
+Do not `save_project` onto a team the operator did not confirm. Do not add a local ticket board, ticket API, ticket MCP, or ticket marketplace plugin.
 
 ### Demo reset
 
@@ -105,7 +105,7 @@ Incomplete on purpose:
 | `.cursor/agents/dispute-verifier.md` | `/goal` and `/orchestrate` finish line |
 | `.cursor/agents/change-reviewer.md` | Read-only diff inspection. High, warning, and suggestion. |
 | `.cursor/skills/choose-cursor-workflow/` | Walk the 101, 201, or 301 track: modes, models, rules, skills, and finishing one task with an agent |
-| `.cursor/skills/stage-linear/` | Reconcile Fieldnote issues on the private `ce-field-demos` Linear project |
+| `.cursor/skills/stage-linear/` | Reconcile Fieldnote issues on the `ce-field-demos` Linear project. Public and private teams are both valid. |
 | `.cursor/skills/standard-bug-fix/` | `/standard-bug-fix` — pull one ce-field-demos Linear issue and fix only that bug |
 | `.cursor/skills/dispatch-subagents/` | Parallel Task launches |
 | `.cursor/skills/hand-to-cloud-agent/` | Cloud `/goal`, `/autopilot`, and `/orchestrate` |

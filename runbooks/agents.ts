@@ -30,7 +30,7 @@ export const PROJECT_SKILLS = [
   {
     name: "stage-linear",
     path: ".cursor/skills/stage-linear/SKILL.md",
-    when: "Reconcile Fieldnote issues on the private ce-field-demos Linear project.",
+    when: "Reconcile Fieldnote issues on the ce-field-demos Linear project.",
   },
   {
     name: "standard-bug-fix",

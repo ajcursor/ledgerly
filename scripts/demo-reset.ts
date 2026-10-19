@@ -334,17 +334,17 @@ async function cancelWithLinearApi(event: SessionEvent, report: Report) {
   try {
     const identity = await request(
       `query ResetIdentity($projectId: String!) {
-        viewer { id teams { nodes { id name key private } } }
+        viewer { id teams { nodes { id name key } } }
         project(id: $projectId) { id teams { nodes { id } } lead { id } }
       }`,
       { projectId: event.linear.projectId },
     );
-    const viewer = identity.viewer as { id: string; teams: { nodes: Array<{ id: string; name: string; key: string; private: boolean }> } };
+    const viewer = identity.viewer as { id: string; teams: { nodes: Array<{ id: string; name: string; key: string }> } };
     const project = identity.project as { id: string; teams: { nodes: Array<{ id: string }> }; lead: { id: string } | null };
     const team = viewer.teams.nodes.find((candidate) => candidate.id === event.linear!.teamId);
     const projectTeams = project.teams.nodes.map((candidate) => candidate.id);
-    if (!team?.private || team.name !== event.linear.teamName || team.key !== event.linear.teamKey || projectTeams.length !== 1 || projectTeams[0] !== team.id || project.lead?.id !== viewer.id) {
-      throw new Error("Recorded Linear board does not match the operator's exact private team.");
+    if (!team || team.name !== event.linear.teamName || team.key !== event.linear.teamKey || projectTeams.length !== 1 || projectTeams[0] !== team.id || project.lead?.id !== viewer.id) {
+      throw new Error("Recorded Linear board does not match the operator's exact team.");
     }
 
     const states = await request(
@@ -382,7 +382,7 @@ function remainingExternalActions(event: SessionEvent, report: Report) {
   if (event.linear && !report.completed.some((entry) => entry.includes(`Linear board ${event.linear!.projectId}`))) {
     report.remaining.push({
       kind: "linear",
-      detail: `Cancel recorded Linear project ${event.linear.projectId} and issues ${event.linear.issueIds.join(", ")} after confirming private team ${event.linear.teamName} (${event.linear.teamKey}).`,
+      detail: `Cancel recorded Linear project ${event.linear.projectId} and issues ${event.linear.issueIds.join(", ")} after confirming team ${event.linear.teamName} (${event.linear.teamKey}).`,
     });
   }
 }

@@ -82,7 +82,7 @@ Open `runbooks.html?track=201`, or switch to 201 with the Catalog menu in the Ca
 
 1. **How do you manage context?** — rename agents, Ask DDD (whole app vs `@invoice-table.tsx`), check context usage, compare agents, ask across chats.
 2. **How do you standardize agent behavior?** — personal create-api skill, promote it to the project.
-3. **How do you connect an agent to external tools?** — Linear MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. Create a private Linear team by hand, then run `stage-linear`.
+3. **How do you connect an agent to external tools?** — Linear MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. Use a public or private Linear team, then run `stage-linear`.
 4. **How do you parallelize a task?** — open a new agent, open the resolve-dispute plan, ledgerly-reviewer, dispatch-subagents skill, `/multitask`, Canvas subagent progress, ledgerly-reviewer check.
 
 ## The 301 track
@@ -94,19 +94,19 @@ Open `runbooks.html?track=301`, or switch to 301 with the Catalog menu in the Ca
 3. **How do you scale AI code reviews?** Feature branch, change reviewer subagent, high severity issues, optional Bugbot, highest-risk slice.
 4. **How do coworkers share ownership safely?** Shift findings into a rule, skill, hook, test, subagent, or a person, optional Reviewer automation, and files that might conflict.
 
-## Create the private Linear team (manual)
+## Choose the Linear team (manual)
 
-Linear MCP cannot create teams. Do this in the Linear UI **before** the 201 MCP section, on the operator’s account only.
+Linear MCP cannot create teams. Public and private teams are both valid. Do this in the Linear UI **before** the 201 MCP section when the operator does not already have a team.
 
 1. Open Linear → **Settings → Teams → New team**.
 2. Name it for this operator only (example: `{displayName}-field-demos`).
-3. Turn on **Make team private**. Team key can be **LY**. Confirm it at `https://linear.app/<workspace>/settings/teams/LY`.
-4. Members: **only you**. Do not add any other team.
+3. Leave it public, or turn on **Make team private**. Team key can be **LY**. Confirm it at `https://linear.app/<workspace>/settings/teams/LY`.
+4. When the team is private, members are **only you**.
 5. Then ask an agent to run `stage-linear`. That skill creates or reconciles project `ce-field-demos` on this team with the three Fieldnote issues plus the nine Collections Command Center slices, tagged as that feature.
 
-`stage-linear` never guesses the team — it lists your private teams and asks you to **confirm the exact one** before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project (issues stay linked; your team is retained for the next run).
+`stage-linear` never guesses the team — it lists your teams and asks you to **confirm the exact one** before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project (issues stay linked; your team is retained for the next run).
 
-Do not skip the private-team step. A project on a public team is visible to that team.
+A public team makes the project visible to that team.
 During a fresh setup, create issues sequentially: suggested-credit first, **Clicking Overdue or Needs review does not filter the queue** second, and invoice-email third.
 
 ## Agents and skills
@@ -118,7 +118,7 @@ During a fresh setup, create issues sequentially: suggested-credit first, **Clic
 | `dispute-verifier` | Dispute-resolution finish line. No product code. |
 | `change-reviewer` | Read-only diff inspection. Reports Passed, then Incomplete with high, warning, and suggestion findings for sensitive data, hard rollback, missing tests, edited failing tests, scope outside the plan, and new dependencies or shell commands. |
 | `choose-cursor-workflow` | Walk the 101, 201, or 301 track and pick the mode or model. |
-| `stage-linear` | Reconcile Fieldnote issues on the private `ce-field-demos` Linear project. |
+| `stage-linear` | Reconcile Fieldnote issues on the `ce-field-demos` Linear project. Public and private teams are both valid. |
 | `standard-bug-fix` | Pull one ce-field-demos Linear issue, then fix only that bug. |
 | `dispatch-subagents` | Parallel Task launches. |
 | `hand-to-cloud-agent` | Hand durable work to a Cloud Agent. |

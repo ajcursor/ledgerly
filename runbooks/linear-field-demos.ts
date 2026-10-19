@@ -152,7 +152,7 @@ export type CollectionsCommandCenterPattern = "Operations" | "Business rules";
 
 export const COLLECTIONS_COMMAND_CENTER_LINEAR = {
   feature: "Collections Command Center",
-  /** Team-scoped label on the confirmed private team. Never a workspace label. */
+  /** Team-scoped label on the confirmed team. Never a workspace label. */
   label: "Collections Command Center",
   /** First line of every slice description, so the tag survives a label strip. */
   note: "> **Collections Command Center feature.** This issue is one slice of the Collections Command Center (prds/prd-01-collections-command-center.md). It is not one of the three Fieldnote demo issues.",

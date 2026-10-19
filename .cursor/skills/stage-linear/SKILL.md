@@ -1,6 +1,6 @@
 ---
 name: stage-linear
-description: Create or reconcile the private ce-field-demos Linear board with its Fieldnote issues.
+description: Create or reconcile the ce-field-demos Linear board with its Fieldnote issues. Public and private teams are both valid.
 ---
 
 # Stage Linear
@@ -18,21 +18,19 @@ A WCAG audit already on that project (`WCAG_KEYBOARD_WALKTHROUGH`) is a manual k
 
 Do not invent another issue or a fourth price.
 
-## Isolation (required)
+## Team
 
-Linear privacy is **team** privacy. A project on a public or shared team is visible to that team.
+**Public and private teams are both valid.** A public team makes the project visible to that team. Linear MCP cannot create teams.
 
-The same steps are in `README.md`, `demo-howto.md`, and `AGENTS.md`. Repeat them if the operator has not done this yet:
+The same steps are in `README.md`, `demo-howto.md`, and `AGENTS.md`. Repeat them if the operator has no team yet:
 
 1. Open Linear → **Settings → Teams → New team**.
 2. Name it for this operator only (example: `{displayName}-field-demos`).
-3. Turn on **Make team private**. Team key can be **LY**. Settings URL looks like `https://linear.app/<workspace>/settings/teams/LY`.
-4. Members: **only the operator**. Do not add any other team.
-5. Do not attach the project to a public team later — that publishes it.
+3. Leave it public, or turn on **Make team private**. Team key can be **LY**. Settings URL looks like `https://linear.app/<workspace>/settings/teams/LY`.
+4. When the team is private, members are **only the operator**.
+5. Do not attach the project to a different team later.
 
-Workspace admins on some plans can still see private-team names in admin settings. That is Linear, not this skill. Do not put the board on a shared team to “share” it.
-
-If the operator has no private team yet, **stop**. Point them at those docs. Linear MCP cannot create teams. Do not `save_project` onto a public or shared team.
+If the operator has no team yet, **stop**. Point them at those docs. Linear MCP cannot create teams.
 
 ## 1. Linear MCP
 
@@ -42,33 +40,33 @@ Authenticate the Linear plugin (`mcp_auth` if tools are gated). Confirm `get_use
 
 If the user is a guest, stop.
 
-## 1a. Confirm the target private team (required)
+## 1a. Confirm the target team (required)
 
-Never **assume** which team to write to — not even when only one private team exists, and not from a name that looks like `{displayName}-field-demos`. An operator may name the team anything; confirm it, do not guess.
+Never **assume** which team to write to — not even when only one team exists, and not from a name that looks like `{displayName}-field-demos`. An operator may name the team anything; confirm it, do not guess. Public and private teams are both candidates.
 
-1. Build the candidate list: every **private** team on `me` (from `get_user` → `teams`, or `list_teams`). Public and shared teams are never candidates. Free-form names are fine — any team name is valid, not just `{displayName}-field-demos`.
+1. Build the candidate list: every team on `me` (from `get_user` → `teams`, or `list_teams`). Free-form names are fine — any team name is valid, not just `{displayName}-field-demos`.
 2. Present each candidate with: team name, team key (e.g. `LY`), privacy, and the settings URL `https://linear.app/<workspace>/settings/teams/<KEY>`.
-3. **Interactive run:** stop and have the operator confirm exactly one team before any write.
+3. **Interactive run:** stop and have the operator confirm exactly one team before any write. A team name already in the request is that confirmation when it matches exactly one candidate.
    **Non-interactive run (cloud/background):** require an explicit team name or ID in the request. If none was given, or more than one candidate matches it, stop and print the candidates — do not guess.
-4. If there are no private teams, stop and point the operator at the Isolation steps. Linear MCP cannot create teams.
+4. If the operator has no teams, stop and point them at the team steps. Linear MCP cannot create teams.
 5. Pin the confirmed team for the rest of the run. Every `save_project` and `save_issue` uses only that confirmed team ID or name.
 
 ## 2. Reconcile the project
 
 Search `list_projects` with query `ce-field-demos`, scoped to the confirmed team.
 
-- Reuse a project **only** when its `teams` are exactly the confirmed private team and `lead` is the operator (`me`).
-- If `ce-field-demos` already exists on a public or a different team, do **not** reuse it. Create `ce-field-demos ({displayName})` on the confirmed private team instead.
+- Reuse a project **only** when its `teams` are exactly the confirmed team and `lead` is the operator (`me`).
+- If `ce-field-demos` already exists on a different team, do **not** reuse it. Create `ce-field-demos ({displayName})` on the confirmed team instead.
 
-Create it with `save_project` only when it is missing. Otherwise update the existing private project in place:
+Create it with `save_project` only when it is missing. Otherwise update the existing project in place:
 
 - `name`: `ce-field-demos` (or the uniqued name above)
-- `setTeams`: the confirmed private team name or ID
+- `setTeams`: the confirmed team name or ID
 - `leadTeam`: that same team
 - `lead`: `"me"`
 - `state`: `Backlog` — not a company initiative
 - `summary`: from `LINEAR_FIELD_DEMOS_PROJECT.summary`
-- `description`: Fieldnote demo board. Three scoped issues plus the Collections Command Center slices. Personal. Private team only.
+- `description`: Fieldnote demo board. Three scoped issues plus the Collections Command Center slices. Personal. Confirmed team only.
 
 A prior `reset-demo-state` may leave this project `Canceled` with its issues `Canceled` and still attached (they are not unlinked on reset). Reactivate it: setting `state`: `Backlog` here reopens the board, and §3 sets those `Canceled` issues back to their catalog state. Archived issues are not reopened.
 
@@ -88,7 +86,7 @@ Create missing issues **sequentially** in the `FIELD_DEMO_ISSUES` array order. N
 
 Within a Fieldnote create batch, create them in that order, so the filter issue is second in the batch. Do not unarchive an older issue to keep an earlier timestamp. For each missing issue, `save_issue`:
 
-- `team`: the confirmed private team
+- `team`: the confirmed team
 - `project`: the project name or ID
 - `title`, `description`, `priority`, `state` from the catalog
 - `assignee`: `"me"` (the operator). Never create Avery Quinn as a Linear user.
@@ -106,7 +104,7 @@ Stage these **after** the three Fieldnote issues exist, on the **same** project.
 **Tag.** Every slice is marked as part of the Collections Command Center feature in two places:
 
 1. **Description note** — the description **starts** with `COLLECTIONS_COMMAND_CENTER_LINEAR.note`. Build the whole body with `collectionsCommandCenterDescription(issue)` (run it with `npx tsx -e` or read the function and assemble the same sections in the same order). Do not hand-write the note or drop the `Slice N of 9 · pattern · Covers …` line. That function writes the requirement ids with a non-breaking hyphen (`FR‑1`). Do not rewrite them to `FR-1`: Linear treats that as an issue key on the FR team.
-2. **Team-scoped label** — `COLLECTIONS_COMMAND_CENTER_LINEAR.label` (`Collections Command Center`) on the confirmed private team only. `list_issue_labels` for that team; if missing, `save_issue_label` with `name` and `teamId` = the confirmed team's UUID. Never omit `teamId` — that creates a workspace label, which this skill forbids. If the label exists on another team or the workspace, do not reuse it; skip the label and rely on the description note.
+2. **Team-scoped label** — `COLLECTIONS_COMMAND_CENTER_LINEAR.label` (`Collections Command Center`) on the confirmed team only. `list_issue_labels` for that team; if missing, `save_issue_label` with `name` and `teamId` = the confirmed team's UUID. Never omit `teamId` — that creates a workspace label, which this skill forbids. If the label exists on another team or the workspace, do not reuse it; skip the label and rely on the description note.
 
 **Reconcile.** `list_issues` on the project with `includeArchived: true`. Match a **non-archived** issue by **exact title** from `COLLECTIONS_COMMAND_CENTER_ISSUES`. For each such match, `save_issue` with its identifier, the current `title`, the rendered `description`, `priority`, `state`, and `addLabels: [label]` so copy and tag stay in sync. A non-archived match left `Canceled` by `reset-demo-state` is reused: set `state` back to `Todo`. Do not create a duplicate.
 
@@ -114,7 +112,7 @@ An archived slice is not a match. Do not unarchive it. Create a new issue for th
 
 Create missing slices **sequentially** in array order, after the three Fieldnote issues. Never in parallel. For each, `save_issue`:
 
-- `team`: the confirmed private team
+- `team`: the confirmed team
 - `project`: the same project as the Fieldnote issues
 - `title`: from the catalog
 - `description`: `collectionsCommandCenterDescription(issue)`
@@ -158,7 +156,7 @@ Report:
 - Project URL
 - Three Fieldnote issue identifiers + titles + URLs
 - Nine Collections Command Center identifiers + titles + URLs, and that each description starts with the feature note and carries the team label (or that the label was skipped and why)
-- That `teams` on the project is only the confirmed private team
+- That `teams` on the project is only the confirmed team
 - That the **unarchived, non-`Canceled`** issues on the project are exactly one of each of the three Fieldnote titles plus the nine Collections Command Center titles, and the WCAG issue only when that title was already on the board — ignore canceled and archived leftovers still linked from a prior reset or reconcile
 - When the WCAG issue is present: its description starts by saying the audit is a manual keyboard walkthrough, and it was not canceled as an extra
 - That the filter issue is second within its Fieldnote create batch
@@ -168,7 +166,7 @@ Runbook pastes use **titles**, not identifiers, so you do not edit runbook beats
 
 ## Record for reset
 
-After confirming the private team and all twelve **unarchived** issue identifiers (three Fieldnote, then nine Collections Command Center), record that board. When the WCAG keyboard-walkthrough issue is on the board, append its identifier after those twelve. Do not record archived identifiers:
+After confirming the team and all twelve **unarchived** issue identifiers (three Fieldnote, then nine Collections Command Center), record that board. When the WCAG keyboard-walkthrough issue is on the board, append its identifier after those twelve. Do not record archived identifiers:
 
 ```bash
 npm run demo:session -- record linear <teamId> "<teamName>" <teamKey> <projectId> <issueId,...,issueId>
@@ -186,7 +184,7 @@ The reset script will use only this recorded board. If a demo beat creates a new
 ## Never
 
 - Never unarchive an issue. Create a new issue for an archived catalog title and leave the archived one archived.
-- Never stage onto a public or shared Linear team.
+- Never stage onto a team the operator did not confirm.
 - Never put the Collections Command Center slices on a second project, and never add them to `FIELD_DEMO_ISSUES` or a runbook beat.
 - Never create a workspace-wide label; the feature label is team-scoped or skipped.
 - Never complete dispute resolution or migrate suggested-credit as part of staging.
