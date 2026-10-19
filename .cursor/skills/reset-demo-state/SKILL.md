@@ -11,7 +11,7 @@ Run the script first. It is the source of truth for local cleanup.
 npm run demo:reset
 ```
 
-The command restores tracked files with `git reset --hard HEAD`, switches to `main`, removes recorded demo rules, skills, Canvas files, and demo branches, removes the known project path `.cursor/agents/accessibility-auditor.md`, reseeds SQLite, restarts port 43173, and confirms **1 failed / 31 passed**. It leaves the suggested-credit client on v1 and filter pills writing `state=`. It never runs `git clean`, removes an unrecorded personal skill, or deletes the Linear team.
+The command restores tracked files with `git reset --hard HEAD`, switches to `main`, removes recorded demo rules, skills, Canvas files, and demo branches, removes the known project path `.cursor/agents/accessibility-auditor.md`, reseeds SQLite, restarts port 43173, and confirms **1 failed / 32 passed**. It leaves the suggested-credit client on v1 and filter pills writing `state=`. It never runs `git clean`, removes an unrecorded personal skill, or deletes the Linear team.
 
 ## Session events
 

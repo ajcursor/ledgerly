@@ -1,4 +1,5 @@
-import { RUNBOOK_TRACKS } from "@/runbooks/tracks";
+import { stripOptionalTags } from "@/runbooks/optional-tag";
+import { RUNBOOK_TRACKS, trackOptionalFeatures } from "@/runbooks/tracks";
 import type { DemoBeat, DemoSection } from "@/runbooks/types";
 
 export const STATIC_RUNBOOKS_PATH = "runbooks.html";
@@ -12,22 +13,112 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function renderBeat(beat: DemoBeat): string {
-  const detail = beat.detail ? `\n          <p class="detail">${escapeHtml(beat.detail)}</p>` : "";
-  const paste = beat.example
-    ? `
+function visibleText(value: string | undefined): string {
+  if (!value) return "";
+  return stripOptionalTags(value).text;
+}
+
+/** Feature carried on the beat, or parsed from a leftover `[Optional - Feature]` tag. */
+export function beatFeature(beat: DemoBeat): string | undefined {
+  if (beat.optional?.feature) return beat.optional.feature;
+  const chunks = [beat.say, beat.detail, beat.example, beat.title];
+  for (const part of beat.after ?? []) chunks.push(part.text);
+  for (const chunk of chunks) {
+    if (!chunk) continue;
+    const found = stripOptionalTags(chunk).features;
+    if (found[0]) return found[0];
+  }
+  return undefined;
+}
+
+function featureDomId(trackId: string, feature: string): string {
+  const slug = feature
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `feature-${trackId}-${slug}`;
+}
+
+export function renderBeatHtml(beat: DemoBeat): string {
+  return renderBeat(beat);
+}
+
+type CardBlock =
+  | { kind: "say"; text: string }
+  | { kind: "steps"; lines: string[] }
+  | { kind: "prompt"; text: string; label: string };
+
+function doLines(value: string): string[] {
+  return value
+    .split("\n")
+    .map((line) => visibleText(line))
+    .filter((line) => line.length > 0);
+}
+
+function cardBlocks(beat: DemoBeat): CardBlock[] {
+  const blocks: CardBlock[] = [];
+  const say = visibleText(beat.say);
+  if (say) blocks.push({ kind: "say", text: say });
+  const leading = doLines(beat.detail);
+  if (leading.length) blocks.push({ kind: "steps", lines: leading });
+  const example = visibleText(beat.example);
+  if (example) {
+    blocks.push({
+      kind: "prompt",
+      text: example,
+      label: beat.pasteLabel ?? "Paste in Grok Build",
+    });
+  }
+  for (const part of beat.after ?? []) {
+    const text = visibleText(part.text);
+    if (!text) continue;
+    if (part.kind === "do") {
+      const last = blocks[blocks.length - 1];
+      if (last?.kind === "steps") last.lines.push(text);
+      else blocks.push({ kind: "steps", lines: [text] });
+      continue;
+    }
+    blocks.push({
+      kind: "prompt",
+      text,
+      label: part.pasteLabel ?? "Paste in Grok Build",
+    });
+  }
+  return blocks;
+}
+
+function renderDo(lines: string[]): string {
+  const tag = lines.length > 1 ? "ol" : "ul";
+  const items = lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("");
+  return `
+          <div class="do-box">
+            <${tag}>${items}</${tag}>
+          </div>`;
+}
+
+function renderPrompt(text: string, label: string): string {
+  return `
           <div class="paste">
             <div class="paste-head">
-              <span>${escapeHtml(beat.pasteLabel ?? "Paste in Grok Build")}</span>
+              <span>${escapeHtml(label)}</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>${escapeHtml(beat.example)}</pre>
-          </div>`
-    : "";
-  const optionalClass = beat.optional ? " optional" : "";
+            <pre>${escapeHtml(text)}</pre>
+          </div>`;
+}
+
+function renderBlock(block: CardBlock): string {
+  if (block.kind === "say") return `\n          <p class="say">${escapeHtml(block.text)}</p>`;
+  if (block.kind === "steps") return renderDo(block.lines);
+  return renderPrompt(block.text, block.label);
+}
+
+function renderBeat(beat: DemoBeat): string {
+  const feature = beatFeature(beat);
+  const featureAttr = feature ? ` data-feature="${escapeHtml(feature)}"` : "";
   return `
-        <article class="beat${optionalClass}" data-beat="${escapeHtml(beat.id)}">
-          <h4>${escapeHtml(beat.title)}</h4>${detail}${paste}
+        <article class="beat" data-beat="${escapeHtml(beat.id)}"${featureAttr}>
+          <h4>${escapeHtml(beat.title)}</h4>${cardBlocks(beat).map(renderBlock).join("")}
         </article>`;
 }
 
@@ -40,14 +131,32 @@ function renderSection(trackId: string, section: DemoSection): string {
       </section>`;
 }
 
-function renderOptionalToggle(track: (typeof RUNBOOK_TRACKS)[number]): string {
-  const hasOptional = track.sections.some((section) => section.beats.some((beat) => beat.optional));
-  if (!hasOptional) return "";
+function renderFeatureChecklist(track: (typeof RUNBOOK_TRACKS)[number]): string {
+  const features = trackOptionalFeatures(track);
+  if (features.length === 0) return "";
+  const boxes = features
+    .map((feature) => {
+      const id = featureDomId(track.id, feature);
+      return `
+        <label class="feature-option" for="${id}">
+          <input id="${id}" class="feature-toggle" type="checkbox" data-track="${escapeHtml(track.id)}" data-feature="${escapeHtml(feature)}" checked>
+          ${escapeHtml(feature)}
+        </label>`;
+    })
+    .join("");
   return `
-      <label class="optional-toggle" for="include-optional">
-        <input id="include-optional" class="include-optional" type="checkbox">
-        Include optional cards
-      </label>`;
+      <fieldset class="feature-checklist">
+        <legend>Optional features</legend>${boxes}
+      </fieldset>`;
+}
+
+function renderFeatureCss(): string {
+  return RUNBOOK_TRACKS.flatMap((track) =>
+    trackOptionalFeatures(track).map((feature) => {
+      const name = escapeHtml(feature);
+      return `.track[data-track="${track.id}"]:has(.feature-toggle[data-feature="${name}"]:not(:checked)) .beat[data-feature="${name}"] { display: none; }`;
+    }),
+  ).join("\n    ");
 }
 
 function renderTrack(track: (typeof RUNBOOK_TRACKS)[number]): string {
@@ -57,7 +166,7 @@ function renderTrack(track: (typeof RUNBOOK_TRACKS)[number]): string {
   return `
     <div class="track" data-track="${track.id}">
       <h2>${escapeHtml(track.title)}</h2>
-      <p class="lede">${escapeHtml(track.description)}</p>${renderOptionalToggle(track)}
+      <p class="lede">${escapeHtml(track.description)}</p>${renderFeatureChecklist(track)}
       <nav class="tabs" aria-label="${track.id} sections">
         ${tabs}
       </nav>${track.sections.map((section) => renderSection(track.id, section)).join("")}
@@ -68,8 +177,9 @@ function renderTrack(track: (typeof RUNBOOK_TRACKS)[number]): string {
  * Self-contained runbooks page: no app server, no network, no build step.
  * Every track is pre-rendered so the file still reads top to bottom with
  * scripts disabled; the script only hides tracks other than `?track=`.
- * Optional cards stay in the markup and stay hidden until Include optional
- * cards is checked. That checkbox is CSS, so it works with scripts disabled.
+ * Optional beats stay in the markup. Each track lists its optional features
+ * as checkboxes, checked by default. Unchecking a feature hides its beats.
+ * The choice is stored in localStorage. Required beats are always shown.
  */
 export function renderRunbooksHtml(): string {
   const options = RUNBOOK_TRACKS.map(
@@ -91,6 +201,7 @@ export function renderRunbooksHtml(): string {
       --paper: #f7f7fb;
       --paper-elevated: #ffffff;
       --line: #e5e7eb;
+      --indigo-soft: #eef2ff;
       --muted: #f3f4f6;
       --success: #059669;
       --radius: 0.625rem;
@@ -128,7 +239,17 @@ export function renderRunbooksHtml(): string {
       border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper-elevated);
     }
     h4 { margin: 0; font-size: 0.875rem; }
-    .detail { margin: -0.375rem 0 0; color: var(--ink-soft); font-size: 0.75rem; white-space: pre-line; }
+    .say { margin: 0; color: var(--ink-soft); font-size: 0.75rem; white-space: pre-line; }
+    .do-box, pre {
+      margin: 0; padding: 0.75rem; overflow: auto;
+      border: 1px solid var(--line); border-radius: var(--radius);
+    }
+    .do-box {
+      background: var(--indigo-soft); color: var(--ink);
+      font: 0.75rem/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .do-box ol, .do-box ul { margin: 0; padding-left: 1.25rem; }
+    .do-box li + li { margin-top: 0.25rem; }
     .paste { margin-top: auto; }
     .paste-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem; font-weight: 500; }
     .copy {
@@ -137,17 +258,27 @@ export function renderRunbooksHtml(): string {
     }
     .copy.done { color: var(--success); border-color: var(--success); }
     pre {
-      margin: 0; padding: 0.75rem; overflow: auto; white-space: pre-wrap;
-      border: 1px solid var(--line); border-radius: var(--radius); background: var(--muted);
+      white-space: pre-wrap; background: var(--muted);
       font: 0.75rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
     }
     .track[hidden] { display: none; }
-    label.optional-toggle {
-      display: flex; align-items: center; gap: 0.5rem;
-      margin: 0.75rem 0 0; font-size: 0.8125rem; font-weight: 500; cursor: pointer;
+    .feature-checklist {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+      margin: 1rem 0 0; padding: 0; border: 0;
     }
-    .optional-toggle input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--indigo); }
-    .track:not(:has(.include-optional:checked)) .beat.optional { display: none; }
+    .feature-checklist legend {
+      padding: 0; margin: 0 0.25rem 0 0;
+      font-size: 0.75rem; font-weight: 500; color: var(--ink);
+    }
+    .tabs a, label.feature-option {
+      flex-shrink: 0; display: flex; align-items: center; gap: 0.5rem;
+      margin: 0; padding: 0.375rem 0.75rem;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--paper-elevated); color: var(--ink);
+      font-size: 0.8125rem; font-weight: 400; text-decoration: none; cursor: pointer;
+    }
+    .feature-option input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--indigo); }
+    ${renderFeatureCss()}
   </style>
 </head>
 <body>
@@ -208,20 +339,36 @@ ${RUNBOOK_TRACKS.map(renderTrack).join("\n")}
         }
       });
 
-      var optionalToggle = document.querySelector(".include-optional");
-      if (optionalToggle) {
-        optionalToggle.checked = params.get("optional") === "1";
-        optionalToggle.addEventListener("change", function () {
-          try {
-            var url = new URL(window.location.href);
-            if (optionalToggle.checked) url.searchParams.set("optional", "1");
-            else url.searchParams.delete("optional");
-            history.replaceState(null, "", url.toString());
-          } catch (err) {
-            // Canvas embeds this page as srcdoc, which has no URL to update.
-          }
-        });
+      var FEATURE_KEY = "ledgerly-runbooks-optional-features";
+      function readFeatures() {
+        try {
+          var raw = localStorage.getItem(FEATURE_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch (err) {
+          return {};
+        }
       }
+      function writeFeatures(state) {
+        try {
+          localStorage.setItem(FEATURE_KEY, JSON.stringify(state));
+        } catch (err) {
+          // Private browsing can reject storage. The checkbox still toggles.
+        }
+      }
+      var savedFeatures = readFeatures();
+      Array.prototype.forEach.call(document.querySelectorAll(".feature-toggle"), function (box) {
+        var trackId = box.getAttribute("data-track");
+        var featureName = box.getAttribute("data-feature");
+        var trackState = savedFeatures[trackId] || {};
+        box.checked = trackState[featureName] !== false;
+        box.addEventListener("change", function () {
+          var state = readFeatures();
+          if (!state[trackId]) state[trackId] = {};
+          if (box.checked) delete state[trackId][featureName];
+          else state[trackId][featureName] = false;
+          writeFeatures(state);
+        });
+      });
 
       function fallbackCopy(text) {
         var area = document.createElement("textarea");

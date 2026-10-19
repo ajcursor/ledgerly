@@ -14,7 +14,7 @@ Fictional billing ops SaaS. Fieldnote Workspace. Operator Avery Quinn. No auth. 
 
 Catalog prices are frozen: Starter **$49**, Growth **$99**, Scale **$249**. Never invent a fourth price, live ARR, or a real customer name.
 
-This is a **Grok Build demo app** with three jumpable tracks: 101, 201, and 301. Runbook beats live in `runbooks/meta.ts` and in `runbooks.html`. `start-ledgerly` renders that file in a Cursor Canvas. Regenerate it with `npm run runbooks:export` whenever beats change — `tests/runbooks.test.ts` fails if it drifts. Open `runbooks.html?track=301` for the 301 track. Optional cards stay hidden until Include optional cards is checked. The presenter run-of-show is `demo-howto.md`. Project subagents live in `.cursor/agents/`. Skills live in `.cursor/skills/`. Do not add talk-track or speaker-note skills. Do not reintroduce retired Advanced runbooks without a request.
+This is a **Grok Build demo app** with three jumpable tracks: 101, 201, and 301. Runbook beats live in `runbooks/meta.ts` and in `runbooks.html`. `start-ledgerly` renders that file in a Cursor Canvas. Regenerate it with `npm run runbooks:export` whenever beats change — `tests/runbooks.test.ts` fails if it drifts. Open `runbooks.html?track=301` for the 301 track. Optional features are checkboxes, checked by default. Uncheck a feature to hide its beats. The choice is saved in the browser. The presenter run-of-show is `demo-howto.md`. Project subagents live in `.cursor/agents/`. Skills live in `.cursor/skills/`. Do not add talk-track or speaker-note skills. Do not reintroduce retired Advanced runbooks without a request.
 
 ## Grok Build Cloud specific instructions
 
@@ -73,7 +73,7 @@ One test fails on a clean tree: `tests/suggested-credit-api.test.ts` expects the
 
 Passing tests include `tests/money.test.ts` and `tests/plans.test.ts`. Environment start seeds the database and runs only the passing tests so a red suite cannot mark the machine as failed to boot.
 
-Shipped suite on a clean tree: **1 failed / 31 passed**. The `dsp_1043` page shows v1's $400 result; v2 and the stored credit are correctly capped at $249. Invoice and dispute status pills write `state=` while the pages read `status` — that click path is a separate planted UI seam, not a second red test. Do not volunteer it when explaining the app or the failing test; only when the user is on that click path.
+Shipped suite on a clean tree: **1 failed / 32 passed**. The `dsp_1043` page shows v1's $400 result; v2 and the stored credit are correctly capped at $249. Invoice and dispute status pills write `state=` while the pages read `status` — that click path is a separate planted UI seam, not a second red test. Do not volunteer it when explaining the app or the failing test; only when the user is on that click path.
 
 WCAG checks live in `tests/a11y/` and run separately with `npm run test:a11y`; `npm test` excludes them, so they do not change the shipped count. They check 4.5:1 text contrast for the token pairs in `app/globals.css` (light and dark) and labels on form controls, buttons, links, and images. The suite is red today on contrast only; label checks pass. Failing pairs: light `--success`, `--warning`, and `--danger` on their `-soft` badge backgrounds; light `--muted-foreground` on `--muted` and on `--indigo-soft`; light `--success` on `--card`; and dark `--danger` on `--danger-soft`. Keep `test:a11y` out of `npm test`, the environment start command, and `scripts/demo-reset.ts`.
 

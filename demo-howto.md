@@ -21,7 +21,7 @@ The 201 track has four sections. Open `runbooks.html?track=201` and copy a card 
 3. **How do you connect an agent to external tools?** — [Linear team](#choose-the-linear-team-manual), Linear MCP, list open issues, import plugin from disk
 4. **How do you parallelize a task?** — [open a new agent](#open-the-plan), resolve-dispute plan, `/multitask`, Canvas subagent progress, ledgerly-reviewer check
 
-The 301 track has four sections. Open `runbooks.html?track=301` and copy a card for any beat. Optional cards stay hidden until Include optional cards is checked.
+The 301 track has four sections. Open `runbooks.html?track=301` and copy a card for any beat. Optional features are checkboxes, checked by default. Uncheck a feature to hide its beats. The choice is saved in the browser.
 
 1. **How do you break down tasks for agents?** Open a local agent, create accessibility-auditor, use a cost-efficient model, optionally move to a Cloud Agent, `/multitask` the audit
 2. **How do multiple agents go from plan to PR?** Optionally start a Project, list collections issues, plan and build, `/side`, consolidate into a PR
@@ -62,7 +62,7 @@ Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` ski
 
 Check shipped state:
 
-- `npm test` is **1 failed / 31 passed**; the sole failure is `tests/suggested-credit-api.test.ts`
+- `npm test` is **1 failed / 32 passed**; the sole failure is `tests/suggested-credit-api.test.ts`
 - [http://127.0.0.1:43173/disputes/dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043) shows **Suggested credit $400.00** in red, above the Scale price of **$249**
 - The deprecated v1 route returns the $400 claim; v2, the domain helper, and the seed store the correct $249 credit
 - Accept credit / Decline are disabled — that unfinished resolution UI is separate from the planted API-version error
@@ -231,12 +231,12 @@ Create three slides in Figma Slides outlining how I used Grok Build to develop a
 ```text
 Run npm test and report which tests passed and which failed. Do not edit any files.
 
-On a clean tree, npm test is 1 failed / 31 passed. The sole red test is tests/suggested-credit-api.test.ts because the client intentionally selects deprecated v1. Do not change the test, either route, or the seed.
+On a clean tree, npm test is 1 failed / 32 passed. The sole red test is tests/suggested-credit-api.test.ts because the client intentionally selects deprecated v1. Do not change the test, either route, or the seed.
 ```
 
 **If the client migration ran:** `tests/suggested-credit-api.test.ts` should be green and dsp_1043 should show **$249** from v2, with both routes intact.
 
-**If no migration ran:** `npm test` should remain **1 failed / 31 passed**. That is shipped state, not failed setup.
+**If no migration ran:** `npm test` should remain **1 failed / 32 passed**. That is shipped state, not failed setup.
 
 **Land:** A green check is evidence, not permission to merge. The presenter remains accountable.
 
@@ -256,7 +256,7 @@ npm run demo:reset
 
 **Then:** complete only the script's reported Figma, Cursor user-rule, or Linear MCP actions. The script resets files, recorded rules/skills, Canvas, branches, SQLite, and port 43173.
 
-**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **1 failed / 31 passed**, status pills still writing `state=`.
+**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **1 failed / 32 passed**, status pills still writing `state=`.
 
 ---
 
@@ -341,7 +341,7 @@ ledgerly-reviewer check my work
 
 ## The 301 track
 
-Open `runbooks.html?track=301`. Four section tabs match the Outline Show headings. Copy a card; Do text and prompts are on the card. Optional cards stay hidden until Include optional cards is checked. Their titles still start with Optional.
+Open `runbooks.html?track=301`. Four section tabs match the Outline Show headings. Copy a card; Do text and prompts are on the card. Optional features are checkboxes, checked by default. Uncheck a feature to hide its beats. The choice is saved in the browser. Optional beats are listed on the feature checklist.
 
 ### How do you break down tasks for agents?
 

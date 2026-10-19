@@ -15,7 +15,7 @@ The demo ships three jumpable tracks: **101**, **201**, and **301**. Every beat 
 
 301: You will orchestrate work across agents, tasks, and coworkers: break tasks down for multiple agents, take a plan through parallel agents to a reviewable PR, scale review when several streams finish, and share ownership safely.
 
-The beats live in `runbooks/meta.ts` and in `runbooks.html`, which `start-ledgerly` renders in a Cursor Canvas. Open `runbooks.html?track=301` for the 301 track. Optional cards stay hidden until Include optional cards is checked. Use the matching `example` verbatim. Do not invent another catalog price.
+The beats live in `runbooks/meta.ts` and in `runbooks.html`, which `start-ledgerly` renders in a Cursor Canvas. Open `runbooks.html?track=301` for the 301 track. Optional features are checkboxes, checked by default. Uncheck a feature to hide its beats. The choice is saved in the browser. Use the matching `example` verbatim. Do not invent another catalog price.
 
 The named demo error is `dsp_1043` / the suggested-credit v1 client. Do not mention the invoice or dispute filter-pill `state=` seam unless the user is on that click path.
 

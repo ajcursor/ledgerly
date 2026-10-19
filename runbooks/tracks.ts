@@ -37,3 +37,15 @@ export type RunbookTrack = (typeof RUNBOOK_TRACKS)[number];
 export function getRunbookTrack(track: string): RunbookTrack | undefined {
   return RUNBOOK_TRACKS.find((entry) => entry.id === track);
 }
+
+/** Distinct optional features on a track, in first-seen order. */
+export function trackOptionalFeatures(track: RunbookTrack): string[] {
+  const seen: string[] = [];
+  for (const section of track.sections) {
+    for (const beat of section.beats) {
+      const feature = "optional" in beat ? beat.optional?.feature : undefined;
+      if (feature && !seen.includes(feature)) seen.push(feature);
+    }
+  }
+  return seen;
+}

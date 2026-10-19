@@ -13,6 +13,7 @@
       --paper: #f7f7fb;
       --paper-elevated: #ffffff;
       --line: #e5e7eb;
+      --indigo-soft: #eef2ff;
       --muted: #f3f4f6;
       --success: #059669;
       --radius: 0.625rem;
@@ -50,7 +51,17 @@
       border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper-elevated);
     }
     h4 { margin: 0; font-size: 0.875rem; }
-    .detail { margin: -0.375rem 0 0; color: var(--ink-soft); font-size: 0.75rem; white-space: pre-line; }
+    .say { margin: 0; color: var(--ink-soft); font-size: 0.75rem; white-space: pre-line; }
+    .do-box, pre {
+      margin: 0; padding: 0.75rem; overflow: auto;
+      border: 1px solid var(--line); border-radius: var(--radius);
+    }
+    .do-box {
+      background: var(--indigo-soft); color: var(--ink);
+      font: 0.75rem/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .do-box ol, .do-box ul { margin: 0; padding-left: 1.25rem; }
+    .do-box li + li { margin-top: 0.25rem; }
     .paste { margin-top: auto; }
     .paste-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem; font-weight: 500; }
     .copy {
@@ -59,17 +70,30 @@
     }
     .copy.done { color: var(--success); border-color: var(--success); }
     pre {
-      margin: 0; padding: 0.75rem; overflow: auto; white-space: pre-wrap;
-      border: 1px solid var(--line); border-radius: var(--radius); background: var(--muted);
+      white-space: pre-wrap; background: var(--muted);
       font: 0.75rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
     }
     .track[hidden] { display: none; }
-    label.optional-toggle {
-      display: flex; align-items: center; gap: 0.5rem;
-      margin: 0.75rem 0 0; font-size: 0.8125rem; font-weight: 500; cursor: pointer;
+    .feature-checklist {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+      margin: 1rem 0 0; padding: 0; border: 0;
     }
-    .optional-toggle input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--indigo); }
-    .track:not(:has(.include-optional:checked)) .beat.optional { display: none; }
+    .feature-checklist legend {
+      padding: 0; margin: 0 0.25rem 0 0;
+      font-size: 0.75rem; font-weight: 500; color: var(--ink);
+    }
+    .tabs a, label.feature-option {
+      flex-shrink: 0; display: flex; align-items: center; gap: 0.5rem;
+      margin: 0; padding: 0.375rem 0.75rem;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--paper-elevated); color: var(--ink);
+      font-size: 0.8125rem; font-weight: 400; text-decoration: none; cursor: pointer;
+    }
+    .feature-option input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--indigo); }
+    .track[data-track="301"]:has(.feature-toggle[data-feature="Cloud Agents"]:not(:checked)) .beat[data-feature="Cloud Agents"] { display: none; }
+    .track[data-track="301"]:has(.feature-toggle[data-feature="Projects"]:not(:checked)) .beat[data-feature="Projects"] { display: none; }
+    .track[data-track="301"]:has(.feature-toggle[data-feature="Bugbot"]:not(:checked)) .beat[data-feature="Bugbot"] { display: none; }
+    .track[data-track="301"]:has(.feature-toggle[data-feature="Automations"]:not(:checked)) .beat[data-feature="Automations"] { display: none; }
   </style>
 </head>
 <body>
@@ -97,7 +121,9 @@
         <div class="beats">
         <article class="beat" data-beat="ask">
           <h4>Ask</h4>
-          <p class="detail">Let’s learn more about the application with Ask mode.</p>
+          <div class="do-box">
+            <ul><li>Let’s learn more about the application with Ask mode.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -108,7 +134,9 @@
         </article>
         <article class="beat" data-beat="plan">
           <h4>Plan</h4>
-          <p class="detail">Map your approach to building a new feature in Plan mode.</p>
+          <div class="do-box">
+            <ul><li>Map your approach to building a new feature in Plan mode.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -119,11 +147,15 @@
         </article>
         <article class="beat" data-beat="agent-build">
           <h4>Build in Agent mode</h4>
-          <p class="detail">Build the feature in Agent mode. Build the plan locally. Check the feature in the UI.</p>
+          <div class="do-box">
+            <ul><li>Build the feature in Agent mode. Build the plan locally. Check the feature in the UI.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="debug">
           <h4>Debug</h4>
-          <p class="detail">Investigate the failing test using Debug mode. Debug mode is useful because the agent investigates the codebase and presents some hypothesis on the root cause. I can choose to reproduce the bug and attempt to fix based on the agent’s hypotheses.</p>
+          <div class="do-box">
+            <ul><li>Investigate the failing test using Debug mode. Debug mode is useful because the agent investigates the codebase and presents some hypothesis on the root cause. I can choose to reproduce the bug and attempt to fix based on the agent’s hypotheses.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -134,11 +166,15 @@
         </article>
         <article class="beat" data-beat="model-fast">
           <h4>Check the models</h4>
-          <p class="detail">Check the models available for use. Select Auto in the chat and review the models available for use.</p>
+          <div class="do-box">
+            <ul><li>Check the models available for use. Select Auto in the chat and review the models available for use.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="fix">
           <h4>Plan to fix the bug</h4>
-          <p class="detail">Use shift-tab to toggle to Agent mode.</p>
+          <div class="do-box">
+            <ul><li>Use shift-tab to toggle to Agent mode.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -154,11 +190,15 @@
         <div class="beats">
         <article class="beat" data-beat="allowlist">
           <h4>Run Mode Allowlist</h4>
-          <p class="detail">Let’s change how our agent asks for approvals by configuring an allowlist - a known set of commands that Grok Build can run without asking for review. Go to Settings &gt; Agents &gt; Executions &amp; Approvals &gt; Run Mode &gt; Allowlist.</p>
+          <div class="do-box">
+            <ul><li>Let’s change how our agent asks for approvals by configuring an allowlist - a known set of commands that Grok Build can run without asking for review. Go to Settings &gt; Agents &gt; Executions &amp; Approvals &gt; Run Mode &gt; Allowlist.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="verify-email">
           <h4>Verify the email feature</h4>
-          <p class="detail">Go to http://localhost:43173/invoices/inv_1048. Find the edit email feature you implemented in the Customer box.</p>
+          <div class="do-box">
+            <ul><li>Go to http://localhost:43173/invoices/inv_1048. Find the edit email feature you implemented in the Customer box.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="start-and-stop">
           <h4>Redact (partial)</h4>
@@ -172,11 +212,15 @@
         </article>
         <article class="beat" data-beat="stop">
           <h4>Stop the prompt</h4>
-          <p class="detail">Stop the prompt with the Stop button in the chat.</p>
+          <div class="do-box">
+            <ul><li>Stop the prompt with the Stop button in the chat.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="interrupt-steer">
           <h4>Interrupt and steer</h4>
-          <p class="detail">Steer the prompt. Show how the agent pauses for your approval. Continue running after reviewing the first file.</p>
+          <div class="do-box">
+            <ul><li>Steer the prompt. Show how the agent pauses for your approval. Continue running after reviewing the first file.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -197,11 +241,15 @@
         </article>
         <article class="beat" data-beat="diffs">
           <h4>Review diffs</h4>
-          <p class="detail">Select Changes in the right hand panel. Show diffs from agent’s last turn.</p>
+          <div class="do-box">
+            <ul><li>Select Changes in the right hand panel. Show diffs from agent’s last turn.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="checkpoint-restore">
           <h4>Restore from a checkpoint</h4>
-          <p class="detail">If I want to revert the code, I can restore from a checkpoint. Scroll back to a prompt before updating the feature. Select the restore icon next to the prompt.</p>
+          <div class="do-box">
+            <ul><li>If I want to revert the code, I can restore from a checkpoint. Scroll back to a prompt before updating the feature. Select the restore icon next to the prompt.</li></ul>
+          </div>
         </article>
         </div>
       </section>
@@ -210,7 +258,9 @@
         <div class="beats">
         <article class="beat" data-beat="rule">
           <h4>Create a user rule</h4>
-          <p class="detail">Let’s create a user rule so the agent doesn’t try to improve the invoice UI without our approval. Use /create-rule, a built-in skill, to create a rule. Go to Customize &gt; Rules &gt; User to view the rule.</p>
+          <div class="do-box">
+            <ul><li>Let’s create a user rule so the agent doesn’t try to improve the invoice UI without our approval. Use /create-rule, a built-in skill, to create a rule. Go to Customize &gt; Rules &gt; User to view the rule.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -231,7 +281,9 @@
         </article>
         <article class="beat" data-beat="skill">
           <h4>Create a user skill</h4>
-          <p class="detail">Let’s create a user skill that tells me the domain breakdown and available APIs. Go to Customize &gt; Skills to view the skill.</p>
+          <div class="do-box">
+            <ul><li>Let’s create a user skill that tells me the domain breakdown and available APIs. Go to Customize &gt; Skills to view the skill.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -252,7 +304,9 @@
         </article>
         <article class="beat" data-beat="canvas">
           <h4>Canvas</h4>
-          <p class="detail">Use Canvas to generate interactive artifacts that render next to the chat.</p>
+          <div class="do-box">
+            <ul><li>Use Canvas to generate interactive artifacts that render next to the chat.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -263,7 +317,9 @@
         </article>
         <article class="beat" data-beat="mcp">
           <h4>MCP / Figma</h4>
-          <p class="detail">Ask Grok Build to create a slideshow in Figma using MCP Servers. Find an MCP server for slideshow generation in Grok Build. Go to Customize &gt; MCPs &gt; Figma.</p>
+          <div class="do-box">
+            <ul><li>Ask Grok Build to create a slideshow in Figma using MCP Servers. Find an MCP server for slideshow generation in Grok Build. Go to Customize &gt; MCPs &gt; Figma.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -290,7 +346,9 @@
         <div class="beats">
         <article class="beat" data-beat="rename-agent-1-all">
           <h4>Rename Agent 1 All</h4>
-          <p class="detail">Open one agent and ask it for information about the entire codebase.</p>
+          <div class="do-box">
+            <ul><li>Open one agent and ask it for information about the entire codebase.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -311,7 +369,9 @@
         </article>
         <article class="beat" data-beat="rename-agent-2-target">
           <h4>Rename Agent 2 Target</h4>
-          <p class="detail">Open a second agent for a new targeted context window.</p>
+          <div class="do-box">
+            <ul><li>Open a second agent for a new targeted context window.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -332,15 +392,21 @@
         </article>
         <article class="beat" data-beat="context-usage">
           <h4>Check context usage</h4>
-          <p class="detail">Go to Agent 1 All chat. Click the Context Usage indicator below the chat. Go to Agent 2 Target. Click the Context Usage indicator below the chat.</p>
+          <div class="do-box">
+            <ul><li>Go to Agent 1 All chat. Click the Context Usage indicator below the chat. Go to Agent 2 Target. Click the Context Usage indicator below the chat.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="compare-agents">
           <h4>Compare agents</h4>
-          <p class="detail">Agent 1 maps all the domains in the whole codebase. Its context window shows X%. Agent 2 maps half of the domains based on the targeted context. Its context window shows Y%. The difference in context window may not be significant but can affect larger repositories.</p>
+          <div class="do-box">
+            <ul><li>Agent 1 maps all the domains in the whole codebase. Its context window shows X%. Agent 2 maps half of the domains based on the targeted context. Its context window shows Y%. The difference in context window may not be significant but can affect larger repositories.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="ask-cross-context">
           <h4>Ask across agents</h4>
-          <p class="detail">Agent 1 mapped all domains; Agent 2 can reuse that summary. Go to Agent 2 Target chat.</p>
+          <div class="do-box">
+            <ul><li>Agent 1 mapped all domains; Agent 2 can reuse that summary. Go to Agent 2 Target chat.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -356,7 +422,9 @@
         <div class="beats">
         <article class="beat" data-beat="create-api-personal-skill">
           <h4>Create personal create-api skill</h4>
-          <p class="detail">Open a new agent. It scans the entire repository for the pattern. Create a personal skill for how to create a new API. Open skill in ~/.cursor/skills.</p>
+          <div class="do-box">
+            <ul><li>Open a new agent. It scans the entire repository for the pattern. Create a personal skill for how to create a new API. Open skill in ~/.cursor/skills.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -367,7 +435,9 @@
         </article>
         <article class="beat" data-beat="promote-create-api-project">
           <h4>Promote create-api to project</h4>
-          <p class="detail">Promote the create-api skill so teammates can use it. Open skill in .cursor/skills. Review the other project skills for this repository, such as add-dashboard-widget, draft-collection-email, or write-prisma-query.</p>
+          <div class="do-box">
+            <ul><li>Promote the create-api skill so teammates can use it. Open skill in .cursor/skills. Review the other project skills for this repository, such as add-dashboard-widget, draft-collection-email, or write-prisma-query.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -383,15 +453,21 @@
         <div class="beats">
         <article class="beat" data-beat="add-linear-mcp">
           <h4>Enable Linear MCP</h4>
-          <p class="detail">Let’s start the issue tracker’s MCP server. For this workshop, that is Linear. Get a ticket for this project. Review MCP servers in Customize &gt; MCPs. Enable the Linear MCP server.</p>
+          <div class="do-box">
+            <ul><li>Let’s start the issue tracker’s MCP server. For this workshop, that is Linear. Get a ticket for this project. Review MCP servers in Customize &gt; MCPs. Enable the Linear MCP server.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="mcp-allowlist">
           <h4>Check MCP allowlist</h4>
-          <p class="detail">Go to Settings &gt; Agents &gt; Execution and Approvals &gt; Allowlist Options &gt; MCP Allowlist to check valid MCP servers and tools from your administrator.</p>
+          <div class="do-box">
+            <ul><li>Go to Settings &gt; Agents &gt; Execution and Approvals &gt; Allowlist Options &gt; MCP Allowlist to check valid MCP servers and tools from your administrator.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="ask-linear-bug">
           <h4>List open issues</h4>
-          <p class="detail">Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Linear MCP server.</p>
+          <div class="do-box">
+            <ul><li>Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Linear MCP server.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -402,15 +478,21 @@
         </article>
         <article class="beat" data-beat="add-local-plugin">
           <h4>Add plugin</h4>
-          <p class="detail">A teammate created a plugin for standardizing bug fixes. Go to Customize &gt; Plugins &gt; Add &gt; From Local Repository. Find the plugins/standard-bug-fix file directory and add it.</p>
+          <div class="do-box">
+            <ul><li>A teammate created a plugin for standardizing bug fixes. Go to Customize &gt; Plugins &gt; Add &gt; From Local Repository. Find the plugins/standard-bug-fix file directory and add it.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="check-plugin">
           <h4>Enable Standard bug fix plugin</h4>
-          <p class="detail">Go to Customize &gt; Plugins. Go to Personal. Click Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server.</p>
+          <div class="do-box">
+            <ul><li>Go to Customize &gt; Plugins. Go to Personal. Click Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="standard-bug-fix">
           <h4>Standard bug fix</h4>
-          <p class="detail">Let’s fix the bug and update the issue with the standard template. Go to the issue in Linear and review the comments following the bug template.</p>
+          <div class="do-box">
+            <ul><li>Let’s fix the bug and update the issue with the standard template. Go to the issue in Linear and review the comments following the bug template.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -426,23 +508,33 @@
         <div class="beats">
         <article class="beat" data-beat="open-new-agent">
           <h4>Open a new agent</h4>
-          <p class="detail">Open a new agent.</p>
+          <div class="do-box">
+            <ul><li>Open a new agent.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="open-resolve-dispute-plan">
           <h4>Open resolve-dispute plan</h4>
-          <p class="detail">Open .cursor/plans/resolve-dispute.md. Review the plan and how it splits data, API, and UI tasks.</p>
+          <div class="do-box">
+            <ul><li>Open .cursor/plans/resolve-dispute.md. Review the plan and how it splits data, API, and UI tasks.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="open-ledgerly-reviewer">
           <h4>Open ledgerly-reviewer</h4>
-          <p class="detail">Open .cursor/agents/ledgerly-reviewer.md</p>
+          <div class="do-box">
+            <ul><li>Open .cursor/agents/ledgerly-reviewer.md</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="open-dispatch-subagents-skill">
           <h4>Open dispatch-subagents skill</h4>
-          <p class="detail">Open .cursor/skills/dispatch-subagents/SKILL.md.</p>
+          <div class="do-box">
+            <ul><li>Open .cursor/skills/dispatch-subagents/SKILL.md.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="multitask-resolve-dispute">
           <h4>Multitask resolve-dispute</h4>
-          <p class="detail">Build the feature using the /multitask command.</p>
+          <div class="do-box">
+            <ul><li>Build the feature using the /multitask command.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -453,7 +545,9 @@
         </article>
         <article class="beat" data-beat="canvas-subagent-progress">
           <h4>Canvas subagent progress</h4>
-          <p class="detail">Use Canvas to keep track of the progress of subagents and their tasks. Review Canvas with subagent progress and worktree conflicts.</p>
+          <div class="do-box">
+            <ul><li>Use Canvas to keep track of the progress of subagents and their tasks. Review Canvas with subagent progress and worktree conflicts.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -464,7 +558,9 @@
         </article>
         <article class="beat" data-beat="ledgerly-reviewer-check">
           <h4>ledgerly-reviewer check</h4>
-          <p class="detail">Use the specialized reviewer subagent to check the completed task.</p>
+          <div class="do-box">
+            <ul><li>Use the specialized reviewer subagent to check the completed task.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -480,10 +576,25 @@
     <div class="track" data-track="301">
       <h2>301</h2>
       <p class="lede">You will orchestrate work across agents, tasks, and coworkers: break tasks down for multiple agents, take a plan through parallel agents to a reviewable PR, scale review when several streams finish, and share ownership safely.</p>
-      <label class="optional-toggle" for="include-optional">
-        <input id="include-optional" class="include-optional" type="checkbox">
-        Include optional cards
-      </label>
+      <fieldset class="feature-checklist">
+        <legend>Optional features</legend>
+        <label class="feature-option" for="feature-301-cloud-agents">
+          <input id="feature-301-cloud-agents" class="feature-toggle" type="checkbox" data-track="301" data-feature="Cloud Agents" checked>
+          Cloud Agents
+        </label>
+        <label class="feature-option" for="feature-301-projects">
+          <input id="feature-301-projects" class="feature-toggle" type="checkbox" data-track="301" data-feature="Projects" checked>
+          Projects
+        </label>
+        <label class="feature-option" for="feature-301-bugbot">
+          <input id="feature-301-bugbot" class="feature-toggle" type="checkbox" data-track="301" data-feature="Bugbot" checked>
+          Bugbot
+        </label>
+        <label class="feature-option" for="feature-301-automations">
+          <input id="feature-301-automations" class="feature-toggle" type="checkbox" data-track="301" data-feature="Automations" checked>
+          Automations
+        </label>
+      </fieldset>
       <nav class="tabs" aria-label="301 sections">
         <a href="#301-break-down-tasks">How do you orchestrate tasks across agents?</a>
         <a href="#301-plan-to-pr">How do multiple agents go from plan to reviewable code?</a>
@@ -493,44 +604,75 @@
       <section id="301-break-down-tasks">
         <h3>How do you orchestrate tasks across agents?</h3>
         <div class="beats">
-        <article class="beat" data-beat="plan-command-center">
-          <h4>Plan the command center in a separate agent</h4>
-          <p class="detail">Start a new agent for the command center plan.</p>
+        <article class="beat" data-beat="get-command-center-issues">
+          <h4>Get the issues for the collections command center from the issue tracker.</h4>
+          <p class="say">The Linear MCP server returns a list of nine issues to create the collections command center.</p>
+          <div class="do-box">
+            <ul><li>Start a new agent for the command center plan.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/plan the collections command center from its Linear issues. List the tasks, the files each touches, and the open questions.</pre>
+            <pre>/ask List open issues for the collections command center in Linear.</pre>
+          </div>
+        </article>
+        <article class="beat" data-beat="plan-command-center">
+          <h4>Plan the collections command center in a separate agent.</h4>
+          <p class="say">We are going to run this first and handle the manual part in parallel. This agent only plans. It builds nothing until we come back to it.</p>
+          <div class="paste">
+            <div class="paste-head">
+              <span>Paste in Grok Build</span>
+              <button type="button" class="copy">Copy</button>
+            </div>
+            <pre>/plan the collections command center from its issues. List the tasks, the files each touches, and the open questions.</pre>
           </div>
         </article>
         <article class="beat" data-beat="open-local-agent">
-          <h4>Start the keyboard walkthrough agent</h4>
-          <p class="detail">Start a new agent for the keyboard walkthrough.</p>
+          <h4>Start a keyboard walkthrough for the accessibility audit in a new agent.</h4>
+          <div class="do-box">
+            <ul><li>Start a new agent for the keyboard walkthrough.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="show-problem-by-hand">
           <h4>Show the problem by hand.</h4>
-          <p class="detail">Open Browser to http://localhost:43173/invoices.
-Focus is the control the keyboard is on right now. When you press Tab, focus moves to the next button, link, or field. A visible outline usually shows where it is, so a keyboard user always knows what Enter will do.
-Press Tab a few times on the invoices page.
+          <p class="say">Focus is the control the keyboard is on right now. When you press Tab, focus moves to the next button, link, or field. A visible outline usually shows where it is, so a keyboard user always knows what Enter will do.
 Watch the page. After a couple of presses the outline disappears. Focus is still on something, but I can&#39;t tell what, so a keyboard user is now lost.</p>
+          <div class="do-box">
+            <ol><li>Open Browser to http://localhost:43173/invoices.</li><li>Press Tab a few times on the invoices page.</li></ol>
+          </div>
         </article>
         <article class="beat" data-beat="create-accessibility-manual-reviewer">
           <h4>Checking every page like this by hand takes a lot of time and judgment, so let&#39;s build a subagent that does it for us.</h4>
+          <p class="say">CI catches missing labels, which break screen readers, and low contrast, which makes text hard to read.
+A keyboard walkthrough takes judgment, so this subagent uses the page the way a keyboard user would. Reuse it any time you change the UI.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast.</pre>
+            <pre>/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, read-only: false.</pre>
           </div>
         </article>
-        <article class="beat optional" data-beat="optional-cloud-agent">
-          <h4>Optional: Move to a Cloud Agent</h4>
-          <p class="detail">Click Continue on Cloud to move this to a Cloud Agent. Click Include Changes.</p>
+        <article class="beat" data-beat="optional-cloud-agent" data-feature="Cloud Agents">
+          <h4>Move to a Cloud Agent.</h4>
+          <p class="say">Rather than run all of these subagents locally, move everything to a Cloud Agent on a remote environment and build everything on an isolated branch.
+Once it is done, check its work.</p>
+          <div class="do-box">
+            <ol><li>Click Continue on Cloud to move this to a Cloud Agent.</li><li>Click Include Changes.</li></ol>
+          </div>
+        </article>
+        <article class="beat" data-beat="start-audit-agent">
+          <h4>Start a new agent to audit accessibility.</h4>
+          <p class="say">Start a new audit for accessibility. Check the accessibility test suite and run a keyboard walkthrough. Run the application test suite to make sure the application works as intended.</p>
+          <div class="do-box">
+            <ul><li>Start a new local agent.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="multitask-walkthroughs">
           <h4>Show /multitask for small coordinated jobs.</h4>
+          <p class="say">The coordinator gives each task its own subagent: a keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -540,11 +682,15 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
           </div>
         </article>
         <article class="beat" data-beat="review-subagents">
-          <h4>Review the subagents</h4>
-          <p class="detail">Watch the Working tab.</p>
+          <h4>Review the subagents.</h4>
+          <p class="say">Stop one task if it drifts. When each agent completes, you get a set of recommendations.</p>
+          <div class="do-box">
+            <ul><li>Watch the Working indicator above the chat box.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="summarize-subagents">
-          <h4>Check the subagent output</h4>
+          <h4>Check the output of the subagents.</h4>
+          <p class="say">The coordinator summarizes the failures from the keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -555,13 +701,15 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
         </article>
         <article class="beat" data-beat="linear-issue-fallback">
           <h4>Fallback: reference repo issues</h4>
-          <p class="detail">If an agent cannot access the Linear MCP server, use the issue descriptions in the repository.</p>
+          <div class="do-box">
+            <ul><li>If an agent cannot access the Linear MCP server, use the issue descriptions in the repository.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Reference issues from @linear-field-demo.ts instead of Linear</pre>
+            <pre>Reference issues from @linear-field-demo.ts instead of Linear.</pre>
           </div>
         </article>
         </div>
@@ -569,12 +717,17 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
       <section id="301-plan-to-pr">
         <h3>How do multiple agents go from plan to reviewable code?</h3>
         <div class="beats">
-        <article class="beat optional" data-beat="optional-start-project">
-          <h4>Optional: Start a new Project</h4>
-          <p class="detail">Start a new Project. Name it {INSERT COMPANY HERE, default is Ledgerly}.</p>
+        <article class="beat" data-beat="optional-start-project" data-feature="Projects">
+          <h4>Start a new Project.</h4>
+          <p class="say">Starting a new Project creates a long-running Cloud Agent that acts as a coordinator.
+Run the remaining commands in the Project. Note that responses to prompts may differ from responses in an individual agent.</p>
+          <div class="do-box">
+            <ol><li>Start a new Project.</li><li>Name it {INSERT COMPANY HERE, default is Ledgerly}.</li></ol>
+          </div>
         </article>
-        <article class="beat optional" data-beat="optional-stage-project">
-          <h4>Optional: Stage the Project</h4>
+        <article class="beat" data-beat="optional-stage-project" data-feature="Projects">
+          <h4>Stage the Project.</h4>
+          <p class="say">Make clear to the Project that each agent runs in its own worktree to isolate work and avoid conflicts.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -583,12 +736,24 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
             <pre>Run each agent in its own worktree to avoid conflicts, and parallelize where possible.</pre>
           </div>
         </article>
+        <article class="beat" data-beat="optional-assign-project" data-feature="Projects">
+          <h4>Use Projects to assign tasks to agents.</h4>
+          <p class="say">Let Projects decide how best to assign tasks and complete work.</p>
+          <div class="do-box">
+            <ul><li>Run the following prompts from the Project without starting new agents.</li></ul>
+          </div>
+        </article>
         <article class="beat" data-beat="open-plan-agent">
-          <h4>Open a new agent</h4>
-          <p class="detail">Open a new local agent. Optional: Run the following prompts from the Project.</p>
+          <h4>Start a new agent.</h4>
+          <p class="say">I want to fix the keyboard walkthrough failures from all three pages.</p>
+          <div class="do-box">
+            <ul><li>Open a new local agent.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="plan-remediation">
-          <h4>Start a plan to fix the walkthrough failures on a separate worktree</h4>
+          <h4>Start a plan to fix the walkthrough failures on a separate worktree.</h4>
+          <p class="say">Create a plan based on the combined failures from the three walkthroughs. If the plan asks questions, choose to run tasks in parallel and write updates to the issue tracker.
+By starting the work on a separate worktree, you avoid editing the working code on the main branch. If you do not let the agent automatically approve changes on the worktree, you may have to manually approve each file change.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -598,19 +763,26 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
           </div>
         </article>
         <article class="beat" data-beat="review-plan">
-          <h4>Review the plan</h4>
-          <p class="detail">Review the plan.</p>
+          <h4>Review the plan.</h4>
+          <p class="say">The plan assigns tasks to workers and notes which ones run in parallel.</p>
+          <div class="do-box">
+            <ul><li>Review the plan.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="build-plan">
-          <h4>Build the plan</h4>
-          <p class="detail">Build locally.</p>
+          <h4>Build the plan.</h4>
+          <div class="do-box">
+            <ul><li>Build locally.</li></ul>
+          </div>
         </article>
-        <article class="beat optional" data-beat="optional-build-cloud">
-          <h4>Optional: Build with Cloud Agents</h4>
-          <p class="detail">Build the plan with Cloud Agents.</p>
+        <article class="beat" data-beat="optional-build-cloud" data-feature="Cloud Agents">
+          <h4>Use Cloud Agents to build the plan if you do not have Projects.</h4>
+          <div class="do-box">
+            <ul><li>Build the plan with Cloud Agents.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="side-chat">
-          <h4>Open a side chat</h4>
+          <h4>Ask a side question while the coordinator remediates the findings.</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -620,8 +792,8 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
           </div>
         </article>
         <article class="beat" data-beat="ask-subagent-progress">
-          <h4>Ask what the first subagent is remediating</h4>
-          <p class="detail">If you want to know what a subagent is doing, you can open a side chat and ask without blocking the coordinator.</p>
+          <h4>Ask what the first subagent is remediating.</h4>
+          <p class="say">If you want to know what a subagent is doing, you can open a side chat and ask without blocking the coordinator.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -631,8 +803,11 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
           </div>
         </article>
         <article class="beat" data-beat="consolidate-pr">
-          <h4>Consolidate and open a reviewable PR</h4>
-          <p class="detail">Open the PR. Show the summary a coworker would read first.</p>
+          <h4>Consolidate and open a reviewable PR.</h4>
+          <p class="say">Move finished worktrees back deliberately. Resolve conflicts on purpose.</p>
+          <div class="do-box">
+            <ul><li>Open the PR. Show the summary a coworker would read first.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -641,8 +816,10 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
             <pre>Consolidate the completed tasks into one branch so reviewers get one PR. Open a PR with what each task changed and what a human should verify.</pre>
           </div>
         </article>
-        <article class="beat optional" data-beat="optional-project-notes">
-          <h4>Optional: Show project notes</h4>
+        <article class="beat" data-beat="optional-project-notes" data-feature="Projects">
+          <h4>Keep track of the Project.</h4>
+          <p class="say">As you continue working on the Project, it keeps track of your requests to agents.
+You can review tasks in project notes and shared files in context.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -657,8 +834,11 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
         <h3>How do you scale AI code reviews?</h3>
         <div class="beats">
         <article class="beat" data-beat="checkout-fixes-branch">
-          <h4>Check out the keyboard fixes branch</h4>
-          <p class="detail">Open a new local agent.</p>
+          <h4>Start a new agent.</h4>
+          <p class="say">With many lines of accessibility fixes in this PR, I want to identify the most important files to review.</p>
+          <div class="do-box">
+            <ul><li>Open a new local agent.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -668,7 +848,8 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
           </div>
         </article>
         <article class="beat" data-beat="run-reviewer-subagent">
-          <h4>Run the change reviewer subagent</h4>
+          <h4>Run the change reviewer subagent before you conduct manual review.</h4>
+          <p class="say">With readonly: true, the change reviewer can read and report but can’t change files. The reviewer and the author stay separate.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -678,12 +859,17 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
           </div>
         </article>
         <article class="beat" data-beat="check-closer-inspection">
-          <h4>Identify changes for closer inspection</h4>
-          <p class="detail">Check the change reviewer’s output for any issues requiring closer inspection.</p>
+          <h4>Identify any changes requiring closer inspection.</h4>
+          <div class="do-box">
+            <ul><li>Check the change reviewer’s output for any issues requiring closer inspection.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="review-highest-risk">
-          <h4>Review the high-risk changes</h4>
-          <p class="detail">Open the highest-risk change and read it line by line.</p>
+          <h4>Review the high-risk changes.</h4>
+          <p class="say">The change reviewer subagent clears the noise so your time goes where judgment matters.</p>
+          <div class="do-box">
+            <ul><li>Open the highest-risk change and read it line by line.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -692,8 +878,9 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
             <pre>/ask Which change in this PR has the highest risk? List the files and lines I need to review.</pre>
           </div>
         </article>
-        <article class="beat optional" data-beat="optional-bugbot">
-          <h4>Optional: Run Bugbot</h4>
+        <article class="beat" data-beat="optional-bugbot" data-feature="Bugbot">
+          <h4>Run Bugbot.</h4>
+          <p class="say">Run Bugbot to check for code quality. Review its suggestions for changes.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -708,11 +895,15 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
         <h3>How do coworkers share ownership safely?</h3>
         <div class="beats">
         <article class="beat" data-beat="open-ownership-agent">
-          <h4>Open a new agent</h4>
-          <p class="detail">Open a new local agent.</p>
+          <h4>Start a new agent.</h4>
+          <p class="say">I want to turn some of the review findings in this PR into the most reliable fix: a rule, skill, subagent, test, or human check.</p>
+          <div class="do-box">
+            <ul><li>Open a new local agent.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="shift-left-findings">
-          <h4>Identify the most reliable fix</h4>
+          <h4>Identify the most reliable fix for each review finding.</h4>
+          <p class="say">You choose which ones to turn into a rule, skill, subagent, test, or human check for your coworkers to reuse.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -721,13 +912,18 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
             <pre>Turn repeat findings from this PR&#39;s review comments and change reviewer into reusable fixes so they stop recurring. Draft the most deterministic fix for each: a rule, skill, subagent, test, or human check.</pre>
           </div>
         </article>
-        <article class="beat optional" data-beat="optional-reviewer-automation">
-          <h4>Optional: Create a Reviewer automation</h4>
-          <p class="detail">Go to the Automations tab. Click New Automation. Name it Reviewer. Select the demo repository. Click Triggers &gt; PR opened, then select the demo repository and set the author to Anyone. Add “Use the change reviewer subagent to review this PR and comment with each issue&#39;s file, line, and severity.” to agent instructions. Add “Comment on Pull Request” to tools. Click Save.</p>
+        <article class="beat" data-beat="optional-reviewer-automation" data-feature="Automations">
+          <h4>Create an Automation.</h4>
+          <div class="do-box">
+            <ol><li>Go to the Automations tab.</li><li>Click New Automation.</li><li>Name it Reviewer.</li><li>Select the demo repository.</li><li>Click Triggers &gt; PR opened, then select the demo repository and set the author to Anyone.</li><li>Add “Use the change reviewer subagent to review this PR and comment with each issue&#39;s file, line, and severity.” to agent instructions.</li><li>Add “Comment on Pull Request” to tools.</li><li>Click Save.</li></ol>
+          </div>
         </article>
-        <article class="beat optional" data-beat="optional-trigger-automation">
-          <h4>Optional: Trigger the PR Automation</h4>
-          <p class="detail">Start a new local agent. Opening any PR triggers the Reviewer Automation, so I&#39;ll create one and watch the check run. Open the PR for the accessibility test suite fixes and review the status check for Automation: Reviewer.</p>
+        <article class="beat" data-beat="optional-trigger-automation" data-feature="Automations">
+          <h4>Trigger the PR Automation.</h4>
+          <p class="say">Opening any PR triggers the Reviewer Automation, so I&#39;ll create one and watch the check run.</p>
+          <div class="do-box">
+            <ol><li>Start a new local agent.</li><li>Open the PR for the accessibility test suite fixes and review the status check for Automation: Reviewer.</li></ol>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -737,11 +933,15 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
           </div>
         </article>
         <article class="beat" data-beat="return-to-plan">
-          <h4>Return to the command center plan</h4>
-          <p class="detail">Open the command center planning agent in the Agent Window. Don’t start a new plan.</p>
+          <h4>Return to the collections command center plan.</h4>
+          <p class="say">Now I’m going back to the collections command center plan. Before I start the work, I’ll check the keyboard fixes PR for conflicts.</p>
+          <div class="do-box">
+            <ul><li>Open the command center planning agent in the Agent Window. Don’t start a new plan.</li></ul>
+          </div>
         </article>
         <article class="beat" data-beat="list-conflict-files">
-          <h4>Check other PRs for files and comments that conflict with the next project</h4>
+          <h4>Check other PRs for files and comments that conflict with the next project.</h4>
+          <p class="say">Use the context in other PRs to identify possible conflicts before you start work.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -801,20 +1001,36 @@ Watch the page. After a couple of presses the outline disappears. Focus is still
         }
       });
 
-      var optionalToggle = document.querySelector(".include-optional");
-      if (optionalToggle) {
-        optionalToggle.checked = params.get("optional") === "1";
-        optionalToggle.addEventListener("change", function () {
-          try {
-            var url = new URL(window.location.href);
-            if (optionalToggle.checked) url.searchParams.set("optional", "1");
-            else url.searchParams.delete("optional");
-            history.replaceState(null, "", url.toString());
-          } catch (err) {
-            // Canvas embeds this page as srcdoc, which has no URL to update.
-          }
-        });
+      var FEATURE_KEY = "ledgerly-runbooks-optional-features";
+      function readFeatures() {
+        try {
+          var raw = localStorage.getItem(FEATURE_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch (err) {
+          return {};
+        }
       }
+      function writeFeatures(state) {
+        try {
+          localStorage.setItem(FEATURE_KEY, JSON.stringify(state));
+        } catch (err) {
+          // Private browsing can reject storage. The checkbox still toggles.
+        }
+      }
+      var savedFeatures = readFeatures();
+      Array.prototype.forEach.call(document.querySelectorAll(".feature-toggle"), function (box) {
+        var trackId = box.getAttribute("data-track");
+        var featureName = box.getAttribute("data-feature");
+        var trackState = savedFeatures[trackId] || {};
+        box.checked = trackState[featureName] !== false;
+        box.addEventListener("change", function () {
+          var state = readFeatures();
+          if (!state[trackId]) state[trackId] = {};
+          if (box.checked) delete state[trackId][featureName];
+          else state[trackId][featureName] = false;
+          writeFeatures(state);
+        });
+      });
 
       function fallbackCopy(text) {
         var area = document.createElement("textarea");

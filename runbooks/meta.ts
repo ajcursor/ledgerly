@@ -8,7 +8,13 @@ export { RUNBOOK_SECTIONS_101 } from "@/runbooks/beats/101";
 export { RUNBOOK_SECTIONS_201 } from "@/runbooks/beats/201";
 export { RUNBOOK_SECTIONS_301 } from "@/runbooks/beats/301";
 export { PROJECT_AGENTS, PROJECT_SKILLS } from "@/runbooks/agents";
-export { RUNBOOK_TRACKS, getRunbookTrack, type RunbookTrack } from "@/runbooks/tracks";
+export {
+  RUNBOOK_TRACKS,
+  getRunbookTrack,
+  trackOptionalFeatures,
+  type RunbookTrack,
+} from "@/runbooks/tracks";
+export { stripOptionalTags } from "@/runbooks/optional-tag";
 export {
   FIELD_DEMO_FILTER_TITLE,
   FIELD_DEMO_ISSUES,
