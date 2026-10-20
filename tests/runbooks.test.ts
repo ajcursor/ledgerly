@@ -424,7 +424,7 @@ describe("runbook catalog", () => {
     "title": "Checking every page like this by hand takes a lot of time and judgment, so let's build a subagent that does it for us.",
     "promptType": "adaptable",
     "detail": "",
-    "example": "/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, read-only: false.",
+    "example": "/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, readonly: false.",
     "say": "CI catches missing labels, which break screen readers, and low contrast, which makes text hard to read.\nA keyboard walkthrough takes judgment, so this subagent uses the page the way a keyboard user would. Reuse it any time you change the UI."
   },
   {
@@ -449,7 +449,7 @@ describe("runbook catalog", () => {
     "title": "Show /multitask for small coordinated jobs.",
     "promptType": "adaptable",
     "detail": "",
-    "example": "/multitask Run these in parallel to find what I need to fix: the accessibility-manual-reviewer subagent on the invoices page, the accessibility test suite, and the application test suite.",
+    "example": "/multitask Run these in parallel to find what I need to fix: the accessibility-manual-reviewer subagent on the invoices page, the accessibility test suite, and the application test suite. Stop accessibility-manual-reviewer after finding one failure.",
     "say": "The coordinator gives each task its own subagent: a keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite."
   },
   {
@@ -472,7 +472,7 @@ describe("runbook catalog", () => {
     "title": "Fallback: reference repo issues",
     "promptType": "adaptable",
     "detail": "If an agent cannot access the Linear MCP server, use the issue descriptions in the repository.",
-    "example": "Reference issues from @linear-field-demo.ts instead of Linear."
+    "example": "Reference issues from @runbooks/linear-field-demos.ts instead of Linear."
   },
   {
     "id": "optional-start-project",
@@ -510,15 +510,15 @@ describe("runbook catalog", () => {
     "title": "Start a new agent.",
     "promptType": "none",
     "detail": "Open a new local agent.",
-    "say": "I want to fix the keyboard walkthrough failures from all three pages."
+    "say": "I want to fix the keyboard findings that do not share a file."
   },
   {
     "id": "plan-remediation",
     "title": "Start a plan to fix the walkthrough failures on a separate worktree.",
     "promptType": "adaptable",
     "detail": "",
-    "example": "/plan fixes for the keyboard failures on invoices, collections, and settings in @.cursor/plans/keyboard-walkthrough-audit.md. One task per failure, mark parallel tasks, and use a separate worktree with auto-approved changes.",
-    "say": "Create a plan based on the combined failures from the three walkthroughs. If the plan asks questions, choose to run tasks in parallel and write updates to the issue tracker.\nBy starting the work on a separate worktree, you avoid editing the working code on the main branch. If you do not let the agent automatically approve changes on the worktree, you may have to manually approve each file change."
+    "example": "/plan the in-scope keyboard fixes in @.cursor/plans/keyboard-walkthrough-audit.md. One task per finding, in parallel, each on its own worktree with auto-approved changes.",
+    "say": "Plan the in-scope findings, one task per finding, each on its own worktree. If the plan asks questions, choose to run tasks in parallel and write updates to the issue tracker.\nBy starting the work on a separate worktree, you avoid editing the working code on the main branch. If you do not let the agent automatically approve changes on the worktree, you may have to manually approve each file change."
   },
   {
     "id": "review-plan",
@@ -590,13 +590,15 @@ describe("runbook catalog", () => {
     "promptType": "reusable",
     "detail": "",
     "example": "Use the change reviewer subagent to review the remediation PR. List each issue with its file, line, and severity.",
-    "say": "With readonly: true, the change reviewer can read and report but can’t change files. The reviewer and the author stay separate."
+    "say": "The change reviewer uses readonly: false so it can run git diff, but its instructions stop it from editing files. The reviewer and the author stay separate."
   },
   {
     "id": "check-closer-inspection",
     "title": "Identify any changes requiring closer inspection.",
-    "promptType": "none",
-    "detail": "Check the change reviewer’s output for any issues requiring closer inspection."
+    "promptType": "reusable",
+    "detail": "Check the change reviewer’s output for any issues requiring closer inspection.",
+    "example": "Fix the findings from the change reviewer.",
+    "say": "The plan included a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it."
   },
   {
     "id": "review-highest-risk",

@@ -414,7 +414,7 @@ Show me the project notes and context.
 If an agent cannot access Linear MCP server, use the issue descriptions in the repository:
 
 ```text
-Reference issues from @linear-field-demo.ts instead of Linear
+Reference issues from @runbooks/linear-field-demos.ts instead of Linear
 ```
 
 ### How do you scale AI code reviews?

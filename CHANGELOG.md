@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Synced 301 Show beats to the live Outline: the in-scope keyboard plan, change-reviewer readonly false, the planted Tab step flagged high and never kept, and the Linear fallback file.
 - Runbook cards show Say, then the Do lines in their own box, then the prompt. Several Do lines are numbered. The box matches the prompt border, radius, and padding, with the indigo soft fill and no copy button.
 - 301 beats now copy Say, Do, and Prompt from the live Outline, including optional feature tags. Three Show steps that were missing are now beats.
 - The side-question step uses two cards. side-chat keeps the Outline heading. ask-subagent-progress is titled Ask what the first subagent is remediating.

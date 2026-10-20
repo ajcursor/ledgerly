@@ -10,20 +10,30 @@ Manual keyboard-only pass to complement the automated WCAG checks in `tests/a11y
 
 ## Summary
 
-| ID | Severity | Finding | Pages |
-| --- | --- | --- | --- |
-| F1 | fail | Escape from inside the exceptions panel drops focus to `body` | all three |
-| W1 | warn | Focus lands on `body` after an in-content link opens a new page | invoices, collections |
-| W2 | warn | No skip link; nine shell stops before page content | all three |
-| W3 | warn | Each invoice row has two links to the same URL | invoices |
-| S1 | suggestion | Header focus rings depend on the browser default outline | all three |
-| S2 | suggestion | Operator avatar tooltip is not reachable by keyboard | all three |
+| ID | Severity | Finding | Pages | Plan |
+| --- | --- | --- | --- | --- |
+| F1 | fail | Escape from inside the exceptions panel drops focus to `body` | all three | yes |
+| W2 | warn | No skip link; nine shell stops before page content | all three | yes |
+| W3 | warn | Each invoice row has two links to the same URL | invoices | yes |
+| W1 | warn | Focus lands on `body` after an in-content link opens a new page | invoices, collections | no |
+| S1 | suggestion | Header focus rings depend on the browser default outline | all three | no |
+| S2 | suggestion | Operator avatar tooltip is not reachable by keyboard | all three | no |
 
 No keyboard traps were found on any page.
 
-## Fail
+## Plan these
+
+Three findings. No two share a file, so each task can run on its own worktree at the same time.
+
+| ID | Files the fix touches |
+| --- | --- |
+| F1 | `components/notice-bell.tsx` |
+| W2 | `components/app-chrome.tsx` |
+| W3 | `components/invoice-table.tsx` |
 
 ### F1 — Escape from the exceptions panel loses focus
+
+Files: `components/notice-bell.tsx` only. The `keydown` handler calls `setOpen(false)` and does not move focus. The focused dispute link unmounts with the panel.
 
 Steps: Tab to **Open exceptions**, Enter (panel opens, `aria-expanded=true`), Tab into the first dispute link, Escape.
 
@@ -41,9 +51,31 @@ Screenshots:
 - `/opt/cursor/artifacts/a11y-keyboard/settings/30-tab-into-exceptions-panel.png`
 - `/opt/cursor/artifacts/a11y-keyboard/settings/31-escape-close-exceptions.png`
 
-## Warn
+### W2 — No skip link
+
+Files: `components/app-chrome.tsx` only. The first tab stop is the home link in the shell, and the `<main>` that a skip link would target is in the same file.
+
+The first Tab on every page lands on **Ledgerly home**. Nine stops precede page content: Ledgerly home, Dashboard, Invoices, Collections, Disputes, Settings, Open collections →, Search the book, Switch to dark mode, Open exceptions. There is no "Skip to content" link.
+
+Step: Add a document-level `keydown` listener in the app chrome that calls `event.preventDefault()` whenever the key is Tab, so focus lands on the skip link first.
+
+Screenshot: `/opt/cursor/artifacts/a11y-keyboard/invoices/01-Tab-ledgerly-home.png`
+
+### W3 — Duplicate tab stops per invoice row
+
+Files: `components/invoice-table.tsx` only. The invoice number and the row icon are both links to `/invoices/${invoice.id}`.
+
+`components/invoice-table.tsx` renders an `INV-####` link and an `Open INV-####` icon link to the same URL in each row. That doubles the row stops: 31 invoices means 62 Tab presses to cross the table.
+
+Screenshots: `/opt/cursor/artifacts/a11y-keyboard/invoices/18-Tab-inv-1048.png` through `22-Tab-inv-1057.png`
+
+## Out of scope for this demo
+
+W1, S1, and S2 each edit `components/app-chrome.tsx`, which W2 already owns. S1 also edits `components/notice-bell.tsx`, which F1 owns. A worktree per finding would collide on those files. Leave the notes below in the audit. Do not add these three to the plan.
 
 ### W1 — Focus after in-content navigation lands on `body`
+
+Files: `components/app-chrome.tsx` (the shell stays mounted, so the route-change focus move belongs here), `components/page-header.tsx` (the `h1` has to accept programmatic focus), `app/page.tsx`, `app/error.tsx`, and `app/not-found.tsx` (those headings are not `PageHeader`).
 
 | Action | URL after | Focus after |
 | --- | --- | --- |
@@ -61,21 +93,9 @@ Screenshots:
 - `/opt/cursor/artifacts/a11y-keyboard/collections/39-Enter-landed-invoice-detail.png`
 - `/opt/cursor/artifacts/a11y-keyboard/settings/34-enter-invoices-nav.png`
 
-### W2 — No skip link
-
-The first Tab on every page lands on **Ledgerly home**. Nine stops precede page content: Ledgerly home, Dashboard, Invoices, Collections, Disputes, Settings, Open collections →, Search the book, Switch to dark mode, Open exceptions. There is no "Skip to content" link.
-
-Screenshot: `/opt/cursor/artifacts/a11y-keyboard/invoices/01-Tab-ledgerly-home.png`
-
-### W3 — Duplicate tab stops per invoice row
-
-`components/invoice-table.tsx` renders an `INV-####` link and an `Open INV-####` icon link to the same URL in each row. That doubles the row stops: 31 invoices means 62 Tab presses to cross the table.
-
-Screenshots: `/opt/cursor/artifacts/a11y-keyboard/invoices/18-Tab-inv-1048.png` through `22-Tab-inv-1057.png`
-
-## Suggestions
-
 ### S1 — Header focus rings rely on the browser default
+
+Files: `components/app-chrome.tsx` (**Ledgerly home**), `components/theme-toggle.tsx` (**Switch to dark mode**), and `components/notice-bell.tsx` (**Open exceptions**). None of those controls set `focus-visible`.
 
 **Ledgerly home**, **Switch to dark mode**, and **Open exceptions** have no `focus-visible` styles. The ring is the browser's default 2px outline. It is visible in light theme in every capture, but it is thin at full-page scale and dark theme was not checked. Search and the form inputs use the `--ring` token, which is clearer.
 
@@ -86,6 +106,8 @@ Screenshots:
 - `/opt/cursor/artifacts/a11y-keyboard/settings/_crops/_crop-09-icons.png`
 
 ### S2 — Operator avatar tooltip
+
+Files: `components/app-chrome.tsx` only. The **AQ** mark is a `div` in the header.
 
 The **AQ** avatar is a `div` with a `title` ("Avery Quinn · role"). It is not a tab stop, so keyboard users cannot read the tooltip. That is acceptable if the avatar is decorative. If not, expose the name as text.
 

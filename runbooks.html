@@ -652,7 +652,7 @@ A keyboard walkthrough takes judgment, so this subagent uses the page the way a 
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, read-only: false.</pre>
+            <pre>/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, readonly: false.</pre>
           </div>
         </article>
         <article class="beat" data-beat="optional-cloud-agent" data-feature="Cloud Agents">
@@ -678,7 +678,7 @@ Once it is done, check its work.</p>
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/multitask Run these in parallel to find what I need to fix: the accessibility-manual-reviewer subagent on the invoices page, the accessibility test suite, and the application test suite.</pre>
+            <pre>/multitask Run these in parallel to find what I need to fix: the accessibility-manual-reviewer subagent on the invoices page, the accessibility test suite, and the application test suite. Stop accessibility-manual-reviewer after finding one failure.</pre>
           </div>
         </article>
         <article class="beat" data-beat="review-subagents">
@@ -709,7 +709,7 @@ Once it is done, check its work.</p>
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Reference issues from @linear-field-demo.ts instead of Linear.</pre>
+            <pre>Reference issues from @runbooks/linear-field-demos.ts instead of Linear.</pre>
           </div>
         </article>
         </div>
@@ -745,21 +745,21 @@ Run the remaining commands in the Project. Note that responses to prompts may di
         </article>
         <article class="beat" data-beat="open-plan-agent">
           <h4>Start a new agent.</h4>
-          <p class="say">I want to fix the keyboard walkthrough failures from all three pages.</p>
+          <p class="say">I want to fix the keyboard findings that do not share a file.</p>
           <div class="do-box">
             <ul><li>Open a new local agent.</li></ul>
           </div>
         </article>
         <article class="beat" data-beat="plan-remediation">
           <h4>Start a plan to fix the walkthrough failures on a separate worktree.</h4>
-          <p class="say">Create a plan based on the combined failures from the three walkthroughs. If the plan asks questions, choose to run tasks in parallel and write updates to the issue tracker.
+          <p class="say">Plan the in-scope findings, one task per finding, each on its own worktree. If the plan asks questions, choose to run tasks in parallel and write updates to the issue tracker.
 By starting the work on a separate worktree, you avoid editing the working code on the main branch. If you do not let the agent automatically approve changes on the worktree, you may have to manually approve each file change.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/plan fixes for the keyboard failures on invoices, collections, and settings in @.cursor/plans/keyboard-walkthrough-audit.md. One task per failure, mark parallel tasks, and use a separate worktree with auto-approved changes.</pre>
+            <pre>/plan the in-scope keyboard fixes in @.cursor/plans/keyboard-walkthrough-audit.md. One task per finding, in parallel, each on its own worktree with auto-approved changes.</pre>
           </div>
         </article>
         <article class="beat" data-beat="review-plan">
@@ -849,7 +849,7 @@ You can review tasks in project notes and shared files in context.</p>
         </article>
         <article class="beat" data-beat="run-reviewer-subagent">
           <h4>Run the change reviewer subagent before you conduct manual review.</h4>
-          <p class="say">With readonly: true, the change reviewer can read and report but can’t change files. The reviewer and the author stay separate.</p>
+          <p class="say">The change reviewer uses readonly: false so it can run git diff, but its instructions stop it from editing files. The reviewer and the author stay separate.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
@@ -860,8 +860,16 @@ You can review tasks in project notes and shared files in context.</p>
         </article>
         <article class="beat" data-beat="check-closer-inspection">
           <h4>Identify any changes requiring closer inspection.</h4>
+          <p class="say">The plan included a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it.</p>
           <div class="do-box">
             <ul><li>Check the change reviewer’s output for any issues requiring closer inspection.</li></ul>
+          </div>
+          <div class="paste">
+            <div class="paste-head">
+              <span>Paste in Grok Build</span>
+              <button type="button" class="copy">Copy</button>
+            </div>
+            <pre>Fix the findings from the change reviewer.</pre>
           </div>
         </article>
         <article class="beat" data-beat="review-highest-risk">
