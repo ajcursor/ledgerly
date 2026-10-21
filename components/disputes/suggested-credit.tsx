@@ -1,21 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getSuggestedCredit,
-  type SuggestedCreditResponse,
-} from "@/lib/disputes/suggested-credit-api";
 import { formatUsd } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
-type SuggestedCreditProps = {
+type SuggestedCreditResponse = {
   disputeId: string;
+  suggestedCreditCents: number;
+  apiVersion: "v1" | "v2";
+};
+
+type SuggestedCreditProps = {
+  path: string;
   catalogPriceCents: number;
   planName: string;
 };
 
 export function SuggestedCredit({
-  disputeId,
+  path,
   catalogPriceCents,
   planName,
 }: SuggestedCreditProps) {
@@ -25,7 +27,13 @@ export function SuggestedCredit({
   useEffect(() => {
     let active = true;
 
-    getSuggestedCredit(disputeId)
+    fetch(path, { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Suggested credit request failed with status ${response.status}.`);
+        }
+        return response.json() as Promise<SuggestedCreditResponse>;
+      })
       .then((result) => {
         if (active) setCredit(result);
       })
@@ -36,7 +44,7 @@ export function SuggestedCredit({
     return () => {
       active = false;
     };
-  }, [disputeId]);
+  }, [path]);
 
   const overCatalog =
     credit !== null && credit.suggestedCreditCents > catalogPriceCents;

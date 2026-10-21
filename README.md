@@ -17,16 +17,64 @@ npm run dev
 
 Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173, seeds only when the database is missing or empty, and opens `runbooks.html` in a Cursor Canvas.
 
-`npm test` is **1 failed / 48 passed** on a clean tree — `tests/suggested-credit-api.test.ts` is the planted API-version bug. The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Status pills on Invoices and Disputes write `state=` while the pages read `status`, so clicking a filter does not change the list — that is a separate planted UI seam, not a second red test. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **1 failed / 65 passed** on a clean tree — `tests/suggested-credit-api.test.ts` is the planted API-version bug. The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Status pills on Invoices and Disputes write `state=` while the pages read `status`, so clicking a filter does not change the list — that is a separate planted UI seam, not a second red test. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
 
 ### Planted demo issues
 
 These are intentional. Leave them for the demo, and do not ship them outside demos.
 
-- **Suggested credit.** `tests/suggested-credit-api.test.ts` stays red because `lib/disputes/suggested-credit-api.ts` still selects deprecated v1. Do not edit the test, either route, or the seed to make the suite green.
+- **Suggested credit.** `tests/suggested-credit-api.test.ts` stays red because `lib/disputes/suggested-credit-api.ts` selects deprecated v1 while the `credit_v1` bug is on. That is the default. Do not edit the test, either route, or the seed to make the suite green.
 - **W2 Tab listener.** `.cursor/plans/keyboard-walkthrough-audit.md` tells the W2 task to add a document-level `keydown` listener in the app chrome that calls `event.preventDefault()` whenever the key is Tab. That step is intentional. It would block Tab on every page if that listener is added in the shell. `components/app-chrome.tsx` does not contain it yet. The change reviewer should flag it as High. It must never ship outside demos. Do not remove it, reword it, or label it inside the plan.
 
 `npm run test:a11y` runs the WCAG checks in `tests/a11y/` (4.5:1 text contrast and missing labels). They are not part of `npm test`. The command currently fails on contrast (status badges, some muted text, and growth text); label checks pass.
+
+## Switchable demo bugs
+
+`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **1 failed / 65 passed**.
+
+`DEMO_BUGS` is a comma-separated list and replaces the default. An empty value turns every bug off. `DEMO_SCENARIO` is `known`, `ambiguous`, `new`, or `all` and is used only when `DEMO_BUGS` is unset. `DEMO_BUGS_FILE` points at a JSON file with `{ "bugs": ["..."] }` or `{ "scenario": "known" }` and is used only when both of those are unset. Presets live in `demo/scenarios/`.
+
+Each new bug is off unless the set includes it. Its test asserts the correct behavior, so the test is red while the bug is on and green while it is off. `filter_state` does not fail a test; it is the planted pill seam.
+
+| Id | Kind | Default | What the customer says | Sentry fingerprint | Linear title | Red test |
+| --- | --- | --- | --- | --- | --- | --- |
+| `credit_v1` | known | on | Suggested credit on dsp_1043 is $400.00. The Scale invoice is $249.00. | `suggested-credit-over-refund` | Suggested credit on dsp_1043 shows $400 instead of the $249 Scale cap | `tests/suggested-credit-api.test.ts` |
+| `filter_state` | known | on | Clicking Overdue or Needs review does not filter the list. | `invoice-filter` | Clicking Overdue or Needs review does not filter the queue | — |
+| `overdue_count` | ambiguous | off | The dashboard overdue count is higher than the Overdue queue. | `invoice-filter` | Dashboard overdue count includes invoices that are not due yet | `tests/overdue-count.test.ts` |
+| `closed_dispute_credit` | new | off | dsp_1050 was already accepted, and the $99.00 Growth credit posted a second time. | `closed-dispute-resolve` | Resolving accepted dispute dsp_1050 posts the Growth credit again | `tests/closed-dispute-credit.test.ts` |
+| `line_rounding` | new | off | A Growth seat occupied for 10 of 31 days shows $32.00 instead of $31.94. | — | Prorated invoice lines round to the nearest dollar | `tests/line-rounding.test.ts` |
+
+`overdue_count` shares the `invoice-filter` fingerprint with `filter_state`, so a support match can land in the ambiguous band. Kinds follow the triage bands: known at 0.80 or above, ambiguous from 0.60 to 0.79, new below 0.60.
+
+```bash
+# Default. credit_v1 and filter_state. 1 failed / 65 passed.
+npm test
+npm run demo:reset
+
+# Known bugs only. Same set as the default.
+DEMO_SCENARIO=known npm test
+npm run demo:reset -- --scenario=known
+
+# Ambiguous. The overdue count is wrong. The v1 credit test passes. 1 failed / 65 passed.
+DEMO_SCENARIO=ambiguous npm test
+npm run demo:reset -- --scenario=ambiguous
+
+# New bugs. Closed-dispute credit and line rounding. 2 failed / 64 passed.
+DEMO_SCENARIO=new npm test
+npm run demo:reset -- --scenario=new
+
+# Every bug. 4 failed / 62 passed. filter_state still does not fail a test.
+DEMO_SCENARIO=all npm test
+npm run demo:reset -- --scenario=all
+
+# An explicit list, or a JSON file.
+DEMO_BUGS=credit_v1,overdue_count npm test
+npm run demo:reset -- --bugs=credit_v1,overdue_count
+DEMO_BUGS_FILE=demo/scenarios/ambiguous.json npm test
+npm run demo:reset -- --scenario-file=demo/scenarios/new.json
+```
+
+`npm run demo:reset` passes the chosen set to the dev server and expects that set's test result. `--bugs` wins over `--scenario`, which wins over `--scenario-file`. No flag uses the environment, then the default.
 
 ## Sentry
 

@@ -2,6 +2,15 @@ import { execFileSync, spawn } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, isAbsolute, resolve } from "node:path";
+import {
+  bugProcessEnv,
+  bugsForScenario,
+  enabledDemoBugIdsFrom,
+  expectedSuiteResult,
+  loadDemoBugFile,
+  parseBugList,
+  suiteOutputMatches,
+} from "../lib/demo/bugs";
 
 type SessionEvent = {
   version: 1;
@@ -26,6 +35,7 @@ type Report = {
   completed: string[];
   skipped: string[];
   remaining: RemainingAction[];
+  bugs: string[];
 };
 
 const root = resolve(process.cwd());
@@ -57,17 +67,40 @@ function assertKnownProjectPath(value: string) {
   assertAllowedPath(resolve(root, value), projectArtifactRoots());
 }
 
-function command(command: string, commandArgs: string[], options: { allowFailure?: boolean } = {}) {
+function option(name: string): string | undefined {
+  const prefix = `--${name}=`;
+  const found = args.find((arg) => arg.startsWith(prefix));
+  return found ? found.slice(prefix.length) : undefined;
+}
+
+function selectedBugIds(): string[] {
+  const bugs = option("bugs");
+  const scenario = option("scenario");
+  const file = option("scenario-file");
+  if (bugs !== undefined) return parseBugList(bugs);
+  if (scenario !== undefined) return bugsForScenario(scenario);
+  if (file !== undefined) return loadDemoBugFile(file);
+  return enabledDemoBugIdsFrom(process.env);
+}
+
+function command(
+  command: string,
+  commandArgs: string[],
+  options: { allowFailure?: boolean; env?: NodeJS.ProcessEnv; includeStderr?: boolean } = {},
+) {
   try {
     return execFileSync(command, commandArgs, {
       cwd: root,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
+      env: options.env,
     });
   } catch (error) {
     if (options.allowFailure) {
-      const output = error as { stdout?: string | Buffer };
-      return output.stdout?.toString() ?? "";
+      const output = error as { stdout?: string | Buffer; stderr?: string | Buffer };
+      const stdout = output.stdout?.toString() ?? "";
+      const stderr = options.includeStderr ? output.stderr?.toString() ?? "" : "";
+      return `${stdout}\n${stderr}`;
     }
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`${command} ${commandArgs.join(" ")} failed: ${message}`);
@@ -300,6 +333,7 @@ function reseedAndStart(report: Report) {
     cwd: root,
     detached: true,
     stdio: "ignore",
+    env: bugProcessEnv(selectedBugIds()),
   });
   child.unref();
   report.completed.push("Started the dev server on port 43173.");
@@ -307,11 +341,18 @@ function reseedAndStart(report: Report) {
 
 function verifyTests(report: Report) {
   if (skipVerify || dryRun) return;
-  const output = command("npm", ["test"], { allowFailure: true });
-  if (!/1 failed[\s\S]*48 passed|48 passed[\s\S]*1 failed/i.test(output)) {
-    throw new Error("The reset suite did not report the expected 1 failed / 48 passed result.");
+  const ids = selectedBugIds();
+  const expected = expectedSuiteResult(ids);
+  const label = `${expected.failed} failed / ${expected.passed} passed`;
+  const output = command("npm", ["test"], {
+    allowFailure: true,
+    includeStderr: true,
+    env: bugProcessEnv(ids),
+  });
+  if (!suiteOutputMatches(output, expected)) {
+    throw new Error(`The reset suite did not report the expected ${label} result.`);
   }
-  report.completed.push("Confirmed the expected 1 failed / 48 passed test result.");
+  report.completed.push(`Confirmed the expected ${label} test result.`);
 }
 
 async function cancelWithLinearApi(event: SessionEvent, report: Report) {
@@ -388,8 +429,10 @@ function remainingExternalActions(event: SessionEvent, report: Report) {
 }
 
 async function reset() {
+  const bugIds = selectedBugIds();
   const event = readEvent(false);
-  const report: Report = { completed: [], skipped: [], remaining: [] };
+  const report: Report = { completed: [], skipped: [], remaining: [], bugs: bugIds };
+  report.completed.push(`Demo bugs: ${bugIds.join(", ") || "(none)"}.`);
   validateRemovablePaths(event);
   if (!existsSync(eventFile)) {
     report.skipped.push(

@@ -23,9 +23,17 @@ export class SuggestedCreditOverRefundError extends Error {
 }
 
 export class ClosedDisputeResolveError extends Error {
-  constructor() {
-    super("Cannot resolve dispute dsp_1050: status is ACCEPTED.");
+  readonly repostedCreditCents: number | null;
+
+  constructor(repostedCreditCents?: number) {
+    const base = "Cannot resolve dispute dsp_1050: status is ACCEPTED.";
+    super(
+      repostedCreditCents == null
+        ? base
+        : `${base} A second credit of ${formatUsd(repostedCreditCents / 2)} was posted on top of the original.`,
+    );
     this.name = "ClosedDisputeResolveError";
+    this.repostedCreditCents = repostedCreditCents ?? null;
   }
 }
 

@@ -10,6 +10,7 @@ import { draftCollectionNote } from "@/lib/collection-note";
 import { DEMO_AS_OF } from "@/lib/clock";
 import { getInvoice } from "@/lib/data";
 import { daysBetween, formatDate } from "@/lib/dates";
+import { invoiceLinesTotalCents, lineAmountCents } from "@/lib/invoice-lines";
 import { formatUsd } from "@/lib/money";
 import { isPlanId, planLabel } from "@/lib/plans";
 
@@ -27,6 +28,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
   const daysPastDue =
     invoice.status === "OVERDUE" ? Math.max(0, daysBetween(DEMO_AS_OF, invoice.dueOn)) : 0;
+  const linesTotalCents = invoiceLinesTotalCents(
+    invoice.lines.map((line) => ({
+      quantity: line.quantity,
+      unitPriceCents: line.unitPriceCents,
+    })),
+  );
   const noteDraft = draftCollectionNote({
     customerName: invoice.customer.name,
     daysPastDue,
@@ -64,7 +71,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   <tr key={line.id} className="border-b border-border">
                     <td className="px-5 py-3">{line.description}</td>
                     <td className="px-5 py-3">{line.quantity}</td>
-                    <td className="px-5 py-3 text-right">{formatUsd(line.amountCents)}</td>
+                    <td className="px-5 py-3 text-right">
+                      {formatUsd(
+                        lineAmountCents({
+                          quantity: line.quantity,
+                          unitPriceCents: line.unitPriceCents,
+                        }),
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -72,7 +86,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             <dl className="mt-4 space-y-2 px-5 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Subtotal</dt>
-                <dd>{formatUsd(invoice.subtotalCents)}</dd>
+                <dd>{formatUsd(linesTotalCents)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Tax</dt>
@@ -80,7 +94,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               </div>
               <div className="flex justify-between font-medium">
                 <dt>Total</dt>
-                <dd>{formatUsd(invoice.totalCents)}</dd>
+                <dd>{formatUsd(linesTotalCents + invoice.taxCents)}</dd>
               </div>
             </dl>
           </CardContent>

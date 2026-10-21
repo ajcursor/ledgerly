@@ -45,7 +45,7 @@ export default async function DashboardPage() {
         <KpiCard
           label="Open Invoices"
           value={formatUsd(kpis.openCents)}
-          hint="vs Jun 24 – Jul 23"
+          hint={`${kpis.overdueCount} overdue · vs Jun 24 – Jul 23`}
           change={kpis.openChange}
           icon={FileText}
           tone="indigo"

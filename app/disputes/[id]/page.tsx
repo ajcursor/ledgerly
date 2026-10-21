@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getDispute } from "@/lib/data";
+import { suggestedCreditPath } from "@/lib/disputes/suggested-credit-api";
 import { formatDate } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
 import { isPlanId, planLabel, planPriceCents } from "@/lib/plans";
@@ -89,7 +90,7 @@ export default async function DisputeDetailPage({ params }: { params: Promise<{ 
         </CardHeader>
         <CardContent className="space-y-3">
           <SuggestedCredit
-            disputeId={dispute.id}
+            path={suggestedCreditPath(dispute.id)}
             catalogPriceCents={catalogPrice}
             planName={planLabel(dispute.invoice.plan)}
           />
