@@ -8,6 +8,9 @@ import { ACTING_CUSTOMER_COOKIE, ACTING_CUSTOMER_HEADER } from "@/lib/synthetic-
 /**
  * Throws a seeded demo error so Sentry can capture it.
  * Enabled only when DEMO_MODE=true. Otherwise this is a 404.
+ *
+ * Public by design: Ledgerly has no auth layer, and this route only throws
+ * seeded errors for synthetic customers. DEMO_MODE must stay off outside demos.
  */
 export async function GET(request: Request) {
   if (process.env.DEMO_MODE !== "true") {
