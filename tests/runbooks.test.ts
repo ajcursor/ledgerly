@@ -442,14 +442,14 @@ describe("runbook catalog", () => {
     "title": "Start a new agent to audit accessibility.",
     "promptType": "none",
     "detail": "Start a new local agent.",
-    "say": "Start a new audit for accessibility. Check the accessibility test suite and run a keyboard walkthrough. Run the application test suite to make sure the application works as intended."
+    "say": "A new agent keeps the audit separate from the command center plan."
   },
   {
     "id": "multitask-walkthroughs",
     "title": "Show /multitask for small coordinated jobs.",
     "promptType": "adaptable",
-    "detail": "",
-    "example": "/multitask Run these in parallel to find what I need to fix: the accessibility-manual-reviewer subagent on the invoices page, the accessibility test suite, and the application test suite. Stop accessibility-manual-reviewer after finding one failure.",
+    "detail": "Open Browser to http://localhost:43173/invoices.",
+    "example": "/multitask Split into three subagents: accessibility-manual-reviewer checks @components/notice-bell.tsx on the invoices page (click, Tab once, Escape, stop at one failure), one runs accessibility tests, one runs app tests.",
     "say": "The coordinator gives each task its own subagent: a keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite."
   },
   {
@@ -478,7 +478,7 @@ describe("runbook catalog", () => {
     "id": "optional-start-project",
     "title": "Start a new Project.",
     "promptType": "none",
-    "detail": "Start a new Project.\nName it {INSERT COMPANY HERE, default is Ledgerly}.",
+    "detail": "Start a new Project.\nName it {{ INSERT COMPANY HERE, default is Ledgerly }}.",
     "optional": {
       "feature": "Projects"
     },
@@ -531,7 +531,7 @@ describe("runbook catalog", () => {
     "id": "build-plan",
     "title": "Build the plan.",
     "promptType": "none",
-    "detail": "Build locally."
+    "detail": "Click Build Locally."
   },
   {
     "id": "optional-build-cloud",
@@ -598,7 +598,7 @@ describe("runbook catalog", () => {
     "promptType": "reusable",
     "detail": "Check the change reviewer’s output for any issues requiring closer inspection.",
     "example": "Fix the findings from the change reviewer.",
-    "say": "The plan included a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it."
+    "say": "The plan includes a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it."
   },
   {
     "id": "review-highest-risk",

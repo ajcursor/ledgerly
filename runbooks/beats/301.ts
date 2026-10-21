@@ -55,7 +55,7 @@ export const RUNBOOK_SECTIONS_301 = [
         id: "start-audit-agent",
         title: "Start a new agent to audit accessibility.",
         promptType: "none",
-        say: "Start a new audit for accessibility. Check the accessibility test suite and run a keyboard walkthrough. Run the application test suite to make sure the application works as intended.",
+        say: "A new agent keeps the audit separate from the command center plan.",
         detail: "Start a new local agent.",
       },
       {
@@ -63,8 +63,8 @@ export const RUNBOOK_SECTIONS_301 = [
         title: "Show /multitask for small coordinated jobs.",
         promptType: "adaptable",
         say: "The coordinator gives each task its own subagent: a keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite.",
-        detail: "",
-        example: "/multitask Run these in parallel to find what I need to fix: the accessibility-manual-reviewer subagent on the invoices page, the accessibility test suite, and the application test suite. Stop accessibility-manual-reviewer after finding one failure.",
+        detail: "Open Browser to http://localhost:43173/invoices.",
+        example: "/multitask Split into three subagents: accessibility-manual-reviewer checks @components/notice-bell.tsx on the invoices page (click, Tab once, Escape, stop at one failure), one runs accessibility tests, one runs app tests.",
       },
       {
         id: "review-subagents",
@@ -100,7 +100,7 @@ export const RUNBOOK_SECTIONS_301 = [
         optional: { feature: "Projects" },
         promptType: "none",
         say: "Starting a new Project creates a long-running Cloud Agent that acts as a coordinator.\nRun the remaining commands in the Project. Note that responses to prompts may differ from responses in an individual agent.",
-        detail: "Start a new Project.\nName it {INSERT COMPANY HERE, default is Ledgerly}.",
+        detail: "Start a new Project.\nName it {{ INSERT COMPANY HERE, default is Ledgerly }}.",
       },
       {
         id: "optional-stage-project",
@@ -145,7 +145,7 @@ export const RUNBOOK_SECTIONS_301 = [
         id: "build-plan",
         title: "Build the plan.",
         promptType: "none",
-        detail: "Build locally.",
+        detail: "Click Build Locally.",
       },
       {
         id: "optional-build-cloud",
@@ -212,7 +212,7 @@ export const RUNBOOK_SECTIONS_301 = [
         id: "check-closer-inspection",
         title: "Identify any changes requiring closer inspection.",
         promptType: "reusable",
-        say: "The plan included a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it.",
+        say: "The plan includes a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it.",
         detail: "Check the change reviewer’s output for any issues requiring closer inspection.",
         example: "Fix the findings from the change reviewer.",
       },

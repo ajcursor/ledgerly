@@ -665,7 +665,7 @@ Once it is done, check its work.</p>
         </article>
         <article class="beat" data-beat="start-audit-agent">
           <h4>Start a new agent to audit accessibility.</h4>
-          <p class="say">Start a new audit for accessibility. Check the accessibility test suite and run a keyboard walkthrough. Run the application test suite to make sure the application works as intended.</p>
+          <p class="say">A new agent keeps the audit separate from the command center plan.</p>
           <div class="do-box">
             <ul><li>Start a new local agent.</li></ul>
           </div>
@@ -673,12 +673,15 @@ Once it is done, check its work.</p>
         <article class="beat" data-beat="multitask-walkthroughs">
           <h4>Show /multitask for small coordinated jobs.</h4>
           <p class="say">The coordinator gives each task its own subagent: a keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite.</p>
+          <div class="do-box">
+            <ul><li>Open Browser to http://localhost:43173/invoices.</li></ul>
+          </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/multitask Run these in parallel to find what I need to fix: the accessibility-manual-reviewer subagent on the invoices page, the accessibility test suite, and the application test suite. Stop accessibility-manual-reviewer after finding one failure.</pre>
+            <pre>/multitask Split into three subagents: accessibility-manual-reviewer checks @components/notice-bell.tsx on the invoices page (click, Tab once, Escape, stop at one failure), one runs accessibility tests, one runs app tests.</pre>
           </div>
         </article>
         <article class="beat" data-beat="review-subagents">
@@ -722,7 +725,7 @@ Once it is done, check its work.</p>
           <p class="say">Starting a new Project creates a long-running Cloud Agent that acts as a coordinator.
 Run the remaining commands in the Project. Note that responses to prompts may differ from responses in an individual agent.</p>
           <div class="do-box">
-            <ol><li>Start a new Project.</li><li>Name it {INSERT COMPANY HERE, default is Ledgerly}.</li></ol>
+            <ol><li>Start a new Project.</li><li>Name it {{ INSERT COMPANY HERE, default is Ledgerly }}.</li></ol>
           </div>
         </article>
         <article class="beat" data-beat="optional-stage-project" data-feature="Projects">
@@ -772,7 +775,7 @@ By starting the work on a separate worktree, you avoid editing the working code 
         <article class="beat" data-beat="build-plan">
           <h4>Build the plan.</h4>
           <div class="do-box">
-            <ul><li>Build locally.</li></ul>
+            <ul><li>Click Build Locally.</li></ul>
           </div>
         </article>
         <article class="beat" data-beat="optional-build-cloud" data-feature="Cloud Agents">
@@ -860,7 +863,7 @@ You can review tasks in project notes and shared files in context.</p>
         </article>
         <article class="beat" data-beat="check-closer-inspection">
           <h4>Identify any changes requiring closer inspection.</h4>
-          <p class="say">The plan included a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it.</p>
+          <p class="say">The plan includes a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it.</p>
           <div class="do-box">
             <ul><li>Check the change reviewer’s output for any issues requiring closer inspection.</li></ul>
           </div>
