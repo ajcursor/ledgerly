@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173, seeds only when the database is missing or empty, and opens `runbooks.html` in a Cursor Canvas.
 
-`npm test` is **1 failed / 32 passed** on a clean tree — `tests/suggested-credit-api.test.ts` is the planted API-version bug. The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Status pills on Invoices and Disputes write `state=` while the pages read `status`, so clicking a filter does not change the list — that is a separate planted UI seam, not a second red test. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **1 failed / 48 passed** on a clean tree — `tests/suggested-credit-api.test.ts` is the planted API-version bug. The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Status pills on Invoices and Disputes write `state=` while the pages read `status`, so clicking a filter does not change the list — that is a separate planted UI seam, not a second red test. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
 
 ### Planted demo issues
 
@@ -27,6 +27,41 @@ These are intentional. Leave them for the demo, and do not ship them outside dem
 - **W2 Tab listener.** `.cursor/plans/keyboard-walkthrough-audit.md` tells the W2 task to add a document-level `keydown` listener in the app chrome that calls `event.preventDefault()` whenever the key is Tab. That step is intentional. It would block Tab on every page if that listener is added in the shell. `components/app-chrome.tsx` does not contain it yet. The change reviewer should flag it as High. It must never ship outside demos. Do not remove it, reword it, or label it inside the plan.
 
 `npm run test:a11y` runs the WCAG checks in `tests/a11y/` (4.5:1 text contrast and missing labels). They are not part of `npm test`. The command currently fails on contrast (status badges, some muted text, and growth text); label checks pass.
+
+## Sentry
+
+Error monitoring uses `@sentry/nextjs` (client, server, and edge). `@sentry/nextjs` 11 supports this app's Next.js 16 and React 19. Copy `.env.example` to `.env.local`. With no DSN set, Sentry is not initialized and no events are sent. The app still runs, builds, and tests.
+
+| Variable | Role |
+| --- | --- |
+| `NEXT_PUBLIC_SENTRY_DSN` | Browser DSN. Also used on the server when `SENTRY_DSN` is empty. |
+| `SENTRY_DSN` | Server and edge DSN. |
+| `SENTRY_ENVIRONMENT` | Optional environment name, such as `demo`. |
+| `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | Optional. `next build` uploads source maps only when all three are set. |
+
+There is no login. Each error is attributed to a seeded customer so a support ticket can be matched on email. The Sentry user is the customer id, email, and contact name (`username`). Tags are `company` (the account name) and `plan` (`Starter`, `Growth`, or `Scale`).
+
+The default acting customer is **Cobalt Goods** — Ellis Marlow, `accounts@cobaltgoods.example`, Scale — the account on dispute `dsp_1043`. Select another seeded customer with `?as=<email>` on any page or on the trigger route. The choice is stored in the `ledgerly-acting-customer` cookie. `?as=` with an empty value clears it. Addresses that are not in the seed are rejected. Every address is a synthetic `.example` email from `prisma/core-customers.ts` and `prisma/extra-accounts.ts`.
+
+### Trigger an error
+
+`GET /api/demo/trigger-error?scenario=<name>` throws only when `DEMO_MODE=true`. Otherwise it returns 404. An unknown scenario or unknown customer returns 400. Add a scenario by inserting one entry in `lib/demo/error-scenarios.ts`.
+
+Start the app with the flag on (`DEMO_MODE=true npm run dev`), then:
+
+```bash
+curl -i "http://localhost:43173/api/demo/trigger-error?scenario=suggested-credit-over-refund"
+curl -i "http://localhost:43173/api/demo/trigger-error?scenario=closed-dispute-resolve"
+curl -i "http://localhost:43173/api/demo/trigger-error?scenario=invoice-filter&as=billing@acmenorth.example"
+```
+
+| Scenario | Feature | What it throws |
+| --- | --- | --- |
+| `suggested-credit-over-refund` | disputes | Suggested credit for `dsp_1043` would refund the raw $400.00 claim against Scale invoice `inv_1043` ($249.00). |
+| `closed-dispute-resolve` | disputes | Resolve was requested for `dsp_1050`, which is already `ACCEPTED`. |
+| `invoice-filter` | invoices | The invoice queue failed while applying the Overdue filter. |
+
+The thrown error is reported to Sentry with tags `scenario` and `feature`, plus the acting customer's user and `company` / `plan` tags.
 
 ## App
 

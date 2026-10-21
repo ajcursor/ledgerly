@@ -1,5 +1,7 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function ErrorState({
@@ -9,6 +11,10 @@ export default function ErrorState({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <div className="mx-auto flex max-w-xl flex-col items-start gap-4 py-16">
       <p className="text-xs font-medium tracking-[0.16em] text-indigo uppercase">Ledgerly hit a snag</p>

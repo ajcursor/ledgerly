@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { demoDay } from "../lib/clock";
 import { suggestDisputeCredit } from "../lib/dispute-credit";
 import { planPriceCents } from "../lib/plans";
+import { CORE_CUSTOMERS } from "./core-customers";
 import { EXTRA_ACCOUNTS } from "./extra-accounts";
 
 const prisma = new PrismaClient();
@@ -20,87 +21,6 @@ function extraInvoiceState(index: number) {
   }
   return { status: "OPEN", issuedOn: "2026-08-01", dueOn: "2026-08-31" };
 }
-
-type SeedCustomer = {
-  id: string;
-  name: string;
-  contactName: string;
-  email: string;
-  plan: "STARTER" | "GROWTH" | "SCALE";
-};
-
-const CUSTOMERS: SeedCustomer[] = [
-  {
-    id: "cus_harborline",
-    name: "Acme North",
-    contactName: "Jordan Hale",
-    email: "billing@acmenorth.example",
-    plan: "GROWTH",
-  },
-  {
-    id: "cus_cedarwell",
-    name: "Riverstone Labs",
-    contactName: "Remy Sato",
-    email: "hello@riverstone.example",
-    plan: "STARTER",
-  },
-  {
-    id: "cus_quarrypine",
-    name: "Cobalt Goods",
-    contactName: "Ellis Marlow",
-    email: "accounts@cobaltgoods.example",
-    plan: "SCALE",
-  },
-  {
-    id: "cus_brightwell",
-    name: "Brightwell Labs",
-    contactName: "Priya Nader",
-    email: "ops@brightwell.example",
-    plan: "GROWTH",
-  },
-  {
-    id: "cus_oakiron",
-    name: "Oakiron Supply",
-    contactName: "Chris Bellamy",
-    email: "billing@oakiron.example",
-    plan: "STARTER",
-  },
-  {
-    id: "cus_fieldnote",
-    name: "Fieldnote Press",
-    contactName: "Sam Ortez",
-    email: "ledger@fieldnote.example",
-    plan: "SCALE",
-  },
-  {
-    id: "cus_silverpine",
-    name: "Silverpine Outfitters",
-    contactName: "Noor Voss",
-    email: "pay@silverpine.example",
-    plan: "GROWTH",
-  },
-  {
-    id: "cus_mapleember",
-    name: "Maple & Ember Co",
-    contactName: "Dana Ruiz",
-    email: "hello@mapleember.example",
-    plan: "STARTER",
-  },
-  {
-    id: "cus_tidewatch",
-    name: "Tidewatch Logistics",
-    contactName: "Keir Anand",
-    email: "billing@tidewatch.example",
-    plan: "SCALE",
-  },
-  {
-    id: "cus_copperleaf",
-    name: "Copperleaf Atelier",
-    contactName: "Lila Shore",
-    email: "studio@copperleaf.example",
-    plan: "GROWTH",
-  },
-];
 
 const INVOICES = [
   {
@@ -352,7 +272,7 @@ async function main() {
     },
   });
 
-  for (const customer of CUSTOMERS) {
+  for (const customer of CORE_CUSTOMERS) {
     await prisma.customer.create({
       data: {
         ...customer,
