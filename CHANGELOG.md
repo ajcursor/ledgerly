@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Optional runbook beats record a feature name from the Outline tag. Each track lists those features as checkboxes, on by default. Turning one off hides its beats and the browser remembers the choice.
-- `change-reviewer` project agent. Read-only diff inspection for the 301 review beat. It owns the closer-inspection list: authentication, payments, personal data, permissions, or secrets; difficult rollback; missing tests; a test an agent edited; scope outside the plan; and new dependencies or shell commands. Like `ledgerly-reviewer`, it reports Passed and Incomplete, with high, warning, and suggestion inside Incomplete.
+- `change-reviewer` project agent. Diff inspection for the 301 review beat. `readonly` is false so it can run `git status` and `git diff`; its instructions forbid edits. It owns the closer-inspection list: authentication, payments, personal data, permissions, or secrets; difficult rollback; missing tests; a test an agent edited; scope outside the plan; and new dependencies or shell commands. Like `ledgerly-reviewer`, it reports Passed and Incomplete, with high, warning, and suggestion inside Incomplete.
 
 ### Removed
 
@@ -23,7 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Synced 301 Show beats to the live Outline: the in-scope keyboard plan, change-reviewer readonly false, the planted Tab step flagged high and never kept, and the Linear fallback file.
+- Change reviewer catalog copy matches `readonly: false`: it can run `git status` and `git diff`, and its instructions still forbid edits.
+- Synced 301 Show beats to the accepted Outline: the in-scope keyboard plan and its Say, `readonly: false` on the accessibility manual reviewer, stop that reviewer after one failure, the Linear fallback file `@runbooks/linear-field-demos.ts`, change-reviewer `readonly: false`, and the closer-inspection beat that flags the planted Tab step as high and never kept.
+- The W2 keyboard task includes a deliberate Tab `preventDefault` step for the 301 demo. See Planted demo issues in `AGENTS.md` and `README.md`. The plan does not label it.
 - Runbook cards show Say, then the Do lines in their own box, then the prompt. Several Do lines are numbered. The box matches the prompt border, radius, and padding, with the indigo soft fill and no copy button.
 - 301 beats now copy Say, Do, and Prompt from the live Outline, including optional feature tags. Three Show steps that were missing are now beats.
 - The side-question step uses two cards. side-chat keeps the Outline heading. ask-subagent-progress is titled Ask what the first subagent is remediating.

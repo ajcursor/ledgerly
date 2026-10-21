@@ -17,7 +17,7 @@ export const PROJECT_AGENTS = [
   {
     name: "change-reviewer",
     path: ".cursor/agents/change-reviewer.md",
-    when: "Read-only review of a diff. Flags sensitive data, hard rollback, missing tests, edited failing tests, scope outside the plan, and new dependencies or shell commands.",
+    when: "Diff review with readonly: false so it can run git status and git diff. Its instructions forbid edits. Flags sensitive data, hard rollback, missing tests, edited failing tests, scope outside the plan, and new dependencies or shell commands.",
   },
 ] as const;
 
