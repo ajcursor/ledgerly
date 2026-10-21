@@ -47,7 +47,9 @@
       "sentryScenario": "invoice-filter",
       "sentryFingerprint": "invoice-filter",
       "linearTitle": "Clicking Overdue or Needs review does not filter the queue",
-      "redTests": [],
+      "redTests": [
+        "tests/filter-pills.test.ts"
+      ],
       "defaultEnabled": true
     },
     {

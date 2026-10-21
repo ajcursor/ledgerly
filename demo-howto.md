@@ -62,11 +62,11 @@ Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` ski
 
 Check shipped state:
 
-- `npm test` is **1 failed / 65 passed**; the sole failure is `tests/suggested-credit-api.test.ts`
+- `npm test` is **2 failed / 70 passed**; the failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`
 - [http://127.0.0.1:43173/disputes/dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043) shows **Suggested credit $400.00** in red, above the Scale price of **$249**
 - The deprecated v1 route returns the $400 claim; v2, the domain helper, and the seed store the correct $249 credit
-- Accept credit / Decline are disabled — that unfinished resolution UI is separate from the planted API-version error
-- Invoice and dispute status pills write `?state=` while the pages read `status` — clicking Overdue / Needs review does not filter. That is a planted UI seam, not a second red test. Restore it with the scripted reset.
+- Accept credit posts the catalog credit once. A dispute that is already accepted or declined returns 409.
+- Invoice and dispute status pills write `?state=` while the pages read `status` — clicking Overdue / Needs review does not filter. `tests/filter-pills.test.ts` is red while that bug is on. Restore it with the scripted reset.
 
 If the credit reads $249.00 or the suite is all green, a prior run switched the client to v2. If status pills filter the list, a prior run renamed `state` to `status`. Run:
 
@@ -231,12 +231,12 @@ Create three slides in Figma Slides outlining how I used Grok Build to develop a
 ```text
 Run npm test and report which tests passed and which failed. Do not edit any files.
 
-On a clean tree, npm test is 1 failed / 65 passed. The sole red test is tests/suggested-credit-api.test.ts because the client intentionally selects deprecated v1. Do not change the test, either route, or the seed.
+On a clean tree, npm test is 2 failed / 70 passed. tests/suggested-credit-api.test.ts is red because the client selects deprecated v1, and tests/filter-pills.test.ts is red because the pills write state=. Do not change the suggested-credit test, either route, or the seed.
 ```
 
 **If the client migration ran:** `tests/suggested-credit-api.test.ts` should be green and dsp_1043 should show **$249** from v2, with both routes intact.
 
-**If no migration ran:** `npm test` should remain **1 failed / 65 passed**. That is shipped state, not failed setup.
+**If no migration ran:** `npm test` should remain **2 failed / 70 passed**. That is shipped state, not failed setup.
 
 **Land:** A green check is evidence, not permission to merge. The presenter remains accountable.
 
@@ -246,7 +246,7 @@ On a clean tree, npm test is 1 failed / 65 passed. The sole red test is tests/su
 
 **Say:**
 
-> I reviewed the result. Now I am resetting the demo app so the next session starts with the same planted v1 client, the same $400 UI result, the same expected red test, and status pills that still write `state=`.
+> I reviewed the result. Now I am resetting the demo app so the next session starts with the same planted v1 client, the same $400 UI result, the same two red tests, and status pills that still write `state=`.
 
 **Do:** Ask the agent to run `reset-demo-state`, or:
 
@@ -256,7 +256,7 @@ npm run demo:reset
 
 **Then:** complete only the script's reported Figma, Cursor user-rule, or Linear MCP actions. The script resets files, recorded rules/skills, Canvas, branches, SQLite, and port 43173.
 
-**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **1 failed / 65 passed**, status pills still writing `state=`.
+**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **2 failed / 70 passed**, status pills still writing `state=`.
 
 ---
 

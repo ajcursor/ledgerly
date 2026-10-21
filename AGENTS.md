@@ -69,7 +69,7 @@ For any reset request, run `npm run demo:reset` first. It resets everything it k
 npm test
 ```
 
-One test fails on a clean tree: `tests/suggested-credit-api.test.ts` expects the client to use v2 while `lib/disputes/suggested-credit-api.ts` selects deprecated v1. That is the `credit_v1` demo bug, on when `DEMO_BUGS`, `DEMO_SCENARIO`, and `DEMO_BUGS_FILE` are unset. That migration is tracked on its own, so do not turn the bug off as a drive-by. Preserve both routes and never change the test or seed to get green. Other registry bugs stay off unless a set selects them. See the README.
+Two tests fail on a clean tree. `tests/suggested-credit-api.test.ts` expects the client to use v2 while `lib/disputes/suggested-credit-api.ts` selects deprecated v1 (`credit_v1`, on when `DEMO_BUGS`, `DEMO_SCENARIO`, and `DEMO_BUGS_FILE` are unset). That migration is tracked on its own, so do not turn the bug off as a drive-by. Preserve both routes and never change the test or seed to get green. `tests/filter-pills.test.ts` expects `status=` and fails while `filter_state` is on. Other registry bugs stay off unless a set selects them. See the README.
 
 ### Planted demo issues
 
@@ -80,7 +80,7 @@ These are intentional. Leave them in place for the demo, and do not ship them ou
 
 Passing tests include `tests/money.test.ts` and `tests/plans.test.ts`. Environment start seeds the database and runs only the passing tests so a red suite cannot mark the machine as failed to boot.
 
-Shipped suite on a clean tree: **1 failed / 65 passed**. The `dsp_1043` page shows v1's $400 result; v2 and the stored credit are correctly capped at $249. Invoice and dispute status pills write `state=` while the pages read `status` — that click path is a separate planted UI seam, not a second red test. Do not volunteer it when explaining the app or the failing test; only when the user is on that click path.
+Shipped suite on a clean tree: **2 failed / 70 passed**. The `dsp_1043` page shows v1's $400 result; v2 and the stored credit are correctly capped at $249. Invoice and dispute status pills write `state=` while the pages read `status`, and `tests/filter-pills.test.ts` is red while `filter_state` is on.
 
 WCAG checks live in `tests/a11y/` and run separately with `npm run test:a11y`; `npm test` excludes them, so they do not change the shipped count. They check 4.5:1 text contrast for the token pairs in `app/globals.css` (light and dark) and labels on form controls, buttons, links, and images. The suite is red today on contrast only; label checks pass. Failing pairs: light `--success`, `--warning`, and `--danger` on their `-soft` badge backgrounds; light `--muted-foreground` on `--muted` and on `--indigo-soft`; light `--success` on `--card`; and dark `--danger` on `--danger-soft`. Keep `test:a11y` out of `npm test`, the environment start command, and `scripts/demo-reset.ts`.
 

@@ -35,7 +35,7 @@ export default async function DisputesPage({
       <PageHeader
         eyebrow="Exceptions"
         title="Dispute queue"
-        description="Credit suggestions must stay inside the catalog. The detail page and resolve API are unfinished — that is the Agent seam."
+        description="Credit suggestions must stay inside the catalog. Accept posts that credit once."
       />
 
       <FilterPills pathname="/disputes" value={status} items={FILTERS} />
