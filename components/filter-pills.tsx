@@ -1,5 +1,23 @@
 import Link from "next/link";
+import { isDemoBugEnabled } from "@/lib/demo/bugs";
 import { cn } from "@/lib/utils";
+
+/** Pages read `status`. The planted filter bug still writes `state`. */
+export function statusFilterQueryKey(): "state" | "status" {
+  return isDemoBugEnabled("filter_state") ? "state" : "status";
+}
+
+export function filterPillHref(
+  pathname: string,
+  itemId: string,
+  extra?: { q?: string },
+): string {
+  const params = new URLSearchParams();
+  if (itemId !== "ALL") params.set(statusFilterQueryKey(), itemId);
+  if (extra?.q) params.set("q", extra.q);
+  const query = params.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
 
 export function FilterPills({
   pathname,
@@ -15,10 +33,7 @@ export function FilterPills({
   return (
     <div className="flex flex-wrap gap-1.5">
       {items.map((item) => {
-        const params = new URLSearchParams();
-        if (item.id !== "ALL") params.set("state", item.id);
-        if (extra?.q) params.set("q", extra.q);
-        const href = params.toString() ? `${pathname}?${params}` : pathname;
+        const href = filterPillHref(pathname, item.id, extra?.q ? { q: extra.q } : undefined);
         const active = value === item.id;
         return (
           <Link

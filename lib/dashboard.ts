@@ -1,4 +1,6 @@
 import { DEMO_AS_OF, DEMO_PRIOR_END, DEMO_PRIOR_START, DEMO_WINDOW_START } from "@/lib/clock";
+import { invoiceAgingDate, type InvoiceAgingBasis } from "@/lib/dates";
+import { isDemoBugEnabled } from "@/lib/demo/bugs";
 import { sumCents } from "@/lib/money";
 import { planPriceCents } from "@/lib/plans";
 
@@ -53,6 +55,32 @@ export function collectedCents(invoices: InvoiceLike[], start: Date, end: Date) 
 
 export function openCentsAt(invoices: InvoiceLike[], asOf: Date) {
   return sumCents(invoices.filter((invoice) => isOpenAt(invoice, asOf)).map((invoice) => invoice.totalCents));
+}
+
+const NOT_COLLECTIBLE = new Set(["PAID", "VOID", "DRAFT"]);
+
+/**
+ * Overdue aging basis. The selected overdue_count bug points the job at the
+ * issue date, so an open invoice that is not due yet still counts as overdue.
+ */
+export function overdueAgingBasis(): InvoiceAgingBasis {
+  return isDemoBugEnabled("overdue_count") ? "issued" : "due";
+}
+
+export function isOverdueInvoice(
+  invoice: { status: string; dueOn: Date; issuedOn: Date },
+  asOf: Date,
+  basis: InvoiceAgingBasis = overdueAgingBasis(),
+): boolean {
+  if (NOT_COLLECTIBLE.has(invoice.status)) return false;
+  return invoiceAgingDate(invoice, basis).getTime() < asOf.getTime();
+}
+
+export function countOverdueInvoices(
+  invoices: { status: string; dueOn: Date; issuedOn: Date }[],
+  asOf: Date,
+): number {
+  return invoices.filter((invoice) => isOverdueInvoice(invoice, asOf)).length;
 }
 
 export function disputeCentsAt(disputes: DisputeLike[], asOf: Date) {
