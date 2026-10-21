@@ -215,10 +215,10 @@ describe("demo bug registry", () => {
     });
   });
 
-  it("expects one red test per enabled bug that has one", () => {
+  it("counts one red test for each enabled bug that has one", () => {
     expect(expectedSuiteResult(["credit_v1", "filter_state"])).toEqual({
-      failed: 1,
-      passed: SHIPPED_TEST_TOTAL - 1,
+      failed: 2,
+      passed: SHIPPED_TEST_TOTAL - 2,
     });
     expect(expectedSuiteResult(["overdue_count"])).toEqual({
       failed: 1,
@@ -229,8 +229,8 @@ describe("demo bug registry", () => {
       passed: SHIPPED_TEST_TOTAL - 2,
     });
     expect(expectedSuiteResult(bugsForScenario("all"))).toEqual({
-      failed: 4,
-      passed: SHIPPED_TEST_TOTAL - 4,
+      failed: 5,
+      passed: SHIPPED_TEST_TOTAL - 5,
     });
     expect(expectedSuiteResult([])).toEqual({ failed: 0, passed: SHIPPED_TEST_TOTAL });
   });

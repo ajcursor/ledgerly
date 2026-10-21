@@ -48,7 +48,7 @@ export const DEMO_BUG_LIST: readonly DemoBug[] = [
     sentryScenario: "invoice-filter",
     sentryFingerprint: "invoice-filter",
     linearTitle: "Clicking Overdue or Needs review does not filter the queue",
-    redTests: [],
+    redTests: ["tests/filter-pills.test.ts"],
     defaultEnabled: true,
   },
   {
@@ -106,9 +106,9 @@ export const DEFAULT_DEMO_BUG_IDS: readonly DemoBugId[] = DEMO_BUG_LIST.filter((
 /**
  * Vitest tests in `npm test` on this tree. Red tests are included.
  * Reset's health check uses this with the enabled bugs' redTests.
- * Update it, and the "1 failed / N passed" citations, when the suite changes.
+ * Update it, and the shipped-suite citations, when the suite changes.
  */
-export const SHIPPED_TEST_TOTAL = 66;
+export const SHIPPED_TEST_TOTAL = 72;
 
 export function demoBug(id: string): DemoBug | null {
   return BUG_BY_ID.get(id) ?? null;

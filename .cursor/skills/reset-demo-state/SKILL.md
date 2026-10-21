@@ -11,7 +11,7 @@ Run the script first. It is the source of truth for local cleanup.
 npm run demo:reset
 ```
 
-The command restores tracked files with `git reset --hard HEAD`, switches to `main`, removes recorded demo rules, skills, Canvas files, and demo branches, removes the known project path `.cursor/agents/accessibility-auditor.md`, reseeds SQLite, restarts port 43173, and confirms **1 failed / 65 passed**. It leaves the suggested-credit client on v1 and filter pills writing `state=`. It never runs `git clean`, removes an unrecorded personal skill, or deletes the Linear team.
+The command restores tracked files with `git reset --hard HEAD`, switches to `main`, removes recorded demo rules, skills, Canvas files, and demo branches, removes the known project path `.cursor/agents/accessibility-auditor.md`, reseeds SQLite, restarts port 43173, and confirms **2 failed / 70 passed**. It leaves the suggested-credit client on v1 and filter pills writing `state=`. It never runs `git clean`, removes an unrecorded personal skill, or deletes the Linear team.
 
 Pass a bug set when the run should not use the default. `--bugs=` replaces the default, `--scenario=` is `known`, `ambiguous`, `new`, or `all`, and `--scenario-file=` reads a JSON file under `demo/scenarios/`. The health check expects that set's result (`lib/demo/bugs.ts`) instead of a fixed count. The same set is given to the dev server.
 

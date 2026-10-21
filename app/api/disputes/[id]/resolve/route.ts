@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
-import { resolveDispute } from "@/lib/disputes/resolve";
+import { ClosedDisputeResolveError } from "@/lib/demo/error-scenarios";
+import {
+  DisputeAlreadyResolvedError,
+  DisputeNotFoundError,
+  resolveDispute,
+} from "@/lib/disputes/resolve";
 
 /**
- * Agent seam. Should accept { action: "accept" | "decline", reviewerNote?: string }
- * and persist via resolveDispute. Returns 501 until that helper is implemented.
+ * Accept or decline a dispute.
+ * Body: { action: "accept" | "decline", reviewerNote?: string }
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -23,20 +28,23 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   try {
-    await resolveDispute({
+    const result = await resolveDispute({
       disputeId: id,
       action: body.action,
       reviewerNote: body.reviewerNote,
     });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, ...result });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Not implemented";
-    return NextResponse.json(
-      {
-        error: message,
-        hint: "Implement lib/disputes/resolve.ts and enable the panel on app/disputes/[id]/page.tsx.",
-      },
-      { status: 501 },
-    );
+    if (error instanceof DisputeAlreadyResolvedError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+    if (error instanceof DisputeNotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+    if (error instanceof ClosedDisputeResolveError) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    const message = error instanceof Error ? error.message : "Resolve failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 import { isDemoBugEnabled } from "@/lib/demo/bugs";
-import { repostClosedDisputeCredit } from "@/lib/disputes/closed-credit";
 import { suggestDisputeCredit } from "@/lib/dispute-credit";
-import { planPriceCents } from "@/lib/plans";
+import { repostClosedDisputeCredit } from "@/lib/disputes/closed-credit";
+import { isPlanId, planPriceCents } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { findSyntheticCustomer } from "@/lib/synthetic-customers";
 
@@ -11,36 +11,83 @@ export type ResolveDisputeInput = {
   reviewerNote?: string;
 };
 
+export type ResolveDisputeResult = {
+  disputeId: string;
+  status: "ACCEPTED" | "DECLINED";
+  suggestedCreditCents: number;
+};
+
+const CLOSED = new Set(["ACCEPTED", "DECLINED"]);
+
+export class DisputeNotFoundError extends Error {
+  constructor(disputeId: string) {
+    super(`Dispute ${disputeId} was not found.`);
+    this.name = "DisputeNotFoundError";
+  }
+}
+
+export class DisputeAlreadyResolvedError extends Error {
+  constructor(disputeId: string, status: string) {
+    super(`Dispute ${disputeId} is already ${status}.`);
+    this.name = "DisputeAlreadyResolvedError";
+  }
+}
+
 /**
- * Multi-file Agent seam.
- * Wire this helper from `app/api/disputes/[id]/resolve/route.ts`
- * and the unfinished panel on `app/disputes/[id]/page.tsx`.
- *
- * When you implement it: persist status, and if accepting a credit,
- * cap it with the catalog plan price. Never invent a number.
+ * Accept posts the catalog-capped credit once and marks the dispute ACCEPTED.
+ * Decline marks it DECLINED and does not raise the credit.
+ * An accepted or declined dispute is refused. The closed_dispute_credit bug
+ * posts that credit again and reports it to Sentry instead of refusing.
  */
-export async function resolveDispute(input: ResolveDisputeInput): Promise<never> {
-  if (isDemoBugEnabled("closed_dispute_credit")) {
-    const dispute = await prisma.dispute.findUnique({
-      where: { id: input.disputeId },
-      include: { invoice: { include: { customer: true } } },
-    });
-    const customer = dispute ? findSyntheticCustomer(dispute.invoice.customer.email) : null;
-    if (dispute && customer) {
-      repostClosedDisputeCredit(
-        {
-          id: dispute.id,
-          status: dispute.status,
-          suggestedCreditCents: dispute.suggestedCreditCents,
-        },
-        customer,
-      );
-    }
+export async function resolveDispute(input: ResolveDisputeInput): Promise<ResolveDisputeResult> {
+  const dispute = await prisma.dispute.findUnique({
+    where: { id: input.disputeId },
+    include: { invoice: { include: { customer: true } } },
+  });
+  if (!dispute) throw new DisputeNotFoundError(input.disputeId);
+  if (!isPlanId(dispute.invoice.plan)) {
+    throw new Error(`Dispute ${dispute.id} is on an invoice with an unknown plan.`);
   }
 
-  // TODO(agent): load the dispute + invoice, cap credit with suggestDisputeCredit + planPriceCents, persist ACCEPTED or DECLINED.
-  void input;
-  void planPriceCents;
-  void suggestDisputeCredit;
-  throw new Error("resolveDispute is not implemented");
+  if (CLOSED.has(dispute.status)) {
+    if (isDemoBugEnabled("closed_dispute_credit")) {
+      const customer = findSyntheticCustomer(dispute.invoice.customer.email);
+      if (customer) {
+        const originalCreditCents = dispute.suggestedCreditCents;
+        await prisma.dispute.update({
+          where: { id: dispute.id },
+          data: { suggestedCreditCents: originalCreditCents * 2 },
+        });
+        repostClosedDisputeCredit(
+          {
+            id: dispute.id,
+            status: dispute.status,
+            suggestedCreditCents: originalCreditCents,
+          },
+          customer,
+        );
+      }
+    }
+    throw new DisputeAlreadyResolvedError(dispute.id, dispute.status);
+  }
+
+  const suggestedCreditCents =
+    input.action === "accept"
+      ? suggestDisputeCredit({
+          disputedAmountCents: dispute.disputedAmountCents,
+          planPriceCents: planPriceCents(dispute.invoice.plan),
+        })
+      : dispute.suggestedCreditCents;
+  const status = input.action === "accept" ? "ACCEPTED" : "DECLINED";
+
+  await prisma.dispute.update({
+    where: { id: dispute.id },
+    data: {
+      status,
+      reviewerNote: input.reviewerNote?.trim() ? input.reviewerNote.trim() : dispute.reviewerNote,
+      ...(input.action === "accept" ? { suggestedCreditCents } : {}),
+    },
+  });
+
+  return { disputeId: dispute.id, status, suggestedCreditCents };
 }

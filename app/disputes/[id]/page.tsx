@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
+import { ResolutionPanel } from "@/components/disputes/resolution-panel";
 import { SuggestedCredit } from "@/components/disputes/suggested-credit";
 import { DisputeStatusBadge, InvoiceStatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { getDispute } from "@/lib/data";
 import { suggestedCreditPath } from "@/lib/disputes/suggested-credit-api";
 import { formatDate } from "@/lib/dates";
@@ -71,21 +70,12 @@ export default async function DisputeDetailPage({ params }: { params: Promise<{ 
         </Card>
       </div>
 
-      {/*
-        MULTI-FILE AGENT STUB
-        Complete together:
-          1. lib/disputes/resolve.ts
-          2. app/api/disputes/[id]/resolve/route.ts
-          3. this panel — enable Accept / Decline and persist a reviewer note
-        The suggested-credit client is tracked separately; it still calls v1.
-      */}
-      <Card className="border-dashed">
+      <Card>
         <CardHeader>
           <CardTitle>Resolution</CardTitle>
           <CardDescription>
-            This panel is unfinished. Accept and Decline should call{" "}
-            <span className="font-mono text-foreground">POST /api/disputes/{dispute.id}/resolve</span>{" "}
-            once the helper exists. Do not invent a credit above {formatUsd(catalogPrice)}.
+            Accept posts the catalog credit once. Decline does not raise it. A dispute that is already
+            accepted or declined is refused. Do not invent a credit above {formatUsd(catalogPrice)}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -94,21 +84,7 @@ export default async function DisputeDetailPage({ params }: { params: Promise<{ 
             catalogPriceCents={catalogPrice}
             planName={planLabel(dispute.invoice.plan)}
           />
-
-          <Label htmlFor="reviewer-note">Reviewer note</Label>
-          <Textarea
-            id="reviewer-note"
-            placeholder="TODO(agent): bind this to resolveDispute and refuse credits above the plan price."
-            defaultValue={dispute.reviewerNote ?? ""}
-          />
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" disabled title="Not wired — Agent demo target">
-              Accept credit
-            </Button>
-            <Button type="button" variant="outline" disabled title="Not wired — Agent demo target">
-              Decline
-            </Button>
-          </div>
+          <ResolutionPanel key={dispute.id} disputeId={dispute.id} initialNote={dispute.reviewerNote ?? ""} />
           <p className="text-xs text-muted-foreground">
             Recorded when this dispute was opened: {formatUsd(dispute.suggestedCreditCents)}.
           </p>
