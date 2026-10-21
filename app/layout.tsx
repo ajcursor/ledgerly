@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies, headers } from "next/headers";
 import { AppShell } from "@/components/app-shell";
+import { SentryActingCustomer } from "@/components/sentry-acting-customer";
+import { resolveActingCustomer } from "@/lib/acting-customer";
+import { applyActingCustomer } from "@/lib/sentry-user";
+import {
+  ACTING_CUSTOMER_COOKIE,
+  ACTING_CUSTOMER_HEADER,
+  defaultActingCustomer,
+} from "@/lib/synthetic-customers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +37,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const headerStore = await headers();
+  const cookieStore = await cookies();
+  const resolved = resolveActingCustomer({
+    headerEmail: headerStore.get(ACTING_CUSTOMER_HEADER),
+    cookieEmail: cookieStore.get(ACTING_CUSTOMER_COOKIE)?.value,
+  });
+  const customer = "error" in resolved ? defaultActingCustomer() : resolved.customer;
+  applyActingCustomer(customer);
+
   return (
     <html
       lang="en"
@@ -42,6 +60,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               "(function(){try{if(localStorage.getItem('ledgerly-theme')==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();",
           }}
         />
+        <SentryActingCustomer customer={customer} />
         <AppShell>{children}</AppShell>
       </body>
     </html>
