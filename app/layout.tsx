@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           }}
         />
         <SentryActingCustomer customer={customer} />
-        <AppShell>{children}</AppShell>
+        <AppShell actingCustomer={customer}>{children}</AppShell>
       </body>
     </html>
   );

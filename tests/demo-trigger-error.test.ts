@@ -12,7 +12,12 @@ vi.mock("@sentry/nextjs", () => ({
 import * as Sentry from "@sentry/nextjs";
 import { GET } from "@/app/api/demo/trigger-error/route";
 import { demoErrorScenarioIds } from "@/lib/demo/error-scenarios";
-import { ACTING_CUSTOMER_COOKIE, ACTING_CUSTOMER_HEADER } from "@/lib/synthetic-customers";
+import { viewingAsCustomers } from "@/lib/demo/viewing-as";
+import { ACTING_CUSTOMER_COOKIE, ACTING_CUSTOMER_HEADER, defaultActingCustomer } from "@/lib/synthetic-customers";
+
+const ellis = defaultActingCustomer();
+const jordan = viewingAsCustomers().find((customer) => customer.id === "cus_harborline");
+if (!jordan) throw new Error("Acme North is missing from the viewing-as catalog.");
 
 const previousDemoMode = process.env.DEMO_MODE;
 
@@ -42,7 +47,7 @@ describe("demo trigger-error route", () => {
 
   it("returns 404 when DEMO_MODE is unset", async () => {
     delete process.env.DEMO_MODE;
-    const response = await GET(trigger("invoice-filter", { as: "billing@acmenorth.example" }));
+    const response = await GET(trigger("invoice-filter", { as: jordan.email }));
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({ error: "Not found" });
@@ -94,21 +99,21 @@ describe("demo trigger-error route", () => {
       },
     );
     expect(Sentry.setUser).toHaveBeenCalledWith({
-      id: "cus_quarrypine",
-      email: "accounts@cobaltgoods.example",
-      username: "Ellis Marlow",
+      id: ellis.id,
+      email: ellis.email,
+      username: ellis.username,
     });
   });
 
   it("attributes the error to the customer in ?as=", async () => {
     await expect(
-      GET(trigger("invoice-filter", { as: "billing@acmenorth.example" })),
+      GET(trigger("invoice-filter", { as: jordan.email })),
     ).rejects.toThrow(/OVERDUE/);
 
     expect(Sentry.setUser).toHaveBeenCalledWith({
-      id: "cus_harborline",
-      email: "billing@acmenorth.example",
-      username: "Jordan Hale",
+      id: jordan.id,
+      email: jordan.email,
+      username: jordan.username,
     });
     expect(Sentry.setTag).toHaveBeenCalledWith("company", "Acme North");
     expect(Sentry.setTag).toHaveBeenCalledWith("plan", "Growth");
@@ -139,7 +144,7 @@ describe("demo trigger-error route", () => {
       GET(
         trigger("invoice-filter", {
           header: "hello@riverstone.example",
-          cookie: "billing@acmenorth.example",
+          cookie: jordan.email,
         }),
       ),
     ).rejects.toThrow(/OVERDUE/);
@@ -164,13 +169,13 @@ describe("demo trigger-error route", () => {
 
   it("an empty ?as= returns to the default customer even when a cookie is set", async () => {
     await expect(
-      GET(trigger("invoice-filter", { as: "", cookie: "billing@acmenorth.example" })),
+      GET(trigger("invoice-filter", { as: "", cookie: jordan.email })),
     ).rejects.toThrow(/OVERDUE/);
 
     expect(Sentry.setUser).toHaveBeenCalledWith({
-      id: "cus_quarrypine",
-      email: "accounts@cobaltgoods.example",
-      username: "Ellis Marlow",
+      id: ellis.id,
+      email: ellis.email,
+      username: ellis.username,
     });
   });
 
@@ -184,7 +189,8 @@ describe("demo trigger-error route", () => {
     expect(readme).toContain("DEMO_MODE");
     expect(readme).toContain("NEXT_PUBLIC_SENTRY_DSN");
     expect(readme).toContain("SENTRY_AUTH_TOKEN");
-    expect(readme).toContain("accounts@cobaltgoods.example");
+    expect(readme).toContain(ellis.email);
+    expect(readme).toContain("Viewing as");
     expect(example).toContain("NEXT_PUBLIC_SENTRY_DSN=");
     expect(example).toContain("SENTRY_DSN=");
     expect(example).toContain("SENTRY_ENVIRONMENT=");

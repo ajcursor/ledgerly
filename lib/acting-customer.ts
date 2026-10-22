@@ -57,6 +57,38 @@ export function resolveActingCustomer(
   return { customer: defaultActingCustomer() };
 }
 
+export type ActingCustomerCookieDecision =
+  | {
+      action: "set";
+      email: string;
+      name: typeof ACTING_CUSTOMER_COOKIE;
+      value: string;
+      path: "/";
+      sameSite: "lax";
+      httpOnly: false;
+      secure: boolean;
+    }
+  | { action: "clear"; name: typeof ACTING_CUSTOMER_COOKIE };
+
+/**
+ * Cookie write for an acting-customer selection. `proxy` applies this when
+ * `?as=` is present. An unknown or blank email clears the cookie.
+ */
+export function actingCustomerCookieDecision(email: string, secure: boolean): ActingCustomerCookieDecision {
+  const customer = findSyntheticCustomer(email);
+  if (!customer) return { action: "clear", name: ACTING_CUSTOMER_COOKIE };
+  return {
+    action: "set",
+    email: customer.email,
+    name: ACTING_CUSTOMER_COOKIE,
+    value: customer.email,
+    path: "/",
+    sameSite: "lax",
+    httpOnly: false,
+    secure,
+  };
+}
+
 export function actingCustomerFromCookieHeader(header: string | null | undefined): SyntheticCustomer {
   const resolved = resolveActingCustomer({
     cookieEmail: readCookie(header, ACTING_CUSTOMER_COOKIE),

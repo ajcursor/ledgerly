@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { readCookie, resolveActingCustomer } from "@/lib/acting-customer";
 import { demoErrorScenario, demoErrorScenarioIds } from "@/lib/demo/error-scenarios";
+import { isDemoModeEnabled } from "@/lib/demo/mode";
 import { applyActingCustomer, markDemoErrorCaptured } from "@/lib/sentry-user";
 import { ACTING_CUSTOMER_COOKIE, ACTING_CUSTOMER_HEADER } from "@/lib/synthetic-customers";
 
@@ -10,7 +11,7 @@ import { ACTING_CUSTOMER_COOKIE, ACTING_CUSTOMER_HEADER } from "@/lib/synthetic-
  * Enabled only when DEMO_MODE=true. Otherwise this is a 404.
  */
 export async function GET(request: Request) {
-  if (process.env.DEMO_MODE !== "true") {
+  if (!isDemoModeEnabled()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

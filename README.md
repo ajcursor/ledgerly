@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173, seeds only when the database is missing or empty, and opens `runbooks.html` in a Cursor Canvas.
 
-`npm test` is **2 failed / 70 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **2 failed / 76 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
 
 ### Planted demo issues
 
@@ -30,7 +30,7 @@ These are intentional. Leave them for the demo, and do not ship them outside dem
 
 ## Switchable demo bugs
 
-`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 70 passed**.
+`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 76 passed**.
 
 `DEMO_BUGS` is a comma-separated list and replaces the default. An empty value turns every bug off. `DEMO_SCENARIO` is `known`, `ambiguous`, `new`, or `all` and is used only when `DEMO_BUGS` is unset. `DEMO_BUGS_FILE` points at a JSON file with `{ "bugs": ["..."] }` or `{ "scenario": "known" }` and is used only when both of those are unset. Presets live in `demo/scenarios/`.
 
@@ -47,23 +47,23 @@ Each bug's test asserts the correct behavior, so the test is red while the bug i
 `overdue_count` shares the `invoice-filter` fingerprint with `filter_state`, so a support match can land in the ambiguous band. Kinds follow the triage bands: known at 0.80 or above, ambiguous from 0.60 to 0.79, new below 0.60.
 
 ```bash
-# Default. credit_v1 and filter_state. 2 failed / 70 passed.
+# Default. credit_v1 and filter_state. 2 failed / 76 passed.
 npm test
 npm run demo:reset
 
-# Known bugs only. Same set as the default. 2 failed / 70 passed.
+# Known bugs only. Same set as the default. 2 failed / 76 passed.
 DEMO_SCENARIO=known npm test
 npm run demo:reset -- --scenario=known
 
-# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 71 passed.
+# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 77 passed.
 DEMO_SCENARIO=ambiguous npm test
 npm run demo:reset -- --scenario=ambiguous
 
-# New bugs. Closed-dispute credit and line rounding. 2 failed / 70 passed.
+# New bugs. Closed-dispute credit and line rounding. 2 failed / 76 passed.
 DEMO_SCENARIO=new npm test
 npm run demo:reset -- --scenario=new
 
-# Every bug. 5 failed / 67 passed.
+# Every bug. 5 failed / 73 passed.
 DEMO_SCENARIO=all npm test
 npm run demo:reset -- --scenario=all
 
@@ -89,7 +89,11 @@ Error monitoring uses `@sentry/nextjs` (client, server, and edge). `@sentry/next
 
 There is no login. Each error is attributed to a seeded customer so a support ticket can be matched on email. The Sentry user is the customer id, email, and contact name (`username`). Tags are `company` (the account name) and `plan` (`Starter`, `Growth`, or `Scale`).
 
-The default acting customer is **Cobalt Goods** — Ellis Marlow, `accounts@cobaltgoods.example`, Scale — the account on dispute `dsp_1043`. Select another seeded customer with `?as=<email>` on any page or on the trigger route. The choice is stored in the `ledgerly-acting-customer` cookie. `?as=` with an empty value clears it. Addresses that are not in the seed are rejected. Every address is a synthetic `.example` email from `prisma/core-customers.ts` and `prisma/extra-accounts.ts`.
+The default acting customer is **Cobalt Goods** — Ellis Marlow, `ellis.marlow@cobaltgoods.brightdesk-demo.co.uk`, Scale — the account on dispute `dsp_1043`. Select another seeded customer with `?as=<email>` on any page or on the trigger route. The choice is stored in the `ledgerly-acting-customer` cookie. `?as=` with an empty value clears it. Addresses that are not in the customer catalog are rejected.
+
+When `DEMO_MODE=true`, the header shows a **Viewing as** menu for Ellis Marlow (Cobalt Goods), Sam Okafor (Fernway Logistics), Jordan Hale (Acme North), and Lila Shore (Copperleaf Atelier). Choosing a contact reloads the page with `?as=` set to that email, which writes the same cookie and refreshes Sentry user context. The current contact is the selected option. The menu is hidden unless `DEMO_MODE` is exactly `true`. `?as=` still works either way.
+
+Those four contacts use HubSpot demo addresses on `brightdesk-demo.co.uk`: `ellis.marlow@cobaltgoods.brightdesk-demo.co.uk`, `sam.okafor@fernway.brightdesk-demo.co.uk`, `jordan.hale@acmenorth.brightdesk-demo.co.uk`, and `lila.shore@copperleaf.brightdesk-demo.co.uk`. Every other address is a synthetic `.example` email from `prisma/core-customers.ts` and `prisma/extra-accounts.ts`. Fernway Logistics is seeded as a Growth customer with no invoice so Sam Okafor can be selected.
 
 ### Trigger an error
 
@@ -100,7 +104,7 @@ Start the app with the flag on (`DEMO_MODE=true npm run dev`), then:
 ```bash
 curl -i "http://localhost:43173/api/demo/trigger-error?scenario=suggested-credit-over-refund"
 curl -i "http://localhost:43173/api/demo/trigger-error?scenario=closed-dispute-resolve"
-curl -i "http://localhost:43173/api/demo/trigger-error?scenario=invoice-filter&as=billing@acmenorth.example"
+curl -i "http://localhost:43173/api/demo/trigger-error?scenario=invoice-filter&as=jordan.hale@acmenorth.brightdesk-demo.co.uk"
 ```
 
 | Scenario | Feature | What it throws |

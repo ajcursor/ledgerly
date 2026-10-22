@@ -4,6 +4,7 @@ import { demoDay } from "../lib/clock";
 import { suggestDisputeCredit } from "../lib/dispute-credit";
 import { planPriceCents } from "../lib/plans";
 import { CORE_CUSTOMERS } from "./core-customers";
+import { DEMO_CONTACTS } from "./demo-contacts";
 import { EXTRA_ACCOUNTS } from "./extra-accounts";
 
 const prisma = new PrismaClient();
@@ -272,7 +273,7 @@ async function main() {
     },
   });
 
-  for (const customer of CORE_CUSTOMERS) {
+  for (const customer of [...CORE_CUSTOMERS, ...DEMO_CONTACTS]) {
     await prisma.customer.create({
       data: {
         ...customer,

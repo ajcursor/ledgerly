@@ -1,8 +1,17 @@
 import type { ReactNode } from "react";
 import { AppChrome } from "@/components/app-chrome";
 import { getOpenDisputeCount, getOpenDisputeNotices } from "@/lib/data";
+import { isDemoModeEnabled } from "@/lib/demo/mode";
+import { viewingAsPickerModel } from "@/lib/demo/viewing-as";
+import type { SyntheticCustomer } from "@/lib/synthetic-customers";
 
-export async function AppShell({ children }: { children: ReactNode }) {
+export async function AppShell({
+  actingCustomer,
+  children,
+}: {
+  actingCustomer: SyntheticCustomer;
+  children: ReactNode;
+}) {
   let openDisputeCount = 0;
   let openDisputes: Awaited<ReturnType<typeof getOpenDisputeNotices>> = [];
   try {
@@ -16,7 +25,11 @@ export async function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppChrome openDisputeCount={openDisputeCount} openDisputes={openDisputes}>
+    <AppChrome
+      openDisputeCount={openDisputeCount}
+      openDisputes={openDisputes}
+      viewingAs={viewingAsPickerModel(isDemoModeEnabled(), actingCustomer)}
+    >
       {children}
     </AppChrome>
   );

@@ -25,7 +25,7 @@ import {
 import { repostClosedDisputeCredit } from "@/lib/disputes/closed-credit";
 import { lineAmountCents } from "@/lib/invoice-lines";
 import { PLAN_PRICE_CENTS } from "@/lib/plans";
-import { findSyntheticCustomer } from "@/lib/synthetic-customers";
+import { syntheticCustomers } from "@/lib/synthetic-customers";
 
 const ENV_KEYS = [
   "DEMO_BUGS",
@@ -167,7 +167,7 @@ describe("demo bug registry", () => {
   });
 
   it("refuses a second credit unless closed_dispute_credit is selected", () => {
-    const customer = findSyntheticCustomer("studio@copperleaf.example");
+    const customer = syntheticCustomers().find((row) => row.id === "cus_copperleaf");
     if (!customer) throw new Error("Copperleaf Atelier is missing from the synthetic book.");
     const dispute = {
       id: "dsp_1050",
@@ -197,9 +197,9 @@ describe("demo bug registry", () => {
         }),
       );
       expect(Sentry.setUser).toHaveBeenCalledWith({
-        id: "cus_copperleaf",
-        email: "studio@copperleaf.example",
-        username: "Lila Shore",
+        id: customer.id,
+        email: customer.email,
+        username: customer.username,
       });
     });
   });

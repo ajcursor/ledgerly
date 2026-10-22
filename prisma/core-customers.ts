@@ -15,7 +15,7 @@ export const CORE_CUSTOMERS: CoreCustomer[] = [
     id: "cus_harborline",
     name: "Acme North",
     contactName: "Jordan Hale",
-    email: "billing@acmenorth.example",
+    email: "jordan.hale@acmenorth.brightdesk-demo.co.uk",
     plan: "GROWTH",
   },
   {
@@ -29,7 +29,7 @@ export const CORE_CUSTOMERS: CoreCustomer[] = [
     id: "cus_quarrypine",
     name: "Cobalt Goods",
     contactName: "Ellis Marlow",
-    email: "accounts@cobaltgoods.example",
+    email: "ellis.marlow@cobaltgoods.brightdesk-demo.co.uk",
     plan: "SCALE",
   },
   {
@@ -78,7 +78,7 @@ export const CORE_CUSTOMERS: CoreCustomer[] = [
     id: "cus_copperleaf",
     name: "Copperleaf Atelier",
     contactName: "Lila Shore",
-    email: "studio@copperleaf.example",
+    email: "lila.shore@copperleaf.brightdesk-demo.co.uk",
     plan: "GROWTH",
   },
 ];

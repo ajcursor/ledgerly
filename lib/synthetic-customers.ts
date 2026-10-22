@@ -1,5 +1,6 @@
 import { planLabel, type PlanId } from "@/lib/plans";
 import { CORE_CUSTOMERS } from "@/prisma/core-customers";
+import { DEMO_CONTACTS } from "@/prisma/demo-contacts";
 import { EXTRA_ACCOUNTS } from "@/prisma/extra-accounts";
 
 /** Cookie set by `?as=<email>` so later requests keep the same acting customer. */
@@ -12,7 +13,7 @@ export const ACTING_CUSTOMER_HEADER = "x-ledgerly-acting-customer";
  * Cobalt Goods owns dispute dsp_1043. Errors use this account until `?as=`
  * selects another seeded customer.
  */
-export const DEFAULT_ACTING_CUSTOMER_EMAIL = "accounts@cobaltgoods.example";
+const DEFAULT_ACTING_CUSTOMER_ID = "cus_quarrypine";
 
 export type SyntheticCustomer = {
   id: string;
@@ -52,6 +53,15 @@ function buildCustomers(): SyntheticCustomer[] {
         plan: customer.plan,
       }),
     ),
+    ...DEMO_CONTACTS.map((customer) =>
+      toCustomer({
+        id: customer.id,
+        email: customer.email,
+        username: customer.contactName,
+        company: customer.name,
+        plan: customer.plan,
+      }),
+    ),
     ...EXTRA_ACCOUNTS.map((account) =>
       toCustomer({
         id: account.customerId,
@@ -82,9 +92,9 @@ export function findSyntheticCustomer(email: string): SyntheticCustomer | null {
 }
 
 export function defaultActingCustomer(): SyntheticCustomer {
-  const customer = findSyntheticCustomer(DEFAULT_ACTING_CUSTOMER_EMAIL);
+  const customer = syntheticCustomers().find((row) => row.id === DEFAULT_ACTING_CUSTOMER_ID);
   if (!customer) {
-    throw new Error(`Default acting customer ${DEFAULT_ACTING_CUSTOMER_EMAIL} is missing from the seed catalog.`);
+    throw new Error(`Default acting customer ${DEFAULT_ACTING_CUSTOMER_ID} is missing from the seed catalog.`);
   }
   return customer;
 }

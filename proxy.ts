@@ -1,9 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  ACTING_CUSTOMER_COOKIE,
-  ACTING_CUSTOMER_HEADER,
-  findSyntheticCustomer,
-} from "@/lib/synthetic-customers";
+import { actingCustomerCookieDecision } from "@/lib/acting-customer";
+import { ACTING_CUSTOMER_HEADER } from "@/lib/synthetic-customers";
 
 /**
  * `?as=<customer email>` selects the acting customer for Sentry.
@@ -14,10 +11,10 @@ export function proxy(request: NextRequest) {
   const asParam = request.nextUrl.searchParams.get("as");
   if (asParam === null) return NextResponse.next();
 
-  const customer = findSyntheticCustomer(asParam);
+  const decision = actingCustomerCookieDecision(asParam, request.nextUrl.protocol === "https:");
   const requestHeaders = new Headers(request.headers);
-  if (customer) {
-    requestHeaders.set(ACTING_CUSTOMER_HEADER, customer.email);
+  if (decision.action === "set") {
+    requestHeaders.set(ACTING_CUSTOMER_HEADER, decision.email);
   } else {
     requestHeaders.delete(ACTING_CUSTOMER_HEADER);
   }
@@ -26,15 +23,15 @@ export function proxy(request: NextRequest) {
     request: { headers: requestHeaders },
   });
 
-  if (customer) {
-    response.cookies.set(ACTING_CUSTOMER_COOKIE, customer.email, {
-      path: "/",
-      sameSite: "lax",
-      httpOnly: false,
-      secure: request.nextUrl.protocol === "https:",
+  if (decision.action === "set") {
+    response.cookies.set(decision.name, decision.value, {
+      path: decision.path,
+      sameSite: decision.sameSite,
+      httpOnly: decision.httpOnly,
+      secure: decision.secure,
     });
   } else {
-    response.cookies.delete(ACTING_CUSTOMER_COOKIE);
+    response.cookies.delete(decision.name);
   }
 
   return response;
