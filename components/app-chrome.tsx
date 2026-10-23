@@ -16,8 +16,10 @@ import {
   X,
 } from "lucide-react";
 import { NoticeBell, type OpenDisputeNotice } from "@/components/notice-bell";
+import { ViewingAsPicker } from "@/components/viewing-as-picker";
 import { Wordmark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import type { ViewingAsPickerModel } from "@/lib/demo/viewing-as";
 import { DEMO_OPERATOR } from "@/lib/demo-session";
 import { cn } from "@/lib/utils";
 
@@ -32,10 +34,12 @@ const NAV = [
 export function AppChrome({
   openDisputeCount,
   openDisputes,
+  viewingAs = null,
   children,
 }: {
   openDisputeCount: number;
   openDisputes: OpenDisputeNotice[];
+  viewingAs?: ViewingAsPickerModel | null;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -153,7 +157,12 @@ export function AppChrome({
       ) : null}
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-card/90 px-4 backdrop-blur-md sm:px-6">
+        <header
+          className={cn(
+            "sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-card/90 px-4 backdrop-blur-md sm:px-6",
+            viewingAs ? "h-auto flex-wrap py-2 sm:h-16 sm:flex-nowrap sm:py-0" : "h-16",
+          )}
+        >
           <button
             type="button"
             className="rounded-md border border-border bg-card p-1.5 lg:hidden"
@@ -164,7 +173,10 @@ export function AppChrome({
           </button>
 
           <form
-            className="relative mx-auto min-w-0 flex-1 max-w-xl"
+            className={cn(
+              "relative min-w-0 max-w-xl flex-1",
+              viewingAs ? "order-last basis-full sm:order-none sm:mx-auto sm:basis-auto" : "mx-auto",
+            )}
             onSubmit={(event) => {
               event.preventDefault();
               searchBook(query);
@@ -187,7 +199,10 @@ export function AppChrome({
             />
           </form>
 
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="ml-auto flex min-w-0 items-center gap-1 sm:ml-0 sm:shrink-0 sm:gap-2">
+            {viewingAs ? (
+              <ViewingAsPicker selectedEmail={viewingAs.selectedEmail} options={viewingAs.options} />
+            ) : null}
             <ThemeToggle />
             <NoticeBell openDisputeCount={openDisputeCount} openDisputes={openDisputes} />
             <div

@@ -9,9 +9,9 @@ vi.mock("@sentry/nextjs", () => ({
 import * as Sentry from "@sentry/nextjs";
 import { repostClosedDisputeCredit } from "@/lib/disputes/closed-credit";
 import { PLAN_PRICE_CENTS } from "@/lib/plans";
-import { findSyntheticCustomer } from "@/lib/synthetic-customers";
+import { syntheticCustomers } from "@/lib/synthetic-customers";
 
-const customer = findSyntheticCustomer("studio@copperleaf.example");
+const customer = syntheticCustomers().find((row) => row.id === "cus_copperleaf");
 if (!customer) throw new Error("Copperleaf Atelier is missing from the synthetic book.");
 
 const accepted = {

@@ -25,7 +25,7 @@ Work only the matched ticket. Then `save_issue` on that issue only: `state`: `In
 
 - Reproduce on the URLs in the issue body.
 - Edit only paths named in the issue unless a listed file clearly imports a one-line helper you must touch.
-- Catalog stays Starter **$49**, Growth **$99**, Scale **$249**. Seed names and `.example` emails only. Operator is Avery Quinn.
+- Catalog stays Starter **$49**, Growth **$99**, Scale **$249**. Seed names only. Emails stay on the seeded address: `.example`, except the four Viewing as contacts on `brightdesk-demo.co.uk`. Operator is Avery Quinn.
 - Do not "correct" the $400 claim on `dsp_1043`.
 - Do not edit `tests/suggested-credit-api.test.ts` to force green.
 - Do not finish the dispute resolution stub unless the ticket names it.

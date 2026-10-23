@@ -14,12 +14,12 @@ When invoked, do not accept claims at face value.
 4. Look for edge cases the change missed.
 5. Apply the Ledgerly checklist.
 
-The clean tree is **2 failed / 70 passed**. The planted failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`. Treat those as expected unless this diff turned `credit_v1` or `filter_state` off.
+The clean tree is **2 failed / 76 passed**. The planted failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`. Treat those as expected unless this diff turned `credit_v1` or `filter_state` off.
 
 Ledgerly checklist:
 
 - Catalog prices are only Starter $49, Growth $99, Scale $249. No invented tier, ARR, usage overage, or `$79` / `$199`.
-- Customer and operator names come from `prisma/seed.ts` and `prisma/extra-accounts.ts`. Emails use `.example`. Operator is Avery Quinn.
+- Customer and operator names come from `prisma/seed.ts`, `prisma/extra-accounts.ts`, and `prisma/demo-contacts.ts`. Emails use `.example`, except the four Viewing as contacts (Ellis Marlow, Sam Okafor, Jordan Hale, Lila Shore) on `brightdesk-demo.co.uk`. Operator is Avery Quinn.
 - `tests/suggested-credit-api.test.ts` and `prisma/seed.ts` were not "corrected." Dispute `dsp_1043` claiming $400 against a $249 Scale invoice is valid input for the catalog cap.
 - Unless the user asked for the migration, `lib/disputes/suggested-credit-api.ts` selects v1 when `credit_v1` is enabled. That is the default with no demo-bug env set. If migration was requested, the client selects v2 while both API routes remain unchanged.
 - Stored credit, the domain helper, and v2 remain capped at $249. The deprecated v1 route returns the raw $400 claim.
