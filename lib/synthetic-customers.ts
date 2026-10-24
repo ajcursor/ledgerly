@@ -20,7 +20,7 @@ export type SyntheticCustomer = {
   email: string;
   /** Contact name. Sent as the Sentry username. */
   username: string;
-  /** Account name. Sent as the Sentry `company` tag. */
+  /** Account name. Sent as the Sentry `company` and `customer.company` tags. */
   company: string;
   /** Catalog plan label. Sent as the Sentry `plan` tag. */
   plan: string;

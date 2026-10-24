@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@sentry/nextjs", () => ({
   captureException: vi.fn(),
   captureRequestError: vi.fn(),
+  flush: vi.fn().mockResolvedValue(true),
   setTag: vi.fn(),
   setUser: vi.fn(),
 }));
@@ -83,21 +84,35 @@ describe("demo trigger-error route", () => {
     ["closed-dispute-resolve", "disputes", "Cannot resolve dispute dsp_1050: status is ACCEPTED."],
     ["invoice-filter", "invoices", "Invoice filter failed for status OVERDUE. The queue could not be narrowed."],
   ] as const)("throws %s with scenario and feature tags", async (scenario, feature, message) => {
+    const bugId = {
+      "suggested-credit-over-refund": "credit_v1",
+      "closed-dispute-resolve": "closed_dispute_credit",
+      "invoice-filter": "filter_state",
+    }[scenario];
+
     await expect(GET(trigger(scenario))).rejects.toThrow(message);
 
     expect(Sentry.setTag).toHaveBeenCalledWith("scenario", scenario);
     expect(Sentry.setTag).toHaveBeenCalledWith("feature", feature);
+    expect(Sentry.setTag).toHaveBeenCalledWith("customer.company", "Cobalt Goods");
+    expect(Sentry.setTag).toHaveBeenCalledWith("fingerprint", scenario);
+    expect(Sentry.setTag).toHaveBeenCalledWith("bug_id", bugId);
     expect(Sentry.captureException).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringMatching(message) }),
       {
+        fingerprint: [scenario],
         tags: {
           scenario,
           feature,
           company: "Cobalt Goods",
+          "customer.company": "Cobalt Goods",
           plan: "Scale",
+          fingerprint: scenario,
+          bug_id: bugId,
         },
       },
     );
+    expect(Sentry.flush).toHaveBeenCalledWith(2000);
     expect(Sentry.setUser).toHaveBeenCalledWith({
       id: ellis.id,
       email: ellis.email,
@@ -116,11 +131,20 @@ describe("demo trigger-error route", () => {
       username: jordan.username,
     });
     expect(Sentry.setTag).toHaveBeenCalledWith("company", "Acme North");
+    expect(Sentry.setTag).toHaveBeenCalledWith("customer.company", "Acme North");
     expect(Sentry.setTag).toHaveBeenCalledWith("plan", "Growth");
+    expect(Sentry.setTag).toHaveBeenCalledWith("bug_id", "filter_state");
+    expect(Sentry.setTag).toHaveBeenCalledWith("fingerprint", "invoice-filter");
     expect(Sentry.captureException).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
-        tags: expect.objectContaining({ company: "Acme North", plan: "Growth" }),
+        tags: expect.objectContaining({
+          company: "Acme North",
+          "customer.company": "Acme North",
+          plan: "Growth",
+          bug_id: "filter_state",
+          fingerprint: "invoice-filter",
+        }),
       }),
     );
   });
@@ -136,7 +160,10 @@ describe("demo trigger-error route", () => {
       username: "Mara Ellison",
     });
     expect(Sentry.setTag).toHaveBeenCalledWith("company", "Northstar Fabrication");
+    expect(Sentry.setTag).toHaveBeenCalledWith("customer.company", "Northstar Fabrication");
     expect(Sentry.setTag).toHaveBeenCalledWith("plan", "Growth");
+    expect(Sentry.setTag).toHaveBeenCalledWith("bug_id", "closed_dispute_credit");
+    expect(Sentry.setTag).toHaveBeenCalledWith("fingerprint", "closed-dispute-resolve");
   });
 
   it("prefers the acting-customer header over the cookie", async () => {
@@ -155,6 +182,7 @@ describe("demo trigger-error route", () => {
       username: "Remy Sato",
     });
     expect(Sentry.setTag).toHaveBeenCalledWith("company", "Riverstone Labs");
+    expect(Sentry.setTag).toHaveBeenCalledWith("customer.company", "Riverstone Labs");
     expect(Sentry.setTag).toHaveBeenCalledWith("plan", "Starter");
   });
 
