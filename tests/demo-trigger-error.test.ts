@@ -12,6 +12,7 @@ vi.mock("@sentry/nextjs", () => ({
 
 import * as Sentry from "@sentry/nextjs";
 import { GET } from "@/app/api/demo/trigger-error/route";
+import { demoBugIdForScenario } from "@/lib/demo/bugs";
 import { demoErrorScenarioIds } from "@/lib/demo/error-scenarios";
 import { viewingAsCustomers } from "@/lib/demo/viewing-as";
 import { ACTING_CUSTOMER_COOKIE, ACTING_CUSTOMER_HEADER, defaultActingCustomer } from "@/lib/synthetic-customers";
@@ -84,11 +85,7 @@ describe("demo trigger-error route", () => {
     ["closed-dispute-resolve", "disputes", "Cannot resolve dispute dsp_1050: status is ACCEPTED."],
     ["invoice-filter", "invoices", "Invoice filter failed for status OVERDUE. The queue could not be narrowed."],
   ] as const)("throws %s with scenario and feature tags", async (scenario, feature, message) => {
-    const bugId = {
-      "suggested-credit-over-refund": "credit_v1",
-      "closed-dispute-resolve": "closed_dispute_credit",
-      "invoice-filter": "filter_state",
-    }[scenario];
+    const bugId = demoBugIdForScenario(scenario);
 
     await expect(GET(trigger(scenario))).rejects.toThrow(message);
 
@@ -133,7 +130,7 @@ describe("demo trigger-error route", () => {
     expect(Sentry.setTag).toHaveBeenCalledWith("company", "Acme North");
     expect(Sentry.setTag).toHaveBeenCalledWith("customer.company", "Acme North");
     expect(Sentry.setTag).toHaveBeenCalledWith("plan", "Growth");
-    expect(Sentry.setTag).toHaveBeenCalledWith("bug_id", "filter_state");
+    expect(Sentry.setTag).toHaveBeenCalledWith("bug_id", demoBugIdForScenario("invoice-filter"));
     expect(Sentry.setTag).toHaveBeenCalledWith("fingerprint", "invoice-filter");
     expect(Sentry.captureException).toHaveBeenCalledWith(
       expect.any(Error),
@@ -142,7 +139,7 @@ describe("demo trigger-error route", () => {
           company: "Acme North",
           "customer.company": "Acme North",
           plan: "Growth",
-          bug_id: "filter_state",
+          bug_id: demoBugIdForScenario("invoice-filter"),
           fingerprint: "invoice-filter",
         }),
       }),
