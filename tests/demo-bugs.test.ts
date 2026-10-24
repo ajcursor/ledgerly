@@ -15,6 +15,7 @@ import { countOverdueInvoices } from "@/lib/dashboard";
 import {
   SHIPPED_TEST_TOTAL,
   bugsForScenario,
+  demoBugIdForScenario,
   demoBugManifest,
   enabledDemoBugIds,
   expectedSuiteResult,
@@ -78,6 +79,9 @@ describe("demo bug registry", () => {
       expect(isDemoBugEnabled("overdue_count")).toBe(false);
       expect(isDemoBugEnabled("closed_dispute_credit")).toBe(false);
       expect(isDemoBugEnabled("line_rounding")).toBe(false);
+      expect(demoBugIdForScenario("invoice-filter")).toBe("filter_state");
+      expect(demoBugIdForScenario("suggested-credit-over-refund")).toBe("credit_v1");
+      expect(demoBugIdForScenario("closed-dispute-resolve")).toBe("closed_dispute_credit");
     });
   });
 
@@ -100,6 +104,7 @@ describe("demo bug registry", () => {
     });
     withEnv({ DEMO_SCENARIO: "ambiguous" }, () => {
       expect(enabledDemoBugIds()).toEqual(["overdue_count"]);
+      expect(demoBugIdForScenario("invoice-filter")).toBe("overdue_count");
     });
     withEnv({ DEMO_SCENARIO: "new" }, () => {
       expect(enabledDemoBugIds()).toEqual(["closed_dispute_credit", "line_rounding"]);
