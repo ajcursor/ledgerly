@@ -114,6 +114,16 @@ export function demoBug(id: string): DemoBug | null {
   return BUG_BY_ID.get(id) ?? null;
 }
 
+/**
+ * Bug id for a trigger-route scenario. Prefer a bug that is on for this run.
+ * `invoice-filter` is shared by `filter_state` and `overdue_count`.
+ */
+export function demoBugIdForScenario(scenarioId: string): string | null {
+  const matches = DEMO_BUG_LIST.filter((bug) => bug.sentryScenario === scenarioId);
+  if (matches.length === 0) return null;
+  return (matches.find((bug) => isDemoBugEnabled(bug.id)) ?? matches[0]).id;
+}
+
 export function bugsForScenario(name: string): DemoBugId[] {
   if (!DEMO_SCENARIO_NAMES.includes(name as DemoScenarioName)) {
     throw new Error(`Unknown demo scenario "${name}". Use ${DEMO_SCENARIO_NAMES.join(", ")}.`);

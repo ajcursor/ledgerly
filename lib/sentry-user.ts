@@ -11,6 +11,7 @@ export function applyActingCustomer(customer: SyntheticCustomer) {
     username: customer.username,
   });
   Sentry.setTag("company", customer.company);
+  Sentry.setTag("customer.company", customer.company);
   Sentry.setTag("plan", customer.plan);
 }
 
