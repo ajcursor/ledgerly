@@ -1,5 +1,3 @@
-import { isDemoBugEnabled } from "@/lib/demo/bugs";
-
 export type SuggestedCreditResponse = {
   disputeId: string;
   suggestedCreditCents: number;
@@ -11,12 +9,11 @@ export type SuggestedCreditFetcher = (
   init?: RequestInit,
 ) => Promise<Response>;
 
-/** Legacy client pin. Used while the credit_v1 demo bug is on, which is the default. */
-export const SUGGESTED_CREDIT_API_VERSION = "v1";
-const CURRENT_SUGGESTED_CREDIT_API_VERSION = "v2";
+/** v1 returns the raw disputed amount uncapped; it stays routable only for older callers. */
+export const SUGGESTED_CREDIT_API_VERSION = "v2";
 
 export function suggestedCreditApiVersion(): "v1" | "v2" {
-  return isDemoBugEnabled("credit_v1") ? SUGGESTED_CREDIT_API_VERSION : CURRENT_SUGGESTED_CREDIT_API_VERSION;
+  return SUGGESTED_CREDIT_API_VERSION;
 }
 
 export function suggestedCreditPath(disputeId: string): string {
