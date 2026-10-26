@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173, seeds only when the database is missing or empty, and opens `runbooks.html` in a Cursor Canvas.
 
-`npm test` is **2 failed / 76 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **2 failed / 85 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
 
 ### Planted demo issues
 
@@ -30,7 +30,7 @@ These are intentional. Leave them for the demo, and do not ship them outside dem
 
 ## Switchable demo bugs
 
-`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 76 passed**.
+`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 85 passed**.
 
 `DEMO_BUGS` is a comma-separated list and replaces the default. An empty value turns every bug off. `DEMO_SCENARIO` is `known`, `ambiguous`, `new`, or `all` and is used only when `DEMO_BUGS` is unset. `DEMO_BUGS_FILE` points at a JSON file with `{ "bugs": ["..."] }` or `{ "scenario": "known" }` and is used only when both of those are unset. Presets live in `demo/scenarios/`.
 
@@ -47,23 +47,23 @@ Each bug's test asserts the correct behavior, so the test is red while the bug i
 `overdue_count` shares the `invoice-filter` fingerprint with `filter_state`, so a support match can land in the ambiguous band. Kinds follow the triage bands: known at 0.80 or above, ambiguous from 0.60 to 0.79, new below 0.60.
 
 ```bash
-# Default. credit_v1 and filter_state. 2 failed / 76 passed.
+# Default. credit_v1 and filter_state. 2 failed / 85 passed.
 npm test
 npm run demo:reset
 
-# Known bugs only. Same set as the default. 2 failed / 76 passed.
+# Known bugs only. Same set as the default. 2 failed / 85 passed.
 DEMO_SCENARIO=known npm test
 npm run demo:reset -- --scenario=known
 
-# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 77 passed.
+# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 86 passed.
 DEMO_SCENARIO=ambiguous npm test
 npm run demo:reset -- --scenario=ambiguous
 
-# New bugs. Closed-dispute credit and line rounding. 2 failed / 76 passed.
+# New bugs. Closed-dispute credit and line rounding. 2 failed / 85 passed.
 DEMO_SCENARIO=new npm test
 npm run demo:reset -- --scenario=new
 
-# Every bug. 5 failed / 73 passed.
+# Every bug. 5 failed / 82 passed.
 DEMO_SCENARIO=all npm test
 npm run demo:reset -- --scenario=all
 
@@ -113,7 +113,9 @@ curl -i "http://localhost:43173/api/demo/trigger-error?scenario=invoice-filter&a
 | `closed-dispute-resolve` | disputes | Resolve was requested for `dsp_1050`, which is already `ACCEPTED`. |
 | `invoice-filter` | invoices | The invoice queue failed while applying the Overdue filter. |
 
-The thrown error is reported to Sentry with tags `scenario` and `feature`, plus the acting customer's user and `company` / `plan` tags.
+The thrown error is reported to Sentry with tags `scenario` and `feature`, plus the acting customer's user and `company` / `plan` tags. `bug_id` and `fingerprint` are set from the demo bug registry.
+
+Opening a dispute does the same for `suggested-credit-over-refund` when the suggested credit on screen is above the catalog price. No extra button. It runs only when `DEMO_MODE=true` and `credit_v1` is enabled, and only once for that page view. Dispute `dsp_1043` while viewing as Ellis Marlow sends the $400.00-over-$249.00 error with `bug_id=credit_v1`, fingerprint `suggested-credit-over-refund`, and environment from `SENTRY_ENVIRONMENT` (use `demo`). A credit within the catalog price sends nothing, including after `credit_v1` is turned off and the page calls v2. The panel text is unchanged. The trigger route still works on its own.
 
 ## App
 
