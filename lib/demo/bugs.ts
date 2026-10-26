@@ -108,7 +108,7 @@ export const DEFAULT_DEMO_BUG_IDS: readonly DemoBugId[] = DEMO_BUG_LIST.filter((
  * Reset's health check uses this with the enabled bugs' redTests.
  * Update it, and the shipped-suite citations, when the suite changes.
  */
-export const SHIPPED_TEST_TOTAL = 78;
+export const SHIPPED_TEST_TOTAL = 87;
 
 export function demoBug(id: string): DemoBug | null {
   return BUG_BY_ID.get(id) ?? null;
