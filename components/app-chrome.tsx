@@ -7,6 +7,7 @@ import { useRef, useState, useTransition } from "react";
 import {
   FileText,
   Inbox,
+  Info,
   LayoutDashboard,
   Menu,
   Scale,
@@ -29,6 +30,7 @@ const NAV = [
   { href: "/collections", label: "Collections", icon: Inbox },
   { href: "/disputes", label: "Disputes", icon: Scale },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/about", label: "About", icon: Info },
 ] as const;
 
 export function AppChrome({
