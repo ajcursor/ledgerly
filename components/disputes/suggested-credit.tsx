@@ -36,6 +36,8 @@ export function SuggestedCredit({
 }: SuggestedCreditProps) {
   const [credit, setCredit] = useState<SuggestedCreditResponse | null>(null);
   const [error, setError] = useState(false);
+  // router.refresh() re-renders the page with a new id; keep the one this view was mounted with.
+  const [viewId] = useState(reportViewId);
 
   useEffect(() => {
     let active = true;
@@ -62,16 +64,16 @@ export function SuggestedCredit({
   useEffect(() => {
     if (!reportOverCatalog || !credit || credit.disputeId !== disputeId) return;
     if (!suggestedCreditExceedsCatalog(credit.suggestedCreditCents, catalogPriceCents)) return;
-    if (!claimSuggestedCreditView(reportViewId)) return;
+    if (!claimSuggestedCreditView(viewId)) return;
 
     void fetch(SUGGESTED_CREDIT_OVER_REFUND_REPORT_PATH, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ disputeId, viewId: reportViewId }),
+      body: JSON.stringify({ disputeId, viewId }),
     }).catch(() => {
       // The figure on screen stays as it is when the report cannot be sent.
     });
-  }, [catalogPriceCents, credit, disputeId, reportOverCatalog, reportViewId]);
+  }, [catalogPriceCents, credit, disputeId, reportOverCatalog, viewId]);
 
   const overCatalog =
     credit !== null && credit.suggestedCreditCents > catalogPriceCents;
