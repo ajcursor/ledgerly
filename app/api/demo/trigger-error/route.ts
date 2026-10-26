@@ -1,10 +1,9 @@
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { readCookie, resolveActingCustomer } from "@/lib/acting-customer";
-import { demoBugIdForScenario } from "@/lib/demo/bugs";
+import { captureDemoBug } from "@/lib/demo/capture-bug";
 import { demoErrorScenario, demoErrorScenarioIds } from "@/lib/demo/error-scenarios";
 import { isDemoModeEnabled } from "@/lib/demo/mode";
-import { applyActingCustomer, markDemoErrorCaptured } from "@/lib/sentry-user";
 import { ACTING_CUSTOMER_COOKIE, ACTING_CUSTOMER_HEADER } from "@/lib/synthetic-customers";
 
 /**
@@ -35,27 +34,12 @@ export async function GET(request: Request) {
   }
 
   const { customer } = resolved;
-  applyActingCustomer(customer);
-  const bugId = demoBugIdForScenario(scenario.id);
-  Sentry.setTag("scenario", scenario.id);
-  Sentry.setTag("feature", scenario.feature);
-  Sentry.setTag("fingerprint", scenario.id);
-  if (bugId) Sentry.setTag("bug_id", bugId);
-
   const error = scenario.createError();
-  Sentry.captureException(error, {
-    fingerprint: [scenario.id],
-    tags: {
-      scenario: scenario.id,
-      feature: scenario.feature,
-      company: customer.company,
-      "customer.company": customer.company,
-      plan: customer.plan,
-      fingerprint: scenario.id,
-      ...(bugId ? { bug_id: bugId } : {}),
-    },
+  captureDemoBug(error, {
+    scenario: scenario.id,
+    feature: scenario.feature,
+    customer,
   });
-  markDemoErrorCaptured(error);
   // onRequestError skips this error, so it never reaches the flush inside
   // captureRequestError. Wait here or the thrown 500 drops the envelope.
   try {

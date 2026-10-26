@@ -7,6 +7,8 @@ import { DisputeStatusBadge, InvoiceStatusBadge } from "@/components/status-badg
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDispute } from "@/lib/data";
+import { isDemoBugEnabled } from "@/lib/demo/bugs";
+import { isDemoModeEnabled } from "@/lib/demo/mode";
 import { suggestedCreditPath } from "@/lib/disputes/suggested-credit-api";
 import { formatDate } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
@@ -80,9 +82,11 @@ export default async function DisputeDetailPage({ params }: { params: Promise<{ 
         </CardHeader>
         <CardContent className="space-y-3">
           <SuggestedCredit
+            disputeId={dispute.id}
             path={suggestedCreditPath(dispute.id)}
             catalogPriceCents={catalogPrice}
             planName={planLabel(dispute.invoice.plan)}
+            reportOverCatalog={isDemoModeEnabled() && isDemoBugEnabled("credit_v1")}
           />
           <ResolutionPanel key={dispute.id} disputeId={dispute.id} initialNote={dispute.reviewerNote ?? ""} />
           <p className="text-xs text-muted-foreground">
