@@ -73,8 +73,8 @@ describe("demo bug registry", () => {
 
   it("keeps today's planted bugs when nothing is set", () => {
     withEnv({}, () => {
-      expect(enabledDemoBugIds()).toEqual(["credit_v1", "filter_state"]);
-      expect(isDemoBugEnabled("credit_v1")).toBe(true);
+      expect(enabledDemoBugIds()).toEqual(["filter_state"]);
+      expect(isDemoBugEnabled("credit_v1")).toBe(false);
       expect(isDemoBugEnabled("filter_state")).toBe(true);
       expect(isDemoBugEnabled("overdue_count")).toBe(false);
       expect(isDemoBugEnabled("closed_dispute_credit")).toBe(false);
@@ -222,8 +222,8 @@ describe("demo bug registry", () => {
 
   it("counts one red test for each enabled bug that has one", () => {
     expect(expectedSuiteResult(["credit_v1", "filter_state"])).toEqual({
-      failed: 2,
-      passed: SHIPPED_TEST_TOTAL - 2,
+      failed: 3,
+      passed: SHIPPED_TEST_TOTAL - 3,
     });
     expect(expectedSuiteResult(["overdue_count"])).toEqual({
       failed: 1,
@@ -234,8 +234,8 @@ describe("demo bug registry", () => {
       passed: SHIPPED_TEST_TOTAL - 2,
     });
     expect(expectedSuiteResult(bugsForScenario("all"))).toEqual({
-      failed: 5,
-      passed: SHIPPED_TEST_TOTAL - 5,
+      failed: 6,
+      passed: SHIPPED_TEST_TOTAL - 6,
     });
     expect(expectedSuiteResult([])).toEqual({ failed: 0, passed: SHIPPED_TEST_TOTAL });
   });

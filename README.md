@@ -17,20 +17,20 @@ npm run dev
 
 Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173, seeds only when the database is missing or empty, and opens `runbooks.html` in a Cursor Canvas.
 
-`npm test` is **2 failed / 85 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **1 failed / 87 passed** on a clean tree — `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The dispute page uses the v2 suggested credit, capped at the $249 Scale price for `dsp_1043`. Turn on `credit_v1` to show the deprecated v1 result of $400. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
 
 ### Planted demo issues
 
 These are intentional. Leave them for the demo, and do not ship them outside demos.
 
-- **Suggested credit.** `tests/suggested-credit-api.test.ts` stays red because `lib/disputes/suggested-credit-api.ts` selects deprecated v1 while the `credit_v1` bug is on. That is the default. Do not edit the test, either route, or the seed to make the suite green.
+- **Suggested credit.** `tests/suggested-credit-api.test.ts` and `tests/suggested-credit-cap.test.ts` are red while the `credit_v1` bug is on, because `lib/disputes/suggested-credit-api.ts` then selects deprecated v1. It is off by default; `DEMO_SCENARIO=known` turns it on. Do not edit the tests, either route, or the seed to make the suite green.
 - **W2 Tab listener.** `.cursor/plans/keyboard-walkthrough-audit.md` tells the W2 task to add a document-level `keydown` listener in the app chrome that calls `event.preventDefault()` whenever the key is Tab. That step is intentional. It would block Tab on every page if that listener is added in the shell. `components/app-chrome.tsx` does not contain it yet. The change reviewer should flag it as High. It must never ship outside demos. Do not remove it, reword it, or label it inside the plan.
 
 `npm run test:a11y` runs the WCAG checks in `tests/a11y/` (4.5:1 text contrast and missing labels). They are not part of `npm test`. The command currently fails on contrast (status badges, some muted text, and growth text); label checks pass.
 
 ## Switchable demo bugs
 
-`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 85 passed**.
+`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, only `filter_state` is on, and **1 failed / 87 passed**.
 
 `DEMO_BUGS` is a comma-separated list and replaces the default. An empty value turns every bug off. `DEMO_SCENARIO` is `known`, `ambiguous`, `new`, or `all` and is used only when `DEMO_BUGS` is unset. `DEMO_BUGS_FILE` points at a JSON file with `{ "bugs": ["..."] }` or `{ "scenario": "known" }` and is used only when both of those are unset. Presets live in `demo/scenarios/`.
 
@@ -38,7 +38,7 @@ Each bug's test asserts the correct behavior, so the test is red while the bug i
 
 | Id | Kind | Default | What the customer says | Sentry fingerprint | Linear title | Red test |
 | --- | --- | --- | --- | --- | --- | --- |
-| `credit_v1` | known | on | Suggested credit on dsp_1043 is $400.00. The Scale invoice is $249.00. | `suggested-credit-over-refund` | Suggested credit on dsp_1043 shows $400 instead of the $249 Scale cap | `tests/suggested-credit-api.test.ts` |
+| `credit_v1` | known | off | Suggested credit on dsp_1043 is $400.00. The Scale invoice is $249.00. | `suggested-credit-over-refund` | Suggested credit on dsp_1043 shows $400 instead of the $249 Scale cap | `tests/suggested-credit-api.test.ts`, `tests/suggested-credit-cap.test.ts` |
 | `filter_state` | known | on | Clicking Overdue or Needs review does not filter the list. | `invoice-filter` | Clicking Overdue or Needs review does not filter the queue | `tests/filter-pills.test.ts` |
 | `overdue_count` | ambiguous | off | The dashboard overdue count is higher than the Overdue queue. | `invoice-filter` | Dashboard overdue count includes invoices that are not due yet | `tests/overdue-count.test.ts` |
 | `closed_dispute_credit` | new | off | dsp_1050 was already accepted, and the $99.00 Growth credit posted a second time. | `closed-dispute-resolve` | Resolving accepted dispute dsp_1050 posts the Growth credit again | `tests/closed-dispute-credit.test.ts` |
@@ -47,23 +47,23 @@ Each bug's test asserts the correct behavior, so the test is red while the bug i
 `overdue_count` shares the `invoice-filter` fingerprint with `filter_state`, so a support match can land in the ambiguous band. Kinds follow the triage bands: known at 0.80 or above, ambiguous from 0.60 to 0.79, new below 0.60.
 
 ```bash
-# Default. credit_v1 and filter_state. 2 failed / 85 passed.
+# Default. filter_state. 1 failed / 87 passed.
 npm test
 npm run demo:reset
 
-# Known bugs only. Same set as the default. 2 failed / 85 passed.
+# Known bugs only. credit_v1 and filter_state. 3 failed / 85 passed.
 DEMO_SCENARIO=known npm test
 npm run demo:reset -- --scenario=known
 
-# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 86 passed.
+# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 87 passed.
 DEMO_SCENARIO=ambiguous npm test
 npm run demo:reset -- --scenario=ambiguous
 
-# New bugs. Closed-dispute credit and line rounding. 2 failed / 85 passed.
+# New bugs. Closed-dispute credit and line rounding. 2 failed / 86 passed.
 DEMO_SCENARIO=new npm test
 npm run demo:reset -- --scenario=new
 
-# Every bug. 5 failed / 82 passed.
+# Every bug. 6 failed / 82 passed.
 DEMO_SCENARIO=all npm test
 npm run demo:reset -- --scenario=all
 

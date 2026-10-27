@@ -11,7 +11,7 @@ export type SuggestedCreditFetcher = (
   init?: RequestInit,
 ) => Promise<Response>;
 
-/** Legacy client pin. Used while the credit_v1 demo bug is on, which is the default. */
+/** Legacy client pin. Used only while the credit_v1 demo bug is on; it is off by default. */
 export const SUGGESTED_CREDIT_API_VERSION = "v1";
 const CURRENT_SUGGESTED_CREDIT_API_VERSION = "v2";
 

@@ -35,8 +35,8 @@ export const DEMO_BUG_LIST: readonly DemoBug[] = [
     sentryScenario: "suggested-credit-over-refund",
     sentryFingerprint: "suggested-credit-over-refund",
     linearTitle: "Suggested credit on dsp_1043 shows $400 instead of the $249 Scale cap",
-    redTests: ["tests/suggested-credit-api.test.ts"],
-    defaultEnabled: true,
+    redTests: ["tests/suggested-credit-api.test.ts", "tests/suggested-credit-cap.test.ts"],
+    defaultEnabled: false,
   },
   {
     id: "filter_state",
@@ -108,7 +108,7 @@ export const DEFAULT_DEMO_BUG_IDS: readonly DemoBugId[] = DEMO_BUG_LIST.filter((
  * Reset's health check uses this with the enabled bugs' redTests.
  * Update it, and the shipped-suite citations, when the suite changes.
  */
-export const SHIPPED_TEST_TOTAL = 87;
+export const SHIPPED_TEST_TOTAL = 88;
 
 export function demoBug(id: string): DemoBug | null {
   return BUG_BY_ID.get(id) ?? null;
