@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173, seeds only when the database is missing or empty, and opens `runbooks.html` in a Cursor Canvas.
 
-`npm test` is **2 failed / 85 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **2 failed / 95 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
 
 ### Planted demo issues
 
@@ -30,7 +30,7 @@ These are intentional. Leave them for the demo, and do not ship them outside dem
 
 ## Switchable demo bugs
 
-`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 85 passed**.
+`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 95 passed**.
 
 `DEMO_BUGS` is a comma-separated list and replaces the default. An empty value turns every bug off. `DEMO_SCENARIO` is `known`, `ambiguous`, `new`, or `all` and is used only when `DEMO_BUGS` is unset. `DEMO_BUGS_FILE` points at a JSON file with `{ "bugs": ["..."] }` or `{ "scenario": "known" }` and is used only when both of those are unset. Presets live in `demo/scenarios/`.
 
@@ -47,23 +47,23 @@ Each bug's test asserts the correct behavior, so the test is red while the bug i
 `overdue_count` shares the `invoice-filter` fingerprint with `filter_state`, so a support match can land in the ambiguous band. Kinds follow the triage bands: known at 0.80 or above, ambiguous from 0.60 to 0.79, new below 0.60.
 
 ```bash
-# Default. credit_v1 and filter_state. 2 failed / 85 passed.
+# Default. credit_v1 and filter_state. 2 failed / 95 passed.
 npm test
 npm run demo:reset
 
-# Known bugs only. Same set as the default. 2 failed / 85 passed.
+# Known bugs only. Same set as the default. 2 failed / 95 passed.
 DEMO_SCENARIO=known npm test
 npm run demo:reset -- --scenario=known
 
-# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 86 passed.
+# Ambiguous. The overdue count is wrong. The credit and filter tests pass. 1 failed / 96 passed.
 DEMO_SCENARIO=ambiguous npm test
 npm run demo:reset -- --scenario=ambiguous
 
-# New bugs. Closed-dispute credit and line rounding. 2 failed / 85 passed.
+# New bugs. Closed-dispute credit and line rounding. 2 failed / 95 passed.
 DEMO_SCENARIO=new npm test
 npm run demo:reset -- --scenario=new
 
-# Every bug. 5 failed / 82 passed.
+# Every bug. 5 failed / 92 passed.
 DEMO_SCENARIO=all npm test
 npm run demo:reset -- --scenario=all
 
