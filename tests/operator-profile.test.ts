@@ -1,5 +1,7 @@
+import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it } from "vitest";
 import { saveOperatorProfile } from "@/app/profile/actions";
+import ProfilePage from "@/app/profile/page";
 import { DEMO_OPERATOR } from "@/lib/demo-session";
 import {
   emptyOperatorFormState,
@@ -169,5 +171,21 @@ describe("saveOperatorProfile", () => {
     expect(result.saved).toBe(false);
     expect(result.fieldErrors.notifyWeeklyDigest).toBe("Choose yes or no.");
     await expectUnchanged(before);
+  });
+});
+
+describe("profile page", () => {
+  it("renders the seeded profile", async () => {
+    const html = renderToStaticMarkup(await ProfilePage());
+    expect(html).toContain("Avery Quinn");
+    expect(html).toContain("Billing ops");
+    expect(html).toContain("avery.quinn@fieldnote.example");
+    expect(html).toContain("America/New_York");
+    expect(html).toContain("Dispute opened");
+    expect(html).toContain("Invoice overdue");
+    expect(html).toContain("Weekly digest");
+    expect(html).toContain('name="notifyDisputeOpened"');
+    expect(html).toMatch(/name="notifyDisputeOpened"[^>]*\bchecked\b|\bchecked\b[^>]*name="notifyDisputeOpened"/);
+    expect(html).not.toMatch(/name="notifyWeeklyDigest"[^>]*\bchecked\b|\bchecked\b[^>]*name="notifyWeeklyDigest"/);
   });
 });
