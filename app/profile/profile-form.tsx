@@ -29,7 +29,7 @@ export function ProfileForm({ profile }: { profile: OperatorProfileInput }) {
   const errors = state.fieldErrors;
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} noValidate className="flex flex-col gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Operator</CardTitle>

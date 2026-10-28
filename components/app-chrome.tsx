@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import {
   FileText,
   Inbox,
@@ -20,8 +20,13 @@ import { ViewingAsPicker } from "@/components/viewing-as-picker";
 import { Wordmark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { ViewingAsPickerModel } from "@/lib/demo/viewing-as";
-import { DEMO_OPERATOR } from "@/lib/demo-session";
 import { cn } from "@/lib/utils";
+
+export type OperatorMenuProfile = {
+  displayName: string;
+  role: string;
+  initials: string;
+};
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -35,19 +40,33 @@ export function AppChrome({
   openDisputeCount,
   openDisputes,
   viewingAs = null,
+  operator,
   children,
 }: {
   openDisputeCount: number;
   openDisputes: OpenDisputeNotice[];
   viewingAs?: ViewingAsPickerModel | null;
+  operator: OperatorMenuProfile;
   children: ReactNode;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [, startTransition] = useTransition();
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onPointerDown(event: PointerEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [menuOpen]);
 
   function searchBook(next: string) {
     const trimmed = next.trim();
@@ -206,10 +225,44 @@ export function AppChrome({
             <ThemeToggle />
             <NoticeBell openDisputeCount={openDisputeCount} openDisputes={openDisputes} />
             <div
-              className="flex size-9 items-center justify-center rounded-full bg-indigo-soft text-xs font-semibold text-indigo"
-              title={`${DEMO_OPERATOR.name} · ${DEMO_OPERATOR.role}`}
+              ref={menuRef}
+              className="relative"
+              onKeyDown={(event) => {
+                if (event.key !== "Escape" || !menuOpen) return;
+                setMenuOpen(false);
+                menuButtonRef.current?.focus();
+              }}
             >
-              {DEMO_OPERATOR.initials}
+              <button
+                ref={menuButtonRef}
+                type="button"
+                className="flex size-9 items-center justify-center rounded-full bg-indigo-soft text-xs font-semibold text-indigo"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                aria-controls="operator-menu"
+                aria-label={`${operator.displayName}, ${operator.role}`}
+                title={`${operator.displayName} · ${operator.role}`}
+                onClick={() => setMenuOpen((current) => !current)}
+              >
+                {operator.initials}
+              </button>
+              {menuOpen ? (
+                <div
+                  id="operator-menu"
+                  role="menu"
+                  aria-label="Account"
+                  className="absolute right-0 z-30 mt-2 min-w-40 rounded-lg border border-border bg-card p-1 shadow-[var(--shadow-card)]"
+                >
+                  <Link
+                    href="/profile"
+                    role="menuitem"
+                    className="block rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                </div>
+              ) : null}
             </div>
           </div>
         </header>

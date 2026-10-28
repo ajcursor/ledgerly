@@ -28,6 +28,7 @@ const RENDERED: { name: string; element: ReactElement }[] = [
         openDisputes={[
           { id: "dsp_1043", customerName: "Cobalt Goods", invoiceNumber: "INV-1043", status: "NEEDS_REVIEW" },
         ]}
+        operator={{ displayName: "Avery Quinn", role: "Billing ops", initials: "AQ" }}
       >
         {null}
       </AppChrome>
