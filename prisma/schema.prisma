@@ -73,3 +73,15 @@ model Dispute {
   suggestedCreditCents Int
   reviewerNote         String?
 }
+
+model Operator {
+  id                   String   @id
+  displayName          String
+  role                 String
+  email                String
+  timezone             String
+  notifyDisputeOpened  Boolean
+  notifyInvoiceOverdue Boolean
+  notifyWeeklyDigest   Boolean
+  updatedAt            DateTime @updatedAt
+}
