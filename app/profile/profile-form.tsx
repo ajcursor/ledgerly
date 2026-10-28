@@ -1,12 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { saveOperatorProfile } from "@/app/profile/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { emptyOperatorFormState, type OperatorField, type OperatorProfileInput } from "@/lib/operator-profile";
+import {
+  emptyOperatorFormState,
+  type OperatorField,
+  type OperatorFormState,
+  type OperatorProfileInput,
+} from "@/lib/operator-profile";
 
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
@@ -25,8 +30,20 @@ function textProps(field: OperatorField, message?: string) {
 }
 
 export function ProfileForm({ profile }: { profile: OperatorProfileInput }) {
-  const [state, formAction, pending] = useActionState(saveOperatorProfile, emptyOperatorFormState(profile));
+  const [draft, setDraft] = useState(profile);
+  const [state, formAction, pending] = useActionState(
+    async (previous: OperatorFormState, formData: FormData) => {
+      const next = await saveOperatorProfile(previous, formData);
+      setDraft(next.values);
+      return next;
+    },
+    emptyOperatorFormState(profile),
+  );
   const errors = state.fieldErrors;
+
+  function updateDraft<K extends keyof OperatorProfileInput>(field: K, value: OperatorProfileInput[K]) {
+    setDraft((current) => ({ ...current, [field]: value }));
+  }
 
   return (
     <form action={formAction} noValidate className="flex flex-col gap-6">
@@ -41,8 +58,9 @@ export function ProfileForm({ profile }: { profile: OperatorProfileInput }) {
             <Input
               id="displayName"
               name="displayName"
-              defaultValue={profile.displayName}
+              value={draft.displayName}
               autoComplete="name"
+              onChange={(event) => updateDraft("displayName", event.target.value)}
               {...textProps("displayName", errors.displayName)}
             />
             <FieldError id="displayName-error" message={errors.displayName} />
@@ -52,8 +70,9 @@ export function ProfileForm({ profile }: { profile: OperatorProfileInput }) {
             <Input
               id="role"
               name="role"
-              defaultValue={profile.role}
+              value={draft.role}
               autoComplete="organization-title"
+              onChange={(event) => updateDraft("role", event.target.value)}
               {...textProps("role", errors.role)}
             />
             <FieldError id="role-error" message={errors.role} />
@@ -64,8 +83,9 @@ export function ProfileForm({ profile }: { profile: OperatorProfileInput }) {
               id="email"
               name="email"
               type="email"
-              defaultValue={profile.email}
+              value={draft.email}
               autoComplete="email"
+              onChange={(event) => updateDraft("email", event.target.value)}
               {...textProps("email", errors.email)}
             />
             <FieldError id="email-error" message={errors.email} />
@@ -75,9 +95,10 @@ export function ProfileForm({ profile }: { profile: OperatorProfileInput }) {
             <Input
               id="timezone"
               name="timezone"
-              defaultValue={profile.timezone}
+              value={draft.timezone}
               autoComplete="off"
               spellCheck={false}
+              onChange={(event) => updateDraft("timezone", event.target.value)}
               {...textProps("timezone", errors.timezone)}
             />
             <FieldError id="timezone-error" message={errors.timezone} />
@@ -96,21 +117,24 @@ export function ProfileForm({ profile }: { profile: OperatorProfileInput }) {
             id="notifyDisputeOpened"
             label="Dispute opened"
             hint="Keep a note when a dispute is opened."
-            defaultChecked={profile.notifyDisputeOpened}
+            checked={draft.notifyDisputeOpened}
+            onChecked={(checked) => updateDraft("notifyDisputeOpened", checked)}
             error={errors.notifyDisputeOpened}
           />
           <Preference
             id="notifyInvoiceOverdue"
             label="Invoice overdue"
             hint="Keep a note when an invoice goes overdue."
-            defaultChecked={profile.notifyInvoiceOverdue}
+            checked={draft.notifyInvoiceOverdue}
+            onChecked={(checked) => updateDraft("notifyInvoiceOverdue", checked)}
             error={errors.notifyInvoiceOverdue}
           />
           <Preference
             id="notifyWeeklyDigest"
             label="Weekly digest"
             hint="Keep a weekly summary of the collections queue."
-            defaultChecked={profile.notifyWeeklyDigest}
+            checked={draft.notifyWeeklyDigest}
+            onChecked={(checked) => updateDraft("notifyWeeklyDigest", checked)}
             error={errors.notifyWeeklyDigest}
           />
         </CardContent>
@@ -134,13 +158,15 @@ function Preference({
   id,
   label,
   hint,
-  defaultChecked,
+  checked,
+  onChecked,
   error,
 }: {
   id: OperatorField;
   label: string;
   hint: string;
-  defaultChecked: boolean;
+  checked: boolean;
+  onChecked: (checked: boolean) => void;
   error?: string;
 }) {
   return (
@@ -150,7 +176,8 @@ function Preference({
           id={id}
           name={id}
           type="checkbox"
-          defaultChecked={defaultChecked}
+          checked={checked}
+          onChange={(event) => onChecked(event.target.checked)}
           className="size-4"
           {...textProps(id, error)}
         />
