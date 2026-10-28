@@ -33,6 +33,113 @@ export type OperatorProfile = {
   initials: string;
 };
 
+export type OperatorProfileInput = {
+  displayName: string;
+  role: string;
+  email: string;
+  timezone: string;
+  notifyDisputeOpened: boolean;
+  notifyInvoiceOverdue: boolean;
+  notifyWeeklyDigest: boolean;
+};
+
+export type OperatorField = keyof OperatorProfileInput;
+
+export type OperatorFieldErrors = Partial<Record<OperatorField, string>>;
+
+export type OperatorFormState = {
+  saved: boolean;
+  fieldErrors: OperatorFieldErrors;
+  values: OperatorProfileInput;
+};
+
+const DISPLAY_NAME_MAX = 80;
+const ROLE_MAX = 80;
+const EMAIL_MAX = 254;
+const EMAIL_PATTERN = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+export function emptyOperatorFormState(values: OperatorProfileInput): OperatorFormState {
+  return { saved: false, fieldErrors: {}, values };
+}
+
+function text(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function parsePreference(value: unknown): boolean | null {
+  if (typeof value === "boolean") return value;
+  if (value === null || value === undefined) return false;
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "") return false;
+  if (normalized === "true" || normalized === "on" || normalized === "1" || normalized === "yes") return true;
+  if (normalized === "false" || normalized === "off" || normalized === "0" || normalized === "no") return false;
+  return null;
+}
+
+let knownTimeZones: Set<string> | undefined;
+
+function isKnownTimeZone(value: string): boolean {
+  if (!knownTimeZones) knownTimeZones = new Set(Intl.supportedValuesOf("timeZone"));
+  return knownTimeZones.has(value);
+}
+
+export function validateOperatorProfile(raw: {
+  displayName: unknown;
+  role: unknown;
+  email: unknown;
+  timezone: unknown;
+  notifyDisputeOpened: unknown;
+  notifyInvoiceOverdue: unknown;
+  notifyWeeklyDigest: unknown;
+}):
+  | { ok: true; value: OperatorProfileInput }
+  | { ok: false; fieldErrors: OperatorFieldErrors; values: OperatorProfileInput } {
+  const displayName = text(raw.displayName).trim();
+  const role = text(raw.role).trim();
+  const email = text(raw.email).trim();
+  const timezone = text(raw.timezone).trim();
+  const notifyDisputeOpened = parsePreference(raw.notifyDisputeOpened);
+  const notifyInvoiceOverdue = parsePreference(raw.notifyInvoiceOverdue);
+  const notifyWeeklyDigest = parsePreference(raw.notifyWeeklyDigest);
+  const fieldErrors: OperatorFieldErrors = {};
+
+  if (!displayName) fieldErrors.displayName = "Display name is required.";
+  else if (displayName.length > DISPLAY_NAME_MAX) {
+    fieldErrors.displayName = `Display name must be ${DISPLAY_NAME_MAX} characters or fewer.`;
+  }
+
+  if (!role) fieldErrors.role = "Role is required.";
+  else if (role.length > ROLE_MAX) {
+    fieldErrors.role = `Role must be ${ROLE_MAX} characters or fewer.`;
+  }
+
+  if (!email || email.length > EMAIL_MAX || !EMAIL_PATTERN.test(email)) {
+    fieldErrors.email = "Enter a valid email.";
+  }
+
+  if (!isKnownTimeZone(timezone)) {
+    fieldErrors.timezone = "Enter a valid IANA timezone.";
+  }
+
+  if (notifyDisputeOpened === null) fieldErrors.notifyDisputeOpened = "Choose yes or no.";
+  if (notifyInvoiceOverdue === null) fieldErrors.notifyInvoiceOverdue = "Choose yes or no.";
+  if (notifyWeeklyDigest === null) fieldErrors.notifyWeeklyDigest = "Choose yes or no.";
+
+  const values: OperatorProfileInput = {
+    displayName,
+    role,
+    email,
+    timezone,
+    notifyDisputeOpened: notifyDisputeOpened ?? false,
+    notifyInvoiceOverdue: notifyInvoiceOverdue ?? false,
+    notifyWeeklyDigest: notifyWeeklyDigest ?? false,
+  };
+
+  if (Object.keys(fieldErrors).length > 0) return { ok: false, fieldErrors, values };
+  return { ok: true, value: values };
+}
+
 export function operatorInitials(displayName: string): string {
   const letters = displayName
     .trim()
