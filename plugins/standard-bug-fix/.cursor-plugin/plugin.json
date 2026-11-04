@@ -1,7 +1,7 @@
 {
   "name": "standard-bug-fix",
   "displayName": "Standard bug fix",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Standard Linear bug-fix skill, rule, and Linear MCP for the Ledgerly 201 track.",
   "author": {
     "name": "Fieldnote Workspace",
