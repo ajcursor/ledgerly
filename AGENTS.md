@@ -117,6 +117,9 @@ Incomplete on purpose:
 | `.cursor/skills/choose-cursor-workflow/` | Walk the 101, 201, or 301 track: modes, models, rules, skills, and finishing one task with an agent |
 | `.cursor/skills/stage-linear/` | Reconcile Fieldnote issues on the `ce-field-demos` Linear project. Public and private teams are both valid. |
 | `.cursor/skills/standard-bug-fix/` | `/standard-bug-fix` — pull one ce-field-demos Linear issue and fix only that bug |
+| `.cursor/skills/implement-linear-bug-ticket/` | Fix one Bug from the Brightdesk / Ledgerly Linear project end to end: PR, demo evidence, Slack thread reply, Ready for Review |
+| `.cursor/skills/how/` | "How does X work" walkthroughs with parallel explorers; optional architecture critique |
+| `.cursor/skills/why/` | "Why is X this way" from git, Linear, docs, Slack, and Sentry, with confidence levels |
 | `.cursor/skills/dispatch-subagents/` | Parallel Task launches |
 | `.cursor/skills/hand-to-cloud-agent/` | Cloud `/goal`, `/autopilot`, and `/orchestrate` |
 | `.cursor/skills/write-prisma-query/` | Invoice, dispute, and customer lookups against SQLite — not an MCP |
