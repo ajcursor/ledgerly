@@ -163,11 +163,27 @@ describe("demo bug registry", () => {
       occupiedDays: 10,
       daysInPeriod: 31,
     };
+    const halfCent = {
+      quantity: 1,
+      unitPriceCents: PLAN_PRICE_CENTS.SCALE,
+      occupiedDays: 1,
+      daysInPeriod: 8,
+    };
+    const belowHalf = {
+      quantity: 1,
+      unitPriceCents: PLAN_PRICE_CENTS.STARTER,
+      occupiedDays: 1,
+      daysInPeriod: 3,
+    };
     withEnv({}, () => {
       expect(lineAmountCents(line)).toBe(3194);
+      expect(lineAmountCents(halfCent)).toBe(3113);
+      expect(lineAmountCents(belowHalf)).toBe(1633);
     });
     withEnv({ DEMO_BUGS: "line_rounding" }, () => {
       expect(lineAmountCents(line)).toBe(3200);
+      expect(lineAmountCents(halfCent)).toBe(3100);
+      expect(lineAmountCents(belowHalf)).toBe(1600);
     });
   });
 

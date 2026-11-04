@@ -243,4 +243,78 @@ describe("suggested credit over the catalog", () => {
       }),
     );
   });
+
+  it("rejects a bad body and an unknown acting customer without capturing", async () => {
+    const badJson = await POST(
+      new Request("http://localhost/api/demo/suggested-credit-over-refund", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{",
+      }),
+    );
+    expect(badJson.status).toBe(400);
+    await expect(badJson.json()).resolves.toEqual({ error: "Invalid body" });
+
+    const missingFields = await POST(
+      new Request("http://localhost/api/demo/suggested-credit-over-refund", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ disputeId: 1043, viewId: "view-numeric" }),
+      }),
+    );
+    expect(missingFields.status).toBe(400);
+    await expect(missingFields.json()).resolves.toEqual({ error: "Invalid body" });
+
+    const unknown = await POST(
+      report("dsp_1043", "view-unknown-customer", { as: "not-a-customer@example" }),
+    );
+    expect(unknown.status).toBe(400);
+    await expect(unknown.json()).resolves.toEqual({ error: "Unknown customer" });
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("skips an unusable view and returns not found for a missing dispute", async () => {
+    const blank = await POST(report("dsp_1043", "   ", { cookie: ellis.email }));
+    const oversized = await POST(report("dsp_1043", "v".repeat(201), { cookie: ellis.email }));
+    const missing = await POST(report("dsp_9999", "view-missing-dispute", { cookie: ellis.email }));
+
+    expect(blank.status).toBe(200);
+    expect(oversized.status).toBe(200);
+    await expect(blank.json()).resolves.toEqual({ reported: false });
+    await expect(oversized.json()).resolves.toEqual({ reported: false });
+    expect(missing.status).toBe(404);
+    await expect(missing.json()).resolves.toEqual({ error: "Dispute not found" });
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("trims the dispute id before it looks the dispute up", async () => {
+    const response = await POST(report("  dsp_1043  ", "view-trimmed-dispute", { cookie: ellis.email }));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ reported: true });
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it("still reports when the Sentry flush fails", async () => {
+    vi.mocked(Sentry.flush).mockRejectedValueOnce(new Error("socket hang up"));
+
+    const response = await POST(report("dsp_1043", "view-flush-fails", { cookie: ellis.email }));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ reported: true });
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+    expect(Sentry.flush).toHaveBeenCalledWith(2000);
+  });
+
+  it("drops the oldest view id once the claim cache is full", () => {
+    const oldest = "claim-cache-oldest";
+    expect(claimSuggestedCreditView(oldest)).toBe(true);
+    let newest = "";
+    for (let index = 0; index < 200; index += 1) {
+      newest = `claim-cache-pad-${index}`;
+      expect(claimSuggestedCreditView(newest)).toBe(true);
+    }
+    expect(claimSuggestedCreditView(oldest)).toBe(true);
+    expect(claimSuggestedCreditView(newest)).toBe(false);
+  });
 });
