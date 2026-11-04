@@ -14,7 +14,7 @@ Enable **Accept credit** and **Decline** on the dispute detail Resolution panel 
 
 Catalog only: Starter $49, Growth $99, Scale $249 (`lib/plans.ts`). Dispute `dsp_1043` may claim $400 against a $249 Scale invoice — valid input; stored credit on accept must be **$249**, not $400.
 
-`npm test` stays **2 failed / 85 passed** (`tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`). Do not add another red test to the default run. Do not touch suggested-credit client/tests, seed, or catalog prices.
+`npm test` stays **1 failed / 86 passed** (`tests/filter-pills.test.ts`). Do not add another red test to the default run. Do not touch suggested-credit client/tests, seed, or catalog prices.
 
 ## Run order
 
@@ -66,14 +66,14 @@ The files in `.cursor/agents/` are not the three implementers.
 
 **Optional e2e** (step 3 only): use `dsp_tdd_*` fixtures; restore `dsp_1043` after each mutating case. Cover accept cap **24900**, decline does not raise credit, `{ action: "ACCEPTED" }` → 400, route imports `resolveDispute` with no `prisma.` persist, panel POSTs `{ action, reviewerNote }`.
 
-Suggested credit on the page may still be v1 **$400**. Do not “fix” that in this slice.
+Suggested credit on the page is v2 **$249** unless `credit_v1` is on. Do not turn that bug on in this slice.
 
 | When | Check |
 |---|---|
 | Agent 1 done | `resolveDispute` no longer throws `not implemented`. Accept cap / decline / missing id as in the contract. |
 | Agent 2 done | Bad `action` → 400. `grep`: no `prisma.` in the route. Valid body still calls `resolveDispute`. 501 until helper is applied. |
 | Agent 3 done | Buttons enabled. POST body is `{ action, reviewerNote }`. 501 until helper is applied is OK. |
-| After apply | Browser on `dsp_1043`. `npm test` still **2 failed / 85 passed**. Same turn: `ledgerly-reviewer` and **`dispute-verifier`**. |
+| After apply | Browser on `dsp_1043`. `npm test` still **1 failed / 86 passed**. Same turn: `ledgerly-reviewer` and **`dispute-verifier`**. |
 
 ---
 

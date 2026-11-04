@@ -9,10 +9,6 @@ const summaryPath = path.join(root, "coverage", "coverage-summary.json");
 
 const plantedFailures = [
   {
-    file: "tests/suggested-credit-api.test.ts",
-    title: "uses the current API version",
-  },
-  {
     file: "tests/filter-pills.test.ts",
     title: "writes the status query the invoice and dispute pages read",
   },
@@ -109,7 +105,7 @@ const plantedOnly =
   actual.size === expected.size && [...expected].every((key) => actual.has(key));
 
 if (!plantedOnly) {
-  console.error("Coverage run failed. The failures were not the two planted tests.");
+  console.error("Coverage run failed. The failures were not the planted test.");
   if (failed.length === 0) {
     console.error("- no failing tests");
   }

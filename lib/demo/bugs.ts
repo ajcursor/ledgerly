@@ -36,7 +36,7 @@ export const DEMO_BUG_LIST: readonly DemoBug[] = [
     sentryFingerprint: "suggested-credit-over-refund",
     linearTitle: "Suggested credit on dsp_1043 shows $400 instead of the $249 Scale cap",
     redTests: ["tests/suggested-credit-api.test.ts"],
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
   {
     id: "filter_state",
