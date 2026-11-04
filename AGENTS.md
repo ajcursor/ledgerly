@@ -67,7 +67,10 @@ For any reset request, run `npm run demo:reset` first. It resets everything it k
 
 ```bash
 npm test
+npm run test:coverage
 ```
+
+`npm test` does not collect coverage. `npm run test:coverage` prints `Application line coverage: <pct>%` from `coverage/coverage-summary.json` (`total.lines.pct`) for `app/`, `components/`, `lib/`, and the instrumentation entry files. Do not fold it into `npm test`, `npm run test:a11y`, the environment start command, or `scripts/demo-reset.ts`. On a clean tree the same two tests fail, and the command exits 0 only when those are the only failures. When `DEMO_BUGS`, `DEMO_SCENARIO`, or `DEMO_BUGS_FILE` is set, it keeps Vitest's exit code.
 
 Two tests fail on a clean tree. `tests/suggested-credit-api.test.ts` expects the client to use v2 while `lib/disputes/suggested-credit-api.ts` selects deprecated v1 (`credit_v1`, on when `DEMO_BUGS`, `DEMO_SCENARIO`, and `DEMO_BUGS_FILE` are unset). That migration is tracked on its own, so do not turn the bug off as a drive-by. Preserve both routes and never change the test or seed to get green. `tests/filter-pills.test.ts` expects `status=` and fails while `filter_state` is on. Other registry bugs stay off unless a set selects them. See the README.
 
@@ -82,7 +85,7 @@ Passing tests include `tests/money.test.ts` and `tests/plans.test.ts`. Environme
 
 Shipped suite on a clean tree: **2 failed / 85 passed**. The `dsp_1043` page shows v1's $400 result; v2 and the stored credit are correctly capped at $249. Invoice and dispute status pills write `state=` while the pages read `status`, and `tests/filter-pills.test.ts` is red while `filter_state` is on.
 
-WCAG checks live in `tests/a11y/` and run separately with `npm run test:a11y`; `npm test` excludes them, so they do not change the shipped count. They check 4.5:1 text contrast for the token pairs in `app/globals.css` (light and dark) and labels on form controls, buttons, links, and images. The suite is red today on contrast only; label checks pass. Failing pairs: light `--success`, `--warning`, and `--danger` on their `-soft` badge backgrounds; light `--muted-foreground` on `--muted` and on `--indigo-soft`; light `--success` on `--card`; and dark `--danger` on `--danger-soft`. Keep `test:a11y` out of `npm test`, the environment start command, and `scripts/demo-reset.ts`.
+WCAG checks live in `tests/a11y/` and run separately with `npm run test:a11y`; `npm test` excludes them, so they do not change the shipped count. They check 4.5:1 text contrast for the token pairs in `app/globals.css` (light and dark) and labels on form controls, buttons, links, and images. The suite is red today on contrast only; label checks pass. Failing pairs: light `--success`, `--warning`, and `--danger` on their `-soft` badge backgrounds; light `--muted-foreground` on `--muted` and on `--indigo-soft`; light `--success` on `--card`; and dark `--danger` on `--danger-soft`. Keep `test:a11y` out of `npm test`, `npm run test:coverage`, the environment start command, and `scripts/demo-reset.ts`.
 
 ### Multi-file stub (leave it unless asked)
 
@@ -98,7 +101,7 @@ Incomplete on purpose:
 - Customer names only from `prisma/seed.ts`, `prisma/extra-accounts.ts`, and `prisma/demo-contacts.ts`. The four Viewing as contacts use HubSpot addresses on `brightdesk-demo.co.uk`. Every other email uses `.example`.
 - Comments in code must not cite Slack, GitHub, or issue-tracker URLs.
 - Do not rename Collections / Nudge / Pulse / Slatebook / Harborbill, and never reintroduce retired pre-remap names.
-- Do not add Deno workflows or GitHub Actions starters. Do not add better-sqlite3.
+- The coverage check in `.github/workflows/test-coverage.yml` is the shipped CI. Do not add Deno workflows or another workflow. Do not add better-sqlite3.
 - Do not add talk-track / speaker-note skills. Do not add a fourth catalog-solving agent. Runbook beats live in `runbooks/meta.ts`.
 - Do not rename the FilterPills query key from `state` to `status` unless asked.
 - Do not add a Prisma/SQLite MCP or restore the `mcp/` directory. Query the seed with Prisma (`write-prisma-query`) or the HTTP API.
