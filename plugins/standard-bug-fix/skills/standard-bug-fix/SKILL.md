@@ -1,6 +1,6 @@
 ---
 name: standard-bug-fix
-description: Pull one ce-field-demos Linear issue by title or identifier, fix only that Ledgerly bug, and write hypothesis, debug notes, and the fix PR back to Linear. Use when the user runs /standard-bug-fix with a field-demo title such as the Overdue or Needs review filter bug.
+description: Pull one ce-field-demos Linear issue by title or identifier, fix only that Ledgerly bug, and write hypothesis, debug notes, and the fix PR back to Linear. Use when the user runs /standard-bug-fix with a field-demo title such as the Overdue or Needs review filter bug. Not for Brightdesk / Ledgerly issues (`AJC-` keys) or #aj-ledgerly-bug-reports reports; those use implement-linear-bug-ticket.
 ---
 
 # Standard bug fix
