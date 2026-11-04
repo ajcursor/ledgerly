@@ -26,7 +26,9 @@ These are intentional. Leave them for the demo, and do not ship them outside dem
 - **Suggested credit.** `tests/suggested-credit-api.test.ts` stays red because `lib/disputes/suggested-credit-api.ts` selects deprecated v1 while the `credit_v1` bug is on. That is the default. Do not edit the test, either route, or the seed to make the suite green.
 - **W2 Tab listener.** `.cursor/plans/keyboard-walkthrough-audit.md` tells the W2 task to add a document-level `keydown` listener in the app chrome that calls `event.preventDefault()` whenever the key is Tab. That step is intentional. It would block Tab on every page if that listener is added in the shell. `components/app-chrome.tsx` does not contain it yet. The change reviewer should flag it as High. It must never ship outside demos. Do not remove it, reword it, or label it inside the plan.
 
-`npm run test:a11y` runs the WCAG checks in `tests/a11y/` (4.5:1 text contrast and missing labels). They are not part of `npm test`. The command currently fails on contrast (status badges, some muted text, and growth text); label checks pass.
+`npm run test:coverage` measures line coverage for application code and prints `Application line coverage: <pct>%`. The report is `coverage/coverage-summary.json`. On a clean tree the same two tests fail; the command exits 0 only when those are the only failures. It is not part of `npm test`.
+
+`npm run test:a11y` runs the WCAG checks in `tests/a11y/` (4.5:1 text contrast and missing labels). They are not part of `npm test` or `npm run test:coverage`. The command currently fails on contrast (status badges, some muted text, and growth text); label checks pass.
 
 ## Switchable demo bugs
 
