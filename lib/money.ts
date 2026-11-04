@@ -1,3 +1,4 @@
+// Formats integer cents as USD.
 export function formatUsd(cents: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
