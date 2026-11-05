@@ -9,7 +9,7 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, "tests/a11y/**"],
     coverage: {
       provider: "v8",
-      // The two planted failures are red on a clean tree. Still write the report.
+      // The filter-pill failure is red on a clean tree. Still write the report.
       reportOnFailure: true,
       reporter: ["text-summary", "json-summary", "lcov"],
       reportsDirectory: "./coverage",

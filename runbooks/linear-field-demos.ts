@@ -38,9 +38,9 @@ export const FIELD_DEMO_ISSUES: readonly FieldDemoIssue[] = [
     previousTitles: ["Dispute dsp_1043 claims $400 against a $249 Scale invoice"],
     description: `## Bug
 
-Open http://127.0.0.1:43173/disputes/dsp_1043. The Resolution card shows **Suggested credit $400.00**. INV-1043 is Scale at **$249**. Expected suggested credit is **$249.00**.
+Open http://127.0.0.1:43173/disputes/dsp_1043. The Resolution card shows **Suggested credit $249.00** from v2. INV-1043 is Scale at **$249**. The dispute claim stays **$400.00**.
 
-The $400 figure is Cobalt Goods' claim, not a fourth catalog price. Do not change the stored claim. The page still calls deprecated suggested-credit v1, which returns the raw claim. v2, the domain helper, and the seed already cap at $249.
+The $400 figure is Cobalt Goods' claim, not a fourth catalog price. Do not change the stored claim. The client selects v2 unless credit_v1 is enabled. v1 returns the raw claim. v2, the domain helper, and the seed cap at $249.
 
 ## Acceptance
 
@@ -216,7 +216,7 @@ export const COLLECTIONS_COMMAND_CENTER_ISSUES: readonly CollectionsCommandCente
       "Given an invoice whose outstanding balance is 0, When a payment is submitted, Then the response is 400 and the status stays unchanged.",
     ],
     constraints:
-      "POST /api/invoices/[id]/payments with { method }. The server records the full outstanding balance (totalCents minus recorded payments) and ignores a client-supplied amount. Methods are only check, ach, card_on_file, and cash. Success sets status PAID and paidOn to DEMO_AS_OF, writes Payment and a PAYMENT_RECORDED activity (status recorded, occurredOn DEMO_AS_OF). This slice creates the single account activity feed; later slices append to it. Commit only after the confirm step, which shows the amount. On app/invoices/[id]/page.tsx add payment history and Record payment only. Do not change the customer email card or the unfinished collection-note card (lib/collection-note.ts, the disabled Save note button). Seed deleteMany for payments and activities runs before invoices. Tests that write restore the invoice and new rows. A new passing test updates the shipped suite citations in the same change. The sole failure stays tests/suggested-credit-api.test.ts. Catalog amounts stay Starter $49, Growth $99, Scale $249.",
+      "POST /api/invoices/[id]/payments with { method }. The server records the full outstanding balance (totalCents minus recorded payments) and ignores a client-supplied amount. Methods are only check, ach, card_on_file, and cash. Success sets status PAID and paidOn to DEMO_AS_OF, writes Payment and a PAYMENT_RECORDED activity (status recorded, occurredOn DEMO_AS_OF). This slice creates the single account activity feed; later slices append to it. Commit only after the confirm step, which shows the amount. On app/invoices/[id]/page.tsx add payment history and Record payment only. Do not change the customer email card or the unfinished collection-note card (lib/collection-note.ts, the disabled Save note button). Seed deleteMany for payments and activities runs before invoices. Tests that write restore the invoice and new rows. A new passing test updates the shipped suite citations in the same change. The sole failure stays tests/filter-pills.test.ts. Catalog amounts stay Starter $49, Growth $99, Scale $249.",
     notInThisIssue:
       "Rejecting a body that sends a different amountCents, partial-payment entry, notes, Nudge, the dashboard card, and amount masking.",
     covers: ["FR-12", "FR-13", "FR-15", "FR-16", "FR-17", "FR-18"],
@@ -239,7 +239,7 @@ export const COLLECTIONS_COMMAND_CENTER_ISSUES: readonly CollectionsCommandCente
       "Given an OVERDUE invoice, When a client posts amountCents other than that outstanding balance, Then the response is 400, nothing is stored, and the status stays OVERDUE.",
     ],
     constraints:
-      "Same payments route as the full-payment slice. The form never collects a second amount. Tests that write restore the invoice. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/suggested-credit-api.test.ts.",
+      "Same payments route as the full-payment slice. The form never collects a second amount. Tests that write restore the invoice. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/filter-pills.test.ts.",
     notInThisIssue: "Partial payments, installments, and a new payment method.",
     covers: ["FR-14"],
     ledgerlyPaths: ["app/api/invoices/[id]/payments/route.ts", "app/invoices/[id]/page.tsx"],
@@ -256,7 +256,7 @@ export const COLLECTIONS_COMMAND_CENTER_ISSUES: readonly CollectionsCommandCente
       "Given a note body and an invoice id, When Avery saves, Then the note is tied to that invoice.",
     ],
     constraints:
-      "POST /api/customers/[id]/notes with { body, invoiceId? }. Persist CollectionNote (customerId, invoiceId nullable, authorName, body, createdAt, updatedAt) and a NOTE_ADDED activity on the same account feed. Author is Avery Quinn (DEMO_OPERATOR). Newest createdAt first. Seed deleteMany notes before invoices. Do not finish the invoice-page stub in lib/collection-note.ts or enable its Save note button. Tests that write restore the new rows. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/suggested-credit-api.test.ts.",
+      "POST /api/customers/[id]/notes with { body, invoiceId? }. Persist CollectionNote (customerId, invoiceId nullable, authorName, body, createdAt, updatedAt) and a NOTE_ADDED activity on the same account feed. Author is Avery Quinn (DEMO_OPERATOR). Newest createdAt first. Seed deleteMany notes before invoices. Do not finish the invoice-page stub in lib/collection-note.ts or enable its Save note button. Tests that write restore the new rows. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/filter-pills.test.ts.",
     notInThisIssue: "The 15-minute edit window, delete, Nudge, and payments.",
     covers: ["FR-5", "FR-6"],
     ledgerlyPaths: [
@@ -295,7 +295,7 @@ export const COLLECTIONS_COMMAND_CENTER_ISSUES: readonly CollectionsCommandCente
       "Given an account with no overdue invoices, When Avery views the account, Then the Nudge control is disabled.",
     ],
     constraints:
-      "POST /api/invoices/[id]/nudge. No custom body. Email only, to the on-file address. Per-invoice send starts from the overdue row on Account Detail. Append to the existing activity feed. Do not add the control to the invoice-page collection-note card. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/suggested-credit-api.test.ts.",
+      "POST /api/invoices/[id]/nudge. No custom body. Email only, to the on-file address. Per-invoice send starts from the overdue row on Account Detail. Append to the existing activity feed. Do not add the control to the invoice-page collection-note card. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/filter-pills.test.ts.",
     notInThisIssue: "Failed sends, SMS or voice, custom copy, and dunning cadences.",
     covers: ["FR-8", "FR-9", "FR-10"],
     ledgerlyPaths: [
@@ -332,7 +332,7 @@ export const COLLECTIONS_COMMAND_CENTER_ISSUES: readonly CollectionsCommandCente
       "Given a note, nudge, or payment recorded in this session, When Avery loads the dashboard again, Then the card includes that change.",
     ],
     constraints:
-      "One card on app/page.tsx through the existing kpi-card tokens (bg-indigo-soft, text-indigo, and the existing danger tone for overdue). Do not restyle the other KPI cards, add a hex color, or make the card configurable. Aggregates come from lib/dashboard.ts through getDashboard() in lib/data.ts. occurredOn is DEMO_AS_OF. Overdue total uses catalog cents only. Update on the next dashboard load. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/suggested-credit-api.test.ts.",
+      "One card on app/page.tsx through the existing kpi-card tokens (bg-indigo-soft, text-indigo, and the existing danger tone for overdue). Do not restyle the other KPI cards, add a hex color, or make the card configurable. Aggregates come from lib/dashboard.ts through getDashboard() in lib/data.ts. occurredOn is DEMO_AS_OF. Overdue total uses catalog cents only. Update on the next dashboard load. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/filter-pills.test.ts.",
     notInThisIssue: "Live updates, a second collections card, and masking the overdue total.",
     covers: ["FR-19", "FR-20", "FR-21"],
     ledgerlyPaths: [
@@ -354,7 +354,7 @@ export const COLLECTIONS_COMMAND_CENTER_ISSUES: readonly CollectionsCommandCente
       "Given a seeded Starter, Growth, or Scale account, When Avery opens those surfaces, Then dollar figures use formatUsd.",
     ],
     constraints:
-      "amountsVisible lives next to the plan catalog and is true only for STARTER, GROWTH, and SCALE. Do not add Free, Trial, or Enterprise. Every seeded account stays on the catalog; a unit test passes a non-catalog id. The payment confirm is the data-entry exception. Recording a payment still stores the amount so PAID is correct. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/suggested-credit-api.test.ts.",
+      "amountsVisible lives next to the plan catalog and is true only for STARTER, GROWTH, and SCALE. Do not add Free, Trial, or Enterprise. Every seeded account stays on the catalog; a unit test passes a non-catalog id. The payment confirm is the data-entry exception. Recording a payment still stores the amount so PAID is correct. Update the shipped suite citations if this adds a passing test. The sole failure stays tests/filter-pills.test.ts.",
     notInThisIssue: "Hiding the overdue list, notes, Nudge, or activity log on a non-catalog id, and a new price.",
     covers: ["FR-22", "FR-23", "FR-24"],
     ledgerlyPaths: [

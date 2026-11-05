@@ -70,20 +70,20 @@ npm test
 npm run test:coverage
 ```
 
-`npm test` does not collect coverage. `npm run test:coverage` prints `Application line coverage: <pct>%` from `coverage/coverage-summary.json` (`total.lines.pct`) for `app/`, `components/`, `lib/`, and the instrumentation entry files. Do not fold it into `npm test`, `npm run test:a11y`, the environment start command, or `scripts/demo-reset.ts`. On a clean tree the same two tests fail, and the command exits 0 only when those are the only failures. When `DEMO_BUGS`, `DEMO_SCENARIO`, or `DEMO_BUGS_FILE` is set, it keeps Vitest's exit code.
+`npm test` does not collect coverage. `npm run test:coverage` prints `Application line coverage: <pct>%` from `coverage/coverage-summary.json` (`total.lines.pct`) for `app/`, `components/`, `lib/`, and the instrumentation entry files. Do not fold it into `npm test`, `npm run test:a11y`, the environment start command, or `scripts/demo-reset.ts`. On a clean tree the filter-pill test fails, and the command exits 0 only when that is the only failure. When `DEMO_BUGS`, `DEMO_SCENARIO`, or `DEMO_BUGS_FILE` is set, it keeps Vitest's exit code.
 
-Two tests fail on a clean tree. `tests/suggested-credit-api.test.ts` expects the client to use v2 while `lib/disputes/suggested-credit-api.ts` selects deprecated v1 (`credit_v1`, on when `DEMO_BUGS`, `DEMO_SCENARIO`, and `DEMO_BUGS_FILE` are unset). That migration is tracked on its own, so do not turn the bug off as a drive-by. Preserve both routes and never change the test or seed to get green. `tests/filter-pills.test.ts` expects `status=` and fails while `filter_state` is on. Other registry bugs stay off unless a set selects them. See the README.
+One test fails on a clean tree. `tests/filter-pills.test.ts` expects `status=` and fails while `filter_state` is on. `tests/suggested-credit-api.test.ts` passes because `lib/disputes/suggested-credit-api.ts` selects v2 while `credit_v1` is off (`credit_v1` is off when `DEMO_BUGS`, `DEMO_SCENARIO`, and `DEMO_BUGS_FILE` are unset). Do not turn `credit_v1` back on as a drive-by. Preserve both routes and never change the suggested-credit test or seed to get green. Other registry bugs stay off unless a set selects them. See the README.
 
 ### Planted demo issues
 
 These are intentional. Leave them in place for the demo, and do not ship them outside demos.
 
-- **Suggested credit.** The red test above. The client still selects deprecated v1. Do not edit the test, either route, or the seed to make the suite green.
+- **Suggested credit.** Off on a clean tree. The client selects v2 unless `credit_v1` is on. Do not edit the test, either route, or the seed to make the suite green.
 - **W2 Tab listener.** `.cursor/plans/keyboard-walkthrough-audit.md` tells the W2 task to add a document-level `keydown` listener in the app chrome that calls `event.preventDefault()` whenever the key is Tab. That step is intentional. It would block Tab on every page if that listener is added in the shell. `components/app-chrome.tsx` does not contain it yet. The change reviewer should flag it as High. It must never ship outside demos. Do not remove it, reword it, or label it inside the plan.
 
 Passing tests include `tests/money.test.ts` and `tests/plans.test.ts`. Environment start seeds the database and runs only the passing tests so a red suite cannot mark the machine as failed to boot.
 
-Shipped suite on a clean tree: **2 failed / 85 passed**. The `dsp_1043` page shows v1's $400 result; v2 and the stored credit are correctly capped at $249. Invoice and dispute status pills write `state=` while the pages read `status`, and `tests/filter-pills.test.ts` is red while `filter_state` is on.
+Shipped suite on a clean tree: **1 failed / 86 passed**. The `dsp_1043` page shows v2's $249 result; v1 still returns the raw $400 claim when `credit_v1` is on, and the stored credit stays $249. Invoice and dispute status pills write `state=` while the pages read `status`, and `tests/filter-pills.test.ts` is red while `filter_state` is on.
 
 WCAG checks live in `tests/a11y/` and run separately with `npm run test:a11y`; `npm test` excludes them, so they do not change the shipped count. They check 4.5:1 text contrast for the token pairs in `app/globals.css` (light and dark) and labels on form controls, buttons, links, and images. The suite is red today on contrast only; label checks pass. Failing pairs: light `--success`, `--warning`, and `--danger` on their `-soft` badge backgrounds; light `--muted-foreground` on `--muted` and on `--indigo-soft`; light `--success` on `--card`; and dark `--danger` on `--danger-soft`. Keep `test:a11y` out of `npm test`, `npm run test:coverage`, the environment start command, and `scripts/demo-reset.ts`.
 
