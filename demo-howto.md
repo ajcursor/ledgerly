@@ -62,13 +62,13 @@ Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` ski
 
 Check shipped state:
 
-- `npm test` is **2 failed / 85 passed**; the failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`
-- [http://127.0.0.1:43173/disputes/dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043) shows **Suggested credit $400.00** in red, above the Scale price of **$249**
-- The deprecated v1 route returns the $400 claim; v2, the domain helper, and the seed store the correct $249 credit
+- `npm test` is **1 failed / 86 passed**; the failure is `tests/filter-pills.test.ts`
+- [http://127.0.0.1:43173/disputes/dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043) shows **Suggested credit $249.00** from v2, within the Scale price of **$249**
+- The dispute claim stays $400. The deprecated v1 route returns that claim when `credit_v1` is on. v2, the domain helper, and the seed store the $249 credit
 - Accept credit posts the catalog credit once. A dispute that is already accepted or declined returns 409.
 - Invoice and dispute status pills write `?state=` while the pages read `status` — clicking Overdue / Needs review does not filter. `tests/filter-pills.test.ts` is red while that bug is on. Restore it with the scripted reset.
 
-If the credit reads $249.00 or the suite is all green, a prior run switched the client to v2. If status pills filter the list, a prior run renamed `state` to `status`. Run:
+If the credit reads $400.00, a prior run turned `credit_v1` on. If the suite is all green, or status pills filter the list, a prior run renamed `state` to `status`. Run:
 
 ```bash
 npm run demo:reset
@@ -96,13 +96,13 @@ A public team makes the project visible to that team.
 
 **Open:** [dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043). The dashboard and Collections page are optional context.
 
-**Do:** Point at **Suggested credit $400.00**, then **Scale catalog price $249.00**.
+**Do:** Point at **Suggested credit $249.00**, then the **$400.00** claim and the **Scale catalog price $249.00**.
 
 **Why:** One concrete error keeps the demo easy to follow. **Benefit:** Every enablement step can use the same visible example. **Why it matters:** The audience can focus on how Grok Build works instead of learning a product.
 
 **Say — novice version:**
 
-> Ledgerly is a fictional billing app we use for this demo. It contains one known error on purpose. This invoice costs $249, but the dispute claims $400. The current v2 API caps the suggested credit at $249. The page still calls deprecated v1, which returns the $400 claim. That is why the page shows a red warning and one test is red.
+> Ledgerly is a fictional billing app we use for this demo. This invoice costs $249, and the dispute claims $400. The page calls suggested-credit v2, which caps the suggestion at $249. Deprecated v1 still returns the $400 claim when credit_v1 is turned on. Status pills are the remaining red test: they write state= and do not filter the queue.
 
 **How the error correlates:**
 
@@ -111,10 +111,10 @@ A public team makes the project visible to that team.
 | Demo data | `prisma/seed.ts` | `dsp_1043` claims $400 against `inv_1043`, a $249 Scale invoice |
 | Correct domain logic | `lib/dispute-credit.ts` | Caps suggested credit at the catalog plan price |
 | Versioned APIs | `app/api/v1/disputes/[id]/suggested-credit/route.ts`, `app/api/v2/disputes/[id]/suggested-credit/route.ts` | v1 returns the $400 claim for compatibility; v2 returns $249 |
-| Faulty client selection | `lib/disputes/suggested-credit-api.ts` | Selects deprecated v1, so the UI displays $400 |
+| Client selection | `lib/disputes/suggested-credit-api.ts` | Selects v2 unless credit_v1 is on, so the UI displays $249 |
 | Expected behavior | `tests/suggested-credit-api.test.ts` | Expects the client to select v2 |
 
-**Look for:** Red **Suggested credit $400.00**, copy stating it came from v1 and is above **$249.00**, and disabled Accept / Decline buttons. Those buttons are a separate unfinished seam; do not confuse them with the API-version error. Status pills on `/invoices` and `/disputes` are a third seam: they write `state=` so a click does not filter.
+**Look for:** **Suggested credit $249.00**, copy stating it came from v2 and is within **$249.00**, and disabled Accept / Decline buttons. Those buttons are a separate unfinished seam. Status pills on `/invoices` and `/disputes` write `state=` so a click does not filter.
 
 ---
 
@@ -159,10 +159,10 @@ Explain the dispute flow end to end. What is intentionally unfinished? Cite the 
 **Paste:**
 
 ```text
-Diagnose why dsp_1043 shows a $400 suggested credit even though v2 caps it at $249. Switch lib/disputes/suggested-credit-api.ts from v1 to v2. Preserve both API routes, the $400 dispute claim, and tests/suggested-credit-api.test.ts. Run the relevant tests and verify the page shows $249 from v2.
+Open dsp_1043 and confirm the suggested credit is $249 from v2. The $400 figure is the claim. Preserve both API routes, the $400 dispute claim, and tests/suggested-credit-api.test.ts. Do not turn credit_v1 back on. Run the relevant tests.
 ```
 
-**Look for:** One client-version edit. Both v1 and v2 route tests still pass. `tests/suggested-credit-api.test.ts` turns green. The page shows **$249** from v2.
+**Look for:** No client-version edit. Both v1 and v2 route tests still pass. `tests/suggested-credit-api.test.ts` stays green. The page shows **$249** from v2.
 
 ---
 
@@ -231,12 +231,12 @@ Create three slides in Figma Slides outlining how I used Grok Build to develop a
 ```text
 Run npm test and report which tests passed and which failed. Do not edit any files.
 
-On a clean tree, npm test is 2 failed / 85 passed. tests/suggested-credit-api.test.ts is red because the client selects deprecated v1, and tests/filter-pills.test.ts is red because the pills write state=. Do not change the suggested-credit test, either route, or the seed.
+On a clean tree, npm test is 1 failed / 86 passed. tests/filter-pills.test.ts is red because the pills write state=. tests/suggested-credit-api.test.ts passes because the client selects v2. Do not change the suggested-credit test, either route, or the seed.
 ```
 
-**If the client migration ran:** `tests/suggested-credit-api.test.ts` should be green and dsp_1043 should show **$249** from v2, with both routes intact.
+**Shipped state:** `tests/suggested-credit-api.test.ts` is green and dsp_1043 shows **$249** from v2, with both routes intact.
 
-**If no migration ran:** `npm test` should remain **2 failed / 85 passed**. That is shipped state, not failed setup.
+**If a run turned credit_v1 on:** the suggested-credit test goes red and the page shows **$400.00** from v1. Reset to return to **1 failed / 86 passed**.
 
 **Land:** A green check is evidence, not permission to merge. The presenter remains accountable.
 
@@ -246,7 +246,7 @@ On a clean tree, npm test is 2 failed / 85 passed. tests/suggested-credit-api.te
 
 **Say:**
 
-> I reviewed the result. Now I am resetting the demo app so the next session starts with the same planted v1 client, the same $400 UI result, the same two red tests, and status pills that still write `state=`.
+> I reviewed the result. Now I am resetting the demo app so the next session starts with suggested credit at $249 from v2, one red test, and status pills that still write `state=`.
 
 **Do:** Ask the agent to run `reset-demo-state`, or:
 
@@ -256,7 +256,7 @@ npm run demo:reset
 
 **Then:** complete only the script's reported Figma, Cursor user-rule, or Linear MCP actions. The script resets files, recorded rules/skills, Canvas, branches, SQLite, and port 43173.
 
-**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **2 failed / 85 passed**, status pills still writing `state=`.
+**Shipped state again:** suggested credit **$249.00** from v2 on dsp_1043, v1 still returns the **$400.00** claim when `credit_v1` is on, stored credit **$249.00**, suite **1 failed / 86 passed**, status pills still writing `state=`.
 
 ---
 
