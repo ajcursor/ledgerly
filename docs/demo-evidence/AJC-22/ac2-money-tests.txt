@@ -1,0 +1,19 @@
+$ npx vitest run tests/money.test.ts
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /workspace
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  08:58:27
+   Duration  146ms (transform 24ms, setup 0ms, import 33ms, tests 15ms, environment 0ms)
+
+
+
+$ npx tsx -e "formatUsd on catalog cents"
+Starter 4900 -> $49.00
+Growth 9900 -> $99.00
+Scale 24900 -> $249.00

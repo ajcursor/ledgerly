@@ -1,0 +1,56 @@
+$ npm test
+
+> ce-field-demos@1.0.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /workspace
+
+ ❯ tests/suggested-credit-api.test.ts (1 test | 1 failed) 6ms
+     × uses the current API version 5ms
+ ❯ tests/filter-pills.test.ts (1 test | 1 failed) 5ms
+     × writes the status query the invoice and dispute pages read 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/filter-pills.test.ts > status filter pills > writes the status query the invoice and dispute pages read
+AssertionError: expected '/invoices?state=OVERDUE' to be '/invoices?status=OVERDUE' // Object.is equality
+
+Expected: "/invoices?status=OVERDUE"
+Received: "/invoices?state=OVERDUE"
+
+ ❯ tests/filter-pills.test.ts:6:52
+      4| describe("status filter pills", () => {
+      5|   it("writes the status query the invoice and dispute pages read", () …
+      6|     expect(filterPillHref("/invoices", "OVERDUE")).toBe("/invoices?sta…
+       |                                                    ^
+      7|     expect(filterPillHref("/disputes", "NEEDS_REVIEW")).toBe("/dispute…
+      8|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/suggested-credit-api.test.ts > suggested credit API client > uses the current API version
+AssertionError: expected '/api/v1/disputes/dsp_1043/suggested-c…' to be '/api/v2/disputes/dsp_1043/suggested-c…' // Object.is equality
+
+Expected: "/api/v2/disputes/dsp_1043/suggested-credit"
+Received: "/api/v1/disputes/dsp_1043/suggested-credit"
+
+ ❯ tests/suggested-credit-api.test.ts:12:45
+     10| describe("suggested credit API client", () => {
+     11|   it("uses the current API version", () => {
+     12|     expect(suggestedCreditPath("dsp_1043")).toBe(
+       |                                             ^
+     13|       "/api/v2/disputes/dsp_1043/suggested-credit",
+     14|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 19 passed (21)
+      Tests  2 failed | 85 passed (87)
+   Start at  08:58:28
+   Duration  745ms (transform 1.10s, setup 0ms, import 2.11s, tests 328ms, environment 1ms)
+

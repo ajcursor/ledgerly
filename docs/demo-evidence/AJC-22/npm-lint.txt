@@ -1,0 +1,5 @@
+$ npm run lint
+
+> ce-field-demos@1.0.0 lint
+> eslint
+
