@@ -14,7 +14,7 @@ When invoked, do not accept claims at face value.
 4. Look for edge cases the change missed.
 5. Apply the Ledgerly checklist.
 
-The clean tree is **2 failed / 85 passed**. The planted failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`. Treat those as expected unless this diff turned `credit_v1` or `filter_state` off.
+The clean tree is **2 failed / 95 passed**. The planted failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`. Treat those as expected unless this diff turned `credit_v1` or `filter_state` off.
 
 Ledgerly checklist:
 

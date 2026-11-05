@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DEMO_OPERATOR } from "@/lib/demo-session";
 import { formatUsd } from "@/lib/money";
+import { getOperatorProfile } from "@/lib/operator-profile";
 import { PLAN_IDS, PLAN_LABEL, PLAN_PRICE_CENTS } from "@/lib/plans";
 import { getWorkspace } from "@/lib/data";
 
@@ -13,7 +13,7 @@ export const metadata = {
 };
 
 export default async function SettingsPage() {
-  const workspace = await getWorkspace();
+  const [workspace, operator] = await Promise.all([getWorkspace(), getOperatorProfile()]);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -35,7 +35,7 @@ export default async function SettingsPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="operator">Operator</Label>
-            <Input id="operator" defaultValue={`${DEMO_OPERATOR.name} · ${DEMO_OPERATOR.role}`} readOnly />
+            <Input id="operator" defaultValue={`${operator.displayName} · ${operator.role}`} readOnly />
           </div>
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="timezone">Timezone</Label>

@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { PrismaClient } from "@prisma/client";
 import { demoDay } from "../lib/clock";
 import { suggestDisputeCredit } from "../lib/dispute-credit";
+import { SEEDED_OPERATOR } from "../lib/operator-profile";
 import { planPriceCents } from "../lib/plans";
 import { CORE_CUSTOMERS } from "./core-customers";
 import { DEMO_CONTACTS } from "./demo-contacts";
@@ -263,6 +264,8 @@ async function main() {
   await prisma.invoice.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.workspace.deleteMany();
+  await prisma.operator.deleteMany();
+  await prisma.operator.create({ data: { ...SEEDED_OPERATOR } });
 
   await prisma.workspace.create({
     data: {

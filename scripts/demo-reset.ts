@@ -312,8 +312,12 @@ function resetGit(event: SessionEvent, report: Report) {
 
 function reseedAndStart(report: Report) {
   if (!skipDb) {
-    if (dryRun) report.completed.push("Would run: npx prisma db seed");
-    else {
+    if (dryRun) {
+      report.completed.push("Would run: npx prisma db push");
+      report.completed.push("Would run: npx prisma db seed");
+    } else {
+      command("npx", ["prisma", "db", "push", "--skip-generate", "--accept-data-loss"]);
+      report.completed.push("Applied the Prisma schema.");
       command("npx", ["prisma", "db", "seed"]);
       report.completed.push("Reseeded SQLite.");
     }
