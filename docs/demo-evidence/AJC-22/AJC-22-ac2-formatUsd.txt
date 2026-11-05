@@ -1,0 +1,12 @@
+$ npx vitest run tests/money.test.ts
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  11:47:18
+   Duration  142ms (transform 25ms, setup 0ms, import 36ms, tests 13ms, environment 0ms)
+
+
+$ npx tsx -e "formatUsd on catalog cents"
+4900 -> $49.00
+9900 -> $99.00
+24900 -> $249.00

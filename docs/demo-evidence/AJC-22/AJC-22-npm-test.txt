@@ -1,0 +1,40 @@
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/filter-pills.test.ts > status filter pills > writes the status query the invoice and dispute pages read
+AssertionError: expected '/invoices?state=OVERDUE' to be '/invoices?status=OVERDUE' // Object.is equality
+
+Expected: "/invoices?status=OVERDUE"
+Received: "/invoices?state=OVERDUE"
+
+ ❯ tests/filter-pills.test.ts:6:52
+      4| describe("status filter pills", () => {
+      5|   it("writes the status query the invoice and dispute pages read", () …
+      6|     expect(filterPillHref("/invoices", "OVERDUE")).toBe("/invoices?sta…
+       |                                                    ^
+      7|     expect(filterPillHref("/disputes", "NEEDS_REVIEW")).toBe("/dispute…
+      8|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/suggested-credit-api.test.ts > suggested credit API client > uses the current API version
+AssertionError: expected '/api/v1/disputes/dsp_1043/suggested-c…' to be '/api/v2/disputes/dsp_1043/suggested-c…' // Object.is equality
+
+Expected: "/api/v2/disputes/dsp_1043/suggested-credit"
+Received: "/api/v1/disputes/dsp_1043/suggested-credit"
+
+ ❯ tests/suggested-credit-api.test.ts:12:45
+     10| describe("suggested credit API client", () => {
+     11|   it("uses the current API version", () => {
+     12|     expect(suggestedCreditPath("dsp_1043")).toBe(
+       |                                             ^
+     13|       "/api/v2/disputes/dsp_1043/suggested-credit",
+     14|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 19 passed (21)
+      Tests  2 failed | 85 passed (87)
+   Start at  11:47:06
+   Duration  768ms (transform 1.25s, setup 0ms, import 2.25s, tests 355ms, environment 1ms)
+
