@@ -55,4 +55,5 @@ next-env.d.ts
 # facilitator screen recordings — artifact only, never git
 *.mp4
 *.webm
+!docs/demo-evidence/**/*.mp4
 /workshop/recordings/
