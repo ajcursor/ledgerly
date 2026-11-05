@@ -143,4 +143,37 @@ describe("dispute resolve", () => {
     const missing = await post("dsp_missing", { action: "accept" });
     expect(missing.status).toBe(404);
   });
+
+  it("treats a non-JSON body as a missing action", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/disputes/dsp_1043/resolve", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{",
+      }),
+      { params: Promise.resolve({ id: "dsp_1043" }) },
+    );
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: "action must be accept or decline" });
+  });
+
+  it("keeps the existing note when the reviewer note is blank", async () => {
+    const before = await snapshot("dsp_1041");
+    try {
+      const response = await post("dsp_1041", { action: "accept", reviewerNote: "   " });
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toMatchObject({
+        ok: true,
+        disputeId: "dsp_1041",
+        status: "ACCEPTED",
+        suggestedCreditCents: PLAN_PRICE_CENTS.GROWTH,
+      });
+      const stored = await prisma.dispute.findUniqueOrThrow({ where: { id: "dsp_1041" } });
+      expect(stored.status).toBe("ACCEPTED");
+      expect(stored.reviewerNote).toBe(before.reviewerNote);
+      expect(stored.suggestedCreditCents).toBe(PLAN_PRICE_CENTS.GROWTH);
+    } finally {
+      await restore("dsp_1041", before);
+    }
+  });
 });

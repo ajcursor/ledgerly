@@ -7,6 +7,9 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     // WCAG checks run on their own with `npm run test:a11y`.
     exclude: [...configDefaults.exclude, "tests/a11y/**"],
+    // Resolve tests write the shared SQLite file, then restore it. Queue
+    // reads have to wait so they do not observe a dispute mid-resolve.
+    fileParallelism: false,
     coverage: {
       provider: "v8",
       // The two planted failures are red on a clean tree. Still write the report.
