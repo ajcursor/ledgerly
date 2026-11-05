@@ -1,6 +1,5 @@
 {
   "defaultBugs": [
-    "credit_v1",
     "filter_state"
   ],
   "scenarios": {
@@ -36,7 +35,7 @@
       "redTests": [
         "tests/suggested-credit-api.test.ts"
       ],
-      "defaultEnabled": true
+      "defaultEnabled": false
     },
     {
       "id": "filter_state",
