@@ -73,8 +73,8 @@ describe("demo bug registry", () => {
 
   it("keeps today's planted bugs when nothing is set", () => {
     withEnv({}, () => {
-      expect(enabledDemoBugIds()).toEqual(["credit_v1", "filter_state"]);
-      expect(isDemoBugEnabled("credit_v1")).toBe(true);
+      expect(enabledDemoBugIds()).toEqual(["filter_state"]);
+      expect(isDemoBugEnabled("credit_v1")).toBe(false);
       expect(isDemoBugEnabled("filter_state")).toBe(true);
       expect(isDemoBugEnabled("overdue_count")).toBe(false);
       expect(isDemoBugEnabled("closed_dispute_credit")).toBe(false);

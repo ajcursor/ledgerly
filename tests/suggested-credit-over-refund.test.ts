@@ -54,7 +54,7 @@ describe("suggested credit over the catalog", () => {
   beforeEach(() => {
     process.env.DEMO_MODE = "true";
     for (const key of BUG_ENV) previousBugs.set(key, process.env[key]);
-    setBugs(undefined);
+    setBugs("credit_v1");
     vi.clearAllMocks();
   });
 
