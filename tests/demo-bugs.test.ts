@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join, relative } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@sentry/nextjs", () => ({
@@ -14,7 +14,9 @@ import { DEMO_AS_OF } from "@/lib/clock";
 import { countOverdueInvoices } from "@/lib/dashboard";
 import {
   SHIPPED_TEST_TOTAL,
+  bugProcessEnv,
   bugsForScenario,
+  demoBug,
   demoBugIdForScenario,
   demoBugManifest,
   enabledDemoBugIds,
@@ -137,9 +139,55 @@ describe("demo bug registry", () => {
   });
 
   it("rejects an unknown bug, an unknown scenario, and a file outside the project", () => {
+    expect(demoBug("credit_v1")?.id).toBe("credit_v1");
+    expect(demoBug("not_a_bug")).toBeNull();
     expect(() => withEnv({ DEMO_BUGS: "not_a_bug" }, () => enabledDemoBugIds())).toThrow(/Unknown demo bug/);
     expect(() => withEnv({ DEMO_SCENARIO: "enterprise" }, () => enabledDemoBugIds())).toThrow(/Unknown demo scenario/);
     expect(() => loadDemoBugFile("/etc/passwd")).toThrow(/inside the project/);
+    expect(() => loadDemoBugFile("demo/scenarios/missing.json")).toThrow(/Could not read/);
+  });
+
+  it("rejects a bug file that does not name a set", () => {
+    const dir = mkdtempSync(join(process.cwd(), ".bug-file-"));
+    try {
+      const file = join(dir, "empty.json");
+      writeFileSync(file, JSON.stringify({ note: "no set" }));
+      expect(() => loadDemoBugFile(relative(process.cwd(), file))).toThrow(
+        /needs a bugs array or a scenario name/,
+      );
+      writeFileSync(file, "{");
+      expect(() => loadDemoBugFile(relative(process.cwd(), file))).toThrow(/Could not read/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("reads the public bug selection when the server env is unset", () => {
+    withEnv({ NEXT_PUBLIC_DEMO_BUGS: "overdue_count" }, () => {
+      expect(enabledDemoBugIds()).toEqual(["overdue_count"]);
+    });
+    withEnv({ NEXT_PUBLIC_DEMO_SCENARIO: "new" }, () => {
+      expect(enabledDemoBugIds()).toEqual(["closed_dispute_credit", "line_rounding"]);
+    });
+    withEnv({ NEXT_PUBLIC_DEMO_BUGS: "", NEXT_PUBLIC_DEMO_SCENARIO: "all" }, () => {
+      expect(enabledDemoBugIds()).toEqual([]);
+    });
+  });
+
+  it("publishes the selected bug ids for a child process", () => {
+    const env = bugProcessEnv(["credit_v1", "overdue_count"], {
+      DEMO_SCENARIO: "all",
+      DEMO_BUGS_FILE: "demo/scenarios/new.json",
+      NEXT_PUBLIC_DEMO_SCENARIO: "known",
+      PATH: "/usr/bin",
+    });
+
+    expect(env.DEMO_BUGS).toBe("credit_v1,overdue_count");
+    expect(env.NEXT_PUBLIC_DEMO_BUGS).toBe("credit_v1,overdue_count");
+    expect(env.DEMO_SCENARIO).toBeUndefined();
+    expect(env.DEMO_BUGS_FILE).toBeUndefined();
+    expect(env.NEXT_PUBLIC_DEMO_SCENARIO).toBeUndefined();
+    expect(env.PATH).toBe("/usr/bin");
   });
 
   it("matches the committed manifest", () => {

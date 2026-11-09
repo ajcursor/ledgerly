@@ -17,5 +17,6 @@ describe("plan catalog", () => {
 
   it("refuses unknown plans instead of inventing a price", () => {
     expect(() => planPriceCents("ENTERPRISE")).toThrow(/Unknown plan/);
+    expect(() => planLabel("ENTERPRISE")).toThrow(/Unknown plan/);
   });
 });
