@@ -11,4 +11,25 @@ describe("suggestDisputeCredit", () => {
 
     expect(suggested).toBe(PLAN_PRICE_CENTS.SCALE);
   });
+
+  it("rejects negative cents and does not raise a claim under the plan price", () => {
+    expect(() =>
+      suggestDisputeCredit({
+        disputedAmountCents: -1,
+        planPriceCents: PLAN_PRICE_CENTS.GROWTH,
+      }),
+    ).toThrow(/non-negative/);
+    expect(() =>
+      suggestDisputeCredit({
+        disputedAmountCents: PLAN_PRICE_CENTS.GROWTH,
+        planPriceCents: -1,
+      }),
+    ).toThrow(/non-negative/);
+    expect(
+      suggestDisputeCredit({
+        disputedAmountCents: PLAN_PRICE_CENTS.STARTER,
+        planPriceCents: PLAN_PRICE_CENTS.SCALE,
+      }),
+    ).toBe(PLAN_PRICE_CENTS.STARTER);
+  });
 });
