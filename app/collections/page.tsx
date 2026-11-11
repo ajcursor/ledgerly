@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DEMO_AS_OF } from "@/lib/clock";
 import { getInvoices } from "@/lib/data";
-import { daysBetween, formatDate } from "@/lib/dates";
+import { daysBetween, formatDate, pastDueLabel } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
 import { isPlanId, planLabel } from "@/lib/plans";
 
@@ -44,7 +44,7 @@ export default async function CollectionsPage() {
       ) : (
         <div className="grid gap-3">
           {overdue.map((invoice) => {
-            const daysPastDue = Math.max(0, daysBetween(DEMO_AS_OF, invoice.dueOn));
+            const daysPastDue = pastDueLabel(daysBetween(DEMO_AS_OF, invoice.dueOn));
             return (
               <Link key={invoice.id} href={`/invoices/${invoice.id}`}>
                 <Card className="transition-colors hover:bg-accent/40">
@@ -55,7 +55,7 @@ export default async function CollectionsPage() {
                         {invoice.number} · {planLabel(invoice.plan)} · due {formatDate(invoice.dueOn)}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {daysPastDue} {daysPastDue === 1 ? "day" : "days"} past due
+                        {daysPastDue}
                         {invoice.disputes.some(
                           (dispute) => dispute.status === "OPEN" || dispute.status === "NEEDS_REVIEW",
                         )
