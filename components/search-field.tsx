@@ -4,6 +4,16 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 
+/** Invoice queue URL. Pages read `status` and `q`; ALL and a blank query add nothing. */
+export function invoiceSearchHref(status: string | undefined, query: string): string {
+  const params = new URLSearchParams();
+  if (status && status !== "ALL") params.set("status", status);
+  const trimmed = query.trim();
+  if (trimmed) params.set("q", trimmed);
+  const search = params.toString();
+  return search ? `/invoices?${search}` : "/invoices";
+}
+
 export function SearchField({
   defaultValue,
   status,
@@ -19,10 +29,7 @@ export function SearchField({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function go(next: string) {
-    const params = new URLSearchParams();
-    if (status && status !== "ALL") params.set("status", status);
-    if (next.trim()) params.set("q", next.trim());
-    const href = params.toString() ? `/invoices?${params}` : "/invoices";
+    const href = invoiceSearchHref(status, next);
     startTransition(() => {
       router.push(href);
     });

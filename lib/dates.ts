@@ -13,6 +13,12 @@ export function daysBetween(later: Date, earlier: Date): number {
   return Math.round(ms / 86_400_000);
 }
 
+/** Collections copy. One day stays singular; a future due date reads as zero days past due. */
+export function pastDueLabel(daysPastDue: number): string {
+  const days = Math.max(0, daysPastDue);
+  return `${days} ${days === 1 ? "day" : "days"} past due`;
+}
+
 export type InvoiceAgingBasis = "due" | "issued";
 
 /** Date an open invoice is aged against. The contract date is the due date. */
