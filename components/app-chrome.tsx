@@ -31,6 +31,29 @@ const NAV = [
   { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
+/**
+ * Shell search.
+ * `dsp_` and `inv_` are record ids. The prefix match ignores case; the path keeps
+ * the typed id. An invoice number such as INV-1043 is a queue search, not an id.
+ * A status already on the invoice queue is kept. Other pages start a fresh search.
+ */
+export function bookSearchHref(
+  query: string,
+  context?: { pathname?: string; invoiceStatus?: string | null },
+): string {
+  const trimmed = query.trim();
+  if (/^dsp_/i.test(trimmed)) return `/disputes/${trimmed}`;
+  if (/^inv_/i.test(trimmed)) return `/invoices/${trimmed}`;
+
+  const params = new URLSearchParams();
+  if (trimmed) params.set("q", trimmed);
+  if (context?.pathname === "/invoices" && context.invoiceStatus) {
+    params.set("status", context.invoiceStatus);
+  }
+  const search = params.toString();
+  return search ? `/invoices?${search}` : "/invoices";
+}
+
 export function AppChrome({
   openDisputeCount,
   openDisputes,
@@ -50,23 +73,13 @@ export function AppChrome({
   const [query, setQuery] = useState("");
 
   function searchBook(next: string) {
-    const trimmed = next.trim();
+    const invoiceStatus =
+      typeof window !== "undefined" && pathname === "/invoices"
+        ? new URLSearchParams(window.location.search).get("status")
+        : null;
+    const href = bookSearchHref(next, { pathname, invoiceStatus });
     startTransition(() => {
-      if (/^dsp_/i.test(trimmed)) {
-        router.push(`/disputes/${trimmed}`);
-        return;
-      }
-      if (/^inv_/i.test(trimmed)) {
-        router.push(`/invoices/${trimmed}`);
-        return;
-      }
-      const params = new URLSearchParams();
-      if (trimmed) params.set("q", trimmed);
-      if (typeof window !== "undefined" && pathname === "/invoices") {
-        const status = new URLSearchParams(window.location.search).get("status");
-        if (status) params.set("status", status);
-      }
-      router.push(params.toString() ? `/invoices?${params}` : "/invoices");
+      router.push(href);
     });
   }
 
