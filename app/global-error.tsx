@@ -2,18 +2,9 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
-import { resolveActingCustomer } from "@/lib/acting-customer";
+import { readBrowserCookie, resolveActingCustomer } from "@/lib/acting-customer";
 import { applyActingCustomer } from "@/lib/sentry-user";
 import { ACTING_CUSTOMER_COOKIE, defaultActingCustomer } from "@/lib/synthetic-customers";
-
-function readBrowserCookie(name: string): string | null {
-  const prefix = `${name}=`;
-  for (const part of document.cookie.split(";")) {
-    const trimmed = part.trim();
-    if (trimmed.startsWith(prefix)) return decodeURIComponent(trimmed.slice(prefix.length));
-  }
-  return null;
-}
 
 export default function GlobalError({
   error,
@@ -26,7 +17,7 @@ export default function GlobalError({
     const queryEmail = new URLSearchParams(window.location.search).get("as");
     const resolved = resolveActingCustomer({
       queryEmail,
-      cookieEmail: readBrowserCookie(ACTING_CUSTOMER_COOKIE),
+      cookieEmail: readBrowserCookie(document.cookie, ACTING_CUSTOMER_COOKIE),
     });
     applyActingCustomer("error" in resolved ? defaultActingCustomer() : resolved.customer);
     Sentry.captureException(error);

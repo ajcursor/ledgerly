@@ -19,6 +19,18 @@ export function readCookie(header: string | null | undefined, name: string): str
   return null;
 }
 
+/** `document.cookie` form. Match the name exactly so a longer name does not win. */
+export function readBrowserCookie(header: string | null | undefined, name: string): string | null {
+  if (!header) return null;
+  const prefix = `${name}=`;
+  for (const part of header.split(";")) {
+    const trimmed = part.trim();
+    if (!trimmed.startsWith(prefix)) continue;
+    return decodeURIComponent(trimmed.slice(prefix.length));
+  }
+  return null;
+}
+
 export type ActingCustomerSource = {
   /** `?as=` when the param is present. Empty string clears back to the default. */
   queryEmail?: string | null;
