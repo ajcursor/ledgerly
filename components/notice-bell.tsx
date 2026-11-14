@@ -15,11 +15,14 @@ export type OpenDisputeNotice = {
 export function NoticeBell({
   openDisputeCount,
   openDisputes,
+  defaultOpen = false,
 }: {
   openDisputeCount: number;
   openDisputes: OpenDisputeNotice[];
+  /** First paint only. The bell still toggles from the button after that. */
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
