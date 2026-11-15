@@ -28,6 +28,21 @@ export function suggestedCreditExceedsCatalog(
   return suggestedCreditCents > catalogPriceCents;
 }
 
+/**
+ * Client gate before the report POST. The credit must belong to this dispute: a response
+ * fetched for another dispute can still be in state when the page changes.
+ */
+export function overCatalogReportDue(input: {
+  reportOverCatalog: boolean;
+  credit: { disputeId: string; suggestedCreditCents: number } | null;
+  disputeId: string;
+  catalogPriceCents: number;
+}): boolean {
+  const { credit } = input;
+  if (!input.reportOverCatalog || !credit || credit.disputeId !== input.disputeId) return false;
+  return suggestedCreditExceedsCatalog(credit.suggestedCreditCents, input.catalogPriceCents);
+}
+
 /** Amount the dispute page shows: the raw claim while credit_v1 is on, otherwise the catalog cap. */
 export function displayedSuggestedCreditCents(input: {
   creditV1Enabled: boolean;
