@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   claimSuggestedCreditView,
+  overCatalogReportDue,
   SUGGESTED_CREDIT_OVER_REFUND_REPORT_PATH,
-  suggestedCreditExceedsCatalog,
 } from "@/lib/demo/suggested-credit-over-refund";
 import { formatUsd } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -60,8 +60,7 @@ export function SuggestedCredit({
   }, [path]);
 
   useEffect(() => {
-    if (!reportOverCatalog || !credit || credit.disputeId !== disputeId) return;
-    if (!suggestedCreditExceedsCatalog(credit.suggestedCreditCents, catalogPriceCents)) return;
+    if (!overCatalogReportDue({ reportOverCatalog, credit, disputeId, catalogPriceCents })) return;
     if (!claimSuggestedCreditView(reportViewId)) return;
 
     void fetch(SUGGESTED_CREDIT_OVER_REFUND_REPORT_PATH, {
