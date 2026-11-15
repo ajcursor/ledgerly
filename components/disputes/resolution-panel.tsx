@@ -6,6 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+export async function postDisputeResolution(
+  disputeId: string,
+  action: "accept" | "decline",
+  reviewerNote: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const response = await fetchImpl(`/api/disputes/${encodeURIComponent(disputeId)}/resolve`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action, reviewerNote }),
+    });
+    const body = (await response.json().catch(() => null)) as { error?: string } | null;
+    if (!response.ok) {
+      return { ok: false, error: body?.error ?? "Resolve failed." };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Resolve failed." };
+  }
+}
+
 export function ResolutionPanel({
   disputeId,
   initialNote,
@@ -22,19 +44,12 @@ export function ResolutionPanel({
     setPending(true);
     setError(null);
     try {
-      const response = await fetch(`/api/disputes/${encodeURIComponent(disputeId)}/resolve`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action, reviewerNote: note }),
-      });
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) {
-        setError(body?.error ?? "Resolve failed.");
+      const result = await postDisputeResolution(disputeId, action, note);
+      if (!result.ok) {
+        setError(result.error);
         return;
       }
       router.refresh();
-    } catch {
-      setError("Resolve failed.");
     } finally {
       setPending(false);
     }
