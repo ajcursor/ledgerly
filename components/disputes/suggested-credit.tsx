@@ -24,7 +24,59 @@ type SuggestedCreditProps = {
   reportViewId: string;
   /** True only when DEMO_MODE is on and credit_v1 is enabled. */
   reportOverCatalog: boolean;
+  /**
+   * First paint only. The fetch still replaces this after mount.
+   * Lets a test show the figure the operator sees without waiting on the network.
+   */
+  initialCredit?: SuggestedCreditResponse | null;
+  initialError?: boolean;
 };
+
+export function suggestedCreditFigure(input: {
+  error: boolean;
+  credit: { suggestedCreditCents: number; apiVersion: "v1" | "v2" } | null;
+  catalogPriceCents: number;
+  planName: string;
+}): { overCatalog: boolean; title: string; detail: string } {
+  if (input.error) {
+    return {
+      overCatalog: false,
+      title: "Suggested credit unavailable",
+      detail: "The credit policy API could not be reached.",
+    };
+  }
+  if (input.credit === null) {
+    return {
+      overCatalog: false,
+      title: "Loading suggested credit…",
+      detail: "Loading credit policy.",
+    };
+  }
+
+  const overCatalog = input.credit.suggestedCreditCents > input.catalogPriceCents;
+  const catalog = formatUsd(input.catalogPriceCents);
+  const source = `Source: suggested-credit API ${input.credit.apiVersion}.`;
+  return {
+    overCatalog,
+    title: `Suggested credit ${formatUsd(input.credit.suggestedCreditCents)}`,
+    detail: overCatalog
+      ? `Above the ${input.planName} catalog price of ${catalog}. ${source}`
+      : `Within the ${input.planName} catalog price of ${catalog}. ${source}`,
+  };
+}
+
+/** Gate for the over-catalog report. A mismatched dispute id must not be reported. */
+export function suggestedCreditNeedsReport(input: {
+  reportOverCatalog: boolean;
+  credit: { disputeId: string; suggestedCreditCents: number } | null;
+  disputeId: string;
+  catalogPriceCents: number;
+}): boolean {
+  if (!input.reportOverCatalog || !input.credit || input.credit.disputeId !== input.disputeId) {
+    return false;
+  }
+  return suggestedCreditExceedsCatalog(input.credit.suggestedCreditCents, input.catalogPriceCents);
+}
 
 export function SuggestedCredit({
   path,
@@ -33,9 +85,11 @@ export function SuggestedCredit({
   disputeId,
   reportViewId,
   reportOverCatalog,
+  initialCredit = null,
+  initialError = false,
 }: SuggestedCreditProps) {
-  const [credit, setCredit] = useState<SuggestedCreditResponse | null>(null);
-  const [error, setError] = useState(false);
+  const [credit, setCredit] = useState<SuggestedCreditResponse | null>(initialCredit);
+  const [error, setError] = useState(initialError);
 
   useEffect(() => {
     let active = true;
@@ -60,8 +114,7 @@ export function SuggestedCredit({
   }, [path]);
 
   useEffect(() => {
-    if (!reportOverCatalog || !credit || credit.disputeId !== disputeId) return;
-    if (!suggestedCreditExceedsCatalog(credit.suggestedCreditCents, catalogPriceCents)) return;
+    if (!suggestedCreditNeedsReport({ reportOverCatalog, credit, disputeId, catalogPriceCents })) return;
     if (!claimSuggestedCreditView(reportViewId)) return;
 
     void fetch(SUGGESTED_CREDIT_OVER_REFUND_REPORT_PATH, {
@@ -73,42 +126,20 @@ export function SuggestedCredit({
     });
   }, [catalogPriceCents, credit, disputeId, reportOverCatalog, reportViewId]);
 
-  const overCatalog =
-    credit !== null && credit.suggestedCreditCents > catalogPriceCents;
+  const figure = suggestedCreditFigure({ error, credit, catalogPriceCents, planName });
+  const alert = error || figure.overCatalog;
 
   return (
-    <div
-      className={cn(
-        "rounded-md px-3 py-2",
-        error || overCatalog ? "bg-danger-soft" : "bg-indigo-soft",
-      )}
-    >
+    <div className={cn("rounded-md px-3 py-2", alert ? "bg-danger-soft" : "bg-indigo-soft")}>
       <p
         className={cn(
           "text-lg font-semibold tracking-tight",
-          error || overCatalog ? "text-danger" : "text-foreground",
+          alert ? "text-danger" : "text-foreground",
         )}
       >
-        {error
-          ? "Suggested credit unavailable"
-          : credit === null
-            ? "Loading suggested credit…"
-            : `Suggested credit ${formatUsd(credit.suggestedCreditCents)}`}
+        {figure.title}
       </p>
-      <p
-        className={cn(
-          "text-xs",
-          error || overCatalog ? "text-danger" : "text-muted-foreground",
-        )}
-      >
-        {error
-          ? "The credit policy API could not be reached."
-          : credit === null
-            ? "Loading credit policy."
-            : overCatalog
-              ? `Above the ${planName} catalog price of ${formatUsd(catalogPriceCents)}. Source: suggested-credit API ${credit.apiVersion}.`
-              : `Within the ${planName} catalog price of ${formatUsd(catalogPriceCents)}. Source: suggested-credit API ${credit.apiVersion}.`}
-      </p>
+      <p className={cn("text-xs", alert ? "text-danger" : "text-muted-foreground")}>{figure.detail}</p>
     </div>
   );
 }
