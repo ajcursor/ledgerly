@@ -56,4 +56,17 @@ describe("sentryInitOptions", () => {
     expect(options?.dsn).toBe("https://server@example.ingest.sentry.io/2");
     expect(options).not.toHaveProperty("environment");
   });
+
+  it("samples every trace in development and a tenth otherwise", () => {
+    process.env.SENTRY_DSN = "https://server@example.ingest.sentry.io/2";
+    const previous = process.env.NODE_ENV;
+    try {
+      process.env.NODE_ENV = "development";
+      expect(sentryInitOptions()?.tracesSampleRate).toBe(1);
+      process.env.NODE_ENV = "production";
+      expect(sentryInitOptions()?.tracesSampleRate).toBe(0.1);
+    } finally {
+      process.env.NODE_ENV = previous;
+    }
+  });
 });
