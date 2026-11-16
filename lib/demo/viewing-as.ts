@@ -56,3 +56,9 @@ export function viewingAsNavigationHref(currentHref: string, email: string): str
   url.searchParams.set("as", email);
   return url.toString();
 }
+
+/** Null when the picker re-selects the current contact, so no reload happens. */
+export function viewingAsSwitchHref(currentHref: string, selectedEmail: string, nextEmail: string): string | null {
+  if (nextEmail === selectedEmail) return null;
+  return viewingAsNavigationHref(currentHref, nextEmail);
+}
