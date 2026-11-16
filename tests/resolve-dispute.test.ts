@@ -6,6 +6,7 @@ vi.mock("@sentry/nextjs", () => ({
   setUser: vi.fn(),
 }));
 
+import * as Sentry from "@sentry/nextjs";
 import { POST } from "@/app/api/disputes/[id]/resolve/route";
 import { prisma } from "@/lib/prisma";
 import { PLAN_PRICE_CENTS } from "@/lib/plans";
@@ -133,6 +134,59 @@ describe("dispute resolve", () => {
       expect(stored.status).toBe("ACCEPTED");
       });
     } finally {
+      await restore("dsp_1050", before);
+    }
+  });
+
+  it("accepts an open dispute once while the closed-dispute bug is on", async () => {
+    const before = await snapshot("dsp_1041");
+    try {
+      await withBugSelection("closed_dispute_credit", async () => {
+        const response = await post("dsp_1041", { action: "accept", reviewerNote: "Growth price stands." });
+        expect(response.status).toBe(200);
+        await expect(response.json()).resolves.toMatchObject({
+          ok: true,
+          disputeId: "dsp_1041",
+          status: "ACCEPTED",
+          suggestedCreditCents: PLAN_PRICE_CENTS.GROWTH,
+        });
+        const stored = await prisma.dispute.findUniqueOrThrow({ where: { id: "dsp_1041" } });
+        expect(stored.status).toBe("ACCEPTED");
+        expect(stored.suggestedCreditCents).toBe(PLAN_PRICE_CENTS.GROWTH);
+        expect(stored.suggestedCreditCents).toBe(before.suggestedCreditCents);
+        expect(Sentry.captureException).not.toHaveBeenCalled();
+      });
+    } finally {
+      await restore("dsp_1041", before);
+    }
+  });
+
+  it("refuses a closed dispute without a second credit when the customer is outside the catalog", async () => {
+    const before = await snapshot("dsp_1050");
+    const dispute = await prisma.dispute.findUniqueOrThrow({
+      where: { id: "dsp_1050" },
+      include: { invoice: { include: { customer: true } } },
+    });
+    const customerId = dispute.invoice.customer.id;
+    const email = dispute.invoice.customer.email;
+    try {
+      await prisma.customer.update({
+        where: { id: customerId },
+        data: { email: "not-in-book@fieldnote.example" },
+      });
+      await withBugSelection("closed_dispute_credit", async () => {
+        const response = await post("dsp_1050", { action: "accept" });
+        expect(response.status).toBe(409);
+        await expect(response.json()).resolves.toEqual({
+          error: "Dispute dsp_1050 is already ACCEPTED.",
+        });
+        const stored = await prisma.dispute.findUniqueOrThrow({ where: { id: "dsp_1050" } });
+        expect(stored.suggestedCreditCents).toBe(before.suggestedCreditCents);
+        expect(stored.status).toBe(before.status);
+        expect(Sentry.captureException).not.toHaveBeenCalled();
+      });
+    } finally {
+      await prisma.customer.update({ where: { id: customerId }, data: { email } });
       await restore("dsp_1050", before);
     }
   });
