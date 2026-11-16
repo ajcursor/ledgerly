@@ -1,6 +1,6 @@
 "use client";
 
-import { viewingAsNavigationHref, type ViewingAsOption } from "@/lib/demo/viewing-as";
+import { viewingAsSwitchHref, type ViewingAsOption } from "@/lib/demo/viewing-as";
 
 export function ViewingAsPicker({
   selectedEmail,
@@ -22,9 +22,8 @@ export function ViewingAsPicker({
           value={selectedEmail}
           title={selected ? `${selected.username} · ${selected.company}` : "Viewing as"}
           onChange={(event) => {
-            const email = event.target.value;
-            if (email === selectedEmail) return;
-            window.location.assign(viewingAsNavigationHref(window.location.href, email));
+            const href = viewingAsSwitchHref(window.location.href, selectedEmail, event.target.value);
+            if (href) window.location.assign(href);
           }}
           className="h-9 w-full min-w-0 cursor-pointer truncate rounded-lg border border-transparent bg-muted px-2 text-xs text-foreground outline-none focus:border-ring focus:bg-card focus:ring-[3px] focus:ring-ring/20"
         >
