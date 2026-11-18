@@ -3,23 +3,23 @@
 import { useCallback, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
-const STORAGE_KEY = "ledgerly-theme";
+export const THEME_STORAGE_KEY = "ledgerly-theme";
 
-function applyTheme(theme: "light" | "dark") {
-  const root = document.documentElement;
-  root.classList.toggle("dark", theme === "dark");
-  root.style.colorScheme = theme;
-}
-
-function readTheme(): "light" | "dark" {
+export function readStoredTheme(): "light" | "dark" {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === "dark" ? "dark" : "light";
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
   } catch {
     return "light";
   }
 }
 
-function subscribe(onStoreChange: () => void) {
+export function applyDocumentTheme(theme: "light" | "dark") {
+  const root = document.documentElement;
+  root.classList.toggle("dark", theme === "dark");
+  root.style.colorScheme = theme;
+}
+
+export function subscribeToTheme(onStoreChange: () => void) {
   window.addEventListener("storage", onStoreChange);
   window.addEventListener("ledgerly-theme", onStoreChange);
   return () => {
@@ -28,13 +28,17 @@ function subscribe(onStoreChange: () => void) {
   };
 }
 
+/** Persist a theme and tell other tabs and this tab's toggle to re-read it. */
+export function commitTheme(theme: "light" | "dark") {
+  window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  applyDocumentTheme(theme);
+  window.dispatchEvent(new Event("ledgerly-theme"));
+}
+
 export function ThemeToggle() {
-  const theme = useSyncExternalStore(subscribe, readTheme, () => "light" as const);
+  const theme = useSyncExternalStore(subscribeToTheme, readStoredTheme, () => "light" as const);
   const toggle = useCallback(() => {
-    const next = theme === "dark" ? "light" : "dark";
-    window.localStorage.setItem(STORAGE_KEY, next);
-    applyTheme(next);
-    window.dispatchEvent(new Event("ledgerly-theme"));
+    commitTheme(theme === "dark" ? "light" : "dark");
   }, [theme]);
 
   return (
