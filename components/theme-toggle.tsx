@@ -11,9 +11,13 @@ function applyTheme(theme: "light" | "dark") {
   root.style.colorScheme = theme;
 }
 
+export function parseTheme(stored: string | null): "light" | "dark" {
+  return stored === "dark" ? "dark" : "light";
+}
+
 function readTheme(): "light" | "dark" {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === "dark" ? "dark" : "light";
+    return parseTheme(window.localStorage.getItem(STORAGE_KEY));
   } catch {
     return "light";
   }
