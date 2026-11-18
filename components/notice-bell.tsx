@@ -12,6 +12,15 @@ export type OpenDisputeNotice = {
   status: string;
 };
 
+export function nextNoticeOpen(
+  open: boolean,
+  event: { type: "toggle" } | { type: "key"; key: string } | { type: "pointer"; inside: boolean },
+): boolean {
+  if (event.type === "toggle") return !open;
+  if (event.type === "key") return event.key === "Escape" ? false : open;
+  return event.inside ? open : false;
+}
+
 export function NoticeBell({
   openDisputeCount,
   openDisputes,
@@ -24,10 +33,11 @@ export function NoticeBell({
 
   useEffect(() => {
     function onPointer(event: PointerEvent) {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
+      const inside = Boolean(root.current?.contains(event.target as Node));
+      setOpen((value) => nextNoticeOpen(value, { type: "pointer", inside }));
     }
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      setOpen((value) => nextNoticeOpen(value, { type: "key", key: event.key }));
     }
     document.addEventListener("pointerdown", onPointer);
     document.addEventListener("keydown", onKey);
@@ -44,7 +54,7 @@ export function NoticeBell({
         className="relative rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
         aria-label="Open exceptions"
         aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => setOpen((value) => nextNoticeOpen(value, { type: "toggle" }))}
       >
         <Bell className="size-5" />
         {openDisputeCount > 0 ? (
