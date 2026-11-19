@@ -4,6 +4,10 @@ import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
+export function reportRouteError(error: unknown) {
+  Sentry.captureException(error);
+}
+
 export default function ErrorState({
   error,
   reset,
@@ -12,7 +16,7 @@ export default function ErrorState({
   reset: () => void;
 }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    reportRouteError(error);
   }, [error]);
 
   return (

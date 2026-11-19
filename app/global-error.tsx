@@ -6,13 +6,38 @@ import { resolveActingCustomer } from "@/lib/acting-customer";
 import { applyActingCustomer } from "@/lib/sentry-user";
 import { ACTING_CUSTOMER_COOKIE, defaultActingCustomer } from "@/lib/synthetic-customers";
 
-function readBrowserCookie(name: string): string | null {
+function readBrowserCookie(header: string, name: string): string | null {
   const prefix = `${name}=`;
-  for (const part of document.cookie.split(";")) {
+  for (const part of header.split(";")) {
     const trimmed = part.trim();
-    if (trimmed.startsWith(prefix)) return decodeURIComponent(trimmed.slice(prefix.length));
+    if (!trimmed.startsWith(prefix)) continue;
+    return decodeURIComponent(trimmed.slice(prefix.length));
   }
   return null;
+}
+
+/**
+ * Attribute the acting customer, then report the original failure.
+ * A truncated percent-escape throws inside the cookie reader. That must not
+ * drop the report, and it must not discard a valid `?as=`.
+ */
+export function reportGlobalError(
+  error: unknown,
+  source: { search: string; cookie: string },
+) {
+  let cookieEmail: string | null = null;
+  try {
+    cookieEmail = readBrowserCookie(source.cookie, ACTING_CUSTOMER_COOKIE);
+  } catch {
+    cookieEmail = null;
+  }
+  const queryEmail = new URLSearchParams(source.search).get("as");
+  const resolved = resolveActingCustomer({
+    queryEmail,
+    cookieEmail,
+  });
+  applyActingCustomer("error" in resolved ? defaultActingCustomer() : resolved.customer);
+  Sentry.captureException(error);
 }
 
 export default function GlobalError({
@@ -23,13 +48,10 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    const queryEmail = new URLSearchParams(window.location.search).get("as");
-    const resolved = resolveActingCustomer({
-      queryEmail,
-      cookieEmail: readBrowserCookie(ACTING_CUSTOMER_COOKIE),
+    reportGlobalError(error, {
+      search: window.location.search,
+      cookie: document.cookie,
     });
-    applyActingCustomer("error" in resolved ? defaultActingCustomer() : resolved.customer);
-    Sentry.captureException(error);
   }, [error]);
 
   return (
