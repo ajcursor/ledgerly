@@ -1,38 +1,18 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import {
+  demoOverrideActive,
+  failedAssertions,
+  isPlantedOnly,
+  plantedFailures,
+  type VitestJson,
+} from "./coverage-gate";
 
 const root = process.cwd();
 const resultsDir = path.join(root, "test-results");
 const resultsPath = path.join(resultsDir, "vitest.json");
 const summaryPath = path.join(root, "coverage", "coverage-summary.json");
-
-const plantedFailures = [
-  {
-    file: "tests/suggested-credit-api.test.ts",
-    title: "uses the current API version",
-  },
-  {
-    file: "tests/filter-pills.test.ts",
-    title: "writes the status query the invoice and dispute pages read",
-  },
-];
-
-type AssertionResult = {
-  status: string;
-  title: string;
-};
-
-type FileResult = {
-  name: string;
-  assertionResults: AssertionResult[];
-};
-
-type VitestJson = {
-  numFailedTests: number;
-  numPassedTests: number;
-  testResults: FileResult[];
-};
 
 type CoverageSummary = {
   total?: {
@@ -43,14 +23,6 @@ type CoverageSummary = {
 function fail(message: string): never {
   console.error(message);
   process.exit(1);
-}
-
-function relativeFile(file: string) {
-  return path.relative(root, file).split(path.sep).join("/");
-}
-
-function failureKey(file: string, title: string) {
-  return `${file}::${title}`;
 }
 
 mkdirSync(resultsDir, { recursive: true });
@@ -80,10 +52,7 @@ if (typeof linesPct !== "number") {
 
 console.log(`Application line coverage: ${linesPct}%`);
 
-const demoOverride = ["DEMO_BUGS", "DEMO_SCENARIO", "DEMO_BUGS_FILE"].some(
-  (key) => process.env[key] !== undefined,
-);
-if (demoOverride) {
+if (demoOverrideActive(process.env)) {
   process.exit(child.status ?? 1);
 }
 
@@ -92,23 +61,11 @@ if (!existsSync(resultsPath)) {
 }
 
 const results = JSON.parse(readFileSync(resultsPath, "utf8")) as VitestJson;
-const failed = results.testResults.flatMap((file) =>
-  file.assertionResults
-    .filter((assertion) => assertion.status === "failed")
-    .map((assertion) => ({
-      file: relativeFile(file.name),
-      title: assertion.title,
-    })),
-);
+const failed = failedAssertions(results, root);
 
 console.log(`Suite: ${results.numFailedTests} failed / ${results.numPassedTests} passed`);
 
-const actual = new Set(failed.map((item) => failureKey(item.file, item.title)));
-const expected = new Set(plantedFailures.map((item) => failureKey(item.file, item.title)));
-const plantedOnly =
-  actual.size === expected.size && [...expected].every((key) => actual.has(key));
-
-if (!plantedOnly) {
+if (!isPlantedOnly(failed)) {
   console.error("Coverage run failed. The failures were not the two planted tests.");
   if (failed.length === 0) {
     console.error("- no failing tests");
