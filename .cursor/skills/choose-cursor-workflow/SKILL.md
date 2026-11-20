@@ -26,13 +26,13 @@ Start a demo session with `npm run demo:session -- start`. Record every rule, sk
 1. **What is Grok Build?** — Ask, Plan, Build in Agent mode, Debug, check the models, plan to fix the bug.
 2. **How do you work with an agent?** — Run Mode allowlist, verify the email feature, redact, stop, interrupt and steer, continue to the end, review diffs, restore from a checkpoint.
 3. **How do you govern an agent?** — create a user rule, test the rule, create a user skill, test the skill, Canvas, MCP / Figma.
+4. **How do you connect an agent to external tools?** — Jira MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. The plugin and `stage-linear` still use Linear: the operator picks a public or private Linear team. Linear MCP cannot create teams (Settings → Teams → New team; **Make team private** is optional). Then run `stage-linear`. `.cursor/mcp.json` has no project servers and there is no `mcp/` directory. Do not stand up a SQLite MCP.
 
 ## 201 sections and beats
 
 1. **How do you manage context?** — rename agents, Ask DDD, check context usage, compare agents, ask across chats.
 2. **How do you standardize agent behavior?** — personal create-api skill, promote it.
-3. **How do you connect an agent to external tools?** — Linear MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. The operator uses a public or private Linear team. Linear MCP cannot create teams (Settings → Teams → New team; **Make team private** is optional). Then run `stage-linear`. `.cursor/mcp.json` has no project servers and there is no `mcp/` directory. Do not stand up a SQLite MCP.
-4. **How do you parallelize a task?** — open a new agent, resolve-dispute plan, ledgerly-reviewer, dispatch-subagents skill, `/multitask`, Canvas subagent progress, ledgerly-reviewer check.
+3. **How do you parallelize a task?** — open a new agent, resolve-dispute plan, ledgerly-reviewer, dispatch-subagents skill, `/multitask`, Canvas subagent progress, ledgerly-reviewer check.
 
 ## 301 sections and beats
 

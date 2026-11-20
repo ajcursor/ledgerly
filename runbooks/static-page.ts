@@ -87,38 +87,59 @@ function cardBlocks(beat: DemoBeat): CardBlock[] {
   return blocks;
 }
 
-function renderDo(lines: string[]): string {
+/**
+ * Panel titles, Do steps, and Grok Build commands are editable in the browser.
+ * `data-edit` names the field inside its card: `title`, `step-N`, or `prompt-N`.
+ * `data-default` keeps the shipped text so a reset can restore it.
+ */
+function editAttrs(field: string, value: string): string {
+  return ` data-edit="${field}" data-default="${escapeHtml(value)}" contenteditable="true"`;
+}
+
+function renderDo(lines: string[], firstStep: number): string {
   const tag = lines.length > 1 ? "ol" : "ul";
-  const items = lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("");
+  const items = lines
+    .map((line, index) => `<li${editAttrs(`step-${firstStep + index}`, line)}>${escapeHtml(line)}</li>`)
+    .join("");
   return `
           <div class="do-box">
             <${tag}>${items}</${tag}>
           </div>`;
 }
 
-function renderPrompt(text: string, label: string): string {
+function renderPrompt(text: string, label: string, index: number): string {
   return `
           <div class="paste">
             <div class="paste-head">
               <span>${escapeHtml(label)}</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>${escapeHtml(text)}</pre>
+            <pre${editAttrs(`prompt-${index}`, text)}>${escapeHtml(text)}</pre>
           </div>`;
 }
 
-function renderBlock(block: CardBlock): string {
+function renderBlock(block: CardBlock, counts: { step: number; prompt: number }): string {
   if (block.kind === "say") return `\n          <p class="say">${escapeHtml(block.text)}</p>`;
-  if (block.kind === "steps") return renderDo(block.lines);
-  return renderPrompt(block.text, block.label);
+  if (block.kind === "steps") {
+    const firstStep = counts.step;
+    counts.step += block.lines.length;
+    return renderDo(block.lines, firstStep);
+  }
+  const index = counts.prompt;
+  counts.prompt += 1;
+  return renderPrompt(block.text, block.label, index);
 }
 
 function renderBeat(beat: DemoBeat): string {
   const feature = beatFeature(beat);
   const featureAttr = feature ? ` data-feature="${escapeHtml(feature)}"` : "";
+  const counts = { step: 0, prompt: 0 };
   return `
         <article class="beat" data-beat="${escapeHtml(beat.id)}"${featureAttr}>
-          <h4>${escapeHtml(beat.title)}</h4>${cardBlocks(beat).map(renderBlock).join("")}
+          <h4${editAttrs("title", beat.title)}>${escapeHtml(beat.title)}</h4>${cardBlocks(beat)
+            .map((block) => renderBlock(block, counts))
+            .join("")}
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>`;
 }
 
@@ -159,6 +180,14 @@ function renderFeatureCss(): string {
   ).join("\n    ");
 }
 
+function renderEditBar(): string {
+  return `
+      <div class="edit-bar">
+        <span>Click a panel title, instruction, or Grok Build command to edit it. Edits save to <code>runbooks/edits.json</code> when the dev server is running.</span>
+        <button type="button" class="reset-track" hidden>Reset edits in this track</button>
+      </div>`;
+}
+
 function renderTrack(track: (typeof RUNBOOK_TRACKS)[number]): string {
   const tabs = track.sections
     .map((section) => `<a href="#${track.id}-${section.id}">${escapeHtml(section.title)}</a>`)
@@ -166,7 +195,7 @@ function renderTrack(track: (typeof RUNBOOK_TRACKS)[number]): string {
   return `
     <div class="track" data-track="${track.id}">
       <h2>${escapeHtml(track.title)}</h2>
-      <p class="lede">${escapeHtml(track.description)}</p>${renderFeatureChecklist(track)}
+      <p class="lede">${escapeHtml(track.description)}</p>${renderFeatureChecklist(track)}${renderEditBar()}
       <nav class="tabs" aria-label="${track.id} sections">
         ${tabs}
       </nav>${track.sections.map((section) => renderSection(track.id, section)).join("")}
@@ -180,6 +209,11 @@ function renderTrack(track: (typeof RUNBOOK_TRACKS)[number]): string {
  * Optional beats stay in the markup. Each track lists its optional features
  * as checkboxes, checked by default. Unchecking a feature hides its beats.
  * The choice is stored in localStorage. Required beats are always shown.
+ * Panel titles, Do steps, and Grok Build commands are editable in place. Edits
+ * are saved to runbooks/edits.json through app/api/runbook-edits when the dev
+ * server at localhost:43173 is reachable, and cached in localStorage under
+ * `ledgerly-runbooks-edits`. The page loads edits at runtime, so this HTML stays
+ * deterministic. Each card or track can be reset to the shipped text.
  */
 export function renderRunbooksHtml(): string {
   const options = RUNBOOK_TRACKS.map(
@@ -257,6 +291,21 @@ export function renderRunbooksHtml(): string {
       background: var(--paper-elevated); color: var(--ink); font: inherit; cursor: pointer;
     }
     .copy.done { color: var(--success); border-color: var(--success); }
+    .save-status { margin: 0.5rem 0 0; color: var(--ink-soft); font-size: 0.75rem; }
+    .save-status[data-state="server"] { color: var(--ink); }
+    [data-edit] { border-radius: 0.25rem; cursor: text; }
+    [data-edit]:hover { outline: 1px dashed var(--line); outline-offset: 3px; }
+    [data-edit]:focus { outline: 2px solid var(--indigo); outline-offset: 3px; }
+    .reset-beat, .reset-track {
+      padding: 0.25rem 0.625rem; border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--paper-elevated); color: var(--ink); font: inherit; font-size: 0.75rem; cursor: pointer;
+    }
+    .reset-beat { align-self: flex-start; }
+    .reset-beat[hidden], .reset-track[hidden] { display: none; }
+    .edit-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
+      margin: 0.75rem 0 0; color: var(--ink-soft); font-size: 0.75rem;
+    }
     pre {
       white-space: pre-wrap; background: var(--muted);
       font: 0.75rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -286,6 +335,7 @@ export function renderRunbooksHtml(): string {
     <p class="eyebrow">Demo catalog</p>
     <h1>Runbooks</h1>
     <p class="lede">Choose a track, jump to a section, and copy the next beat into Grok Build. Link a track directly with <code>?track=201</code> or <code>?track=301</code>.</p>
+    <p class="save-status" id="save-status" role="status" data-state="saving">Checking for saved edits…</p>
     <label for="track">Catalog</label>
     <select id="track">
           ${options}
@@ -385,7 +435,7 @@ ${RUNBOOK_TRACKS.map(renderTrack).join("\n")}
       document.addEventListener("click", function (event) {
         var button = event.target.closest(".copy");
         if (!button) return;
-        var text = button.closest(".paste").querySelector("pre").textContent;
+        var text = button.closest(".paste").querySelector("pre").innerText;
         var write = navigator.clipboard && window.isSecureContext
           ? navigator.clipboard.writeText(text).catch(function () { return fallbackCopy(text); })
           : fallbackCopy(text);
@@ -394,6 +444,213 @@ ${RUNBOOK_TRACKS.map(renderTrack).join("\n")}
           button.classList.add("done");
           setTimeout(function () { button.textContent = "Copy"; button.classList.remove("done"); }, 1600);
         }, function () {});
+      });
+
+      var EDIT_KEY = "ledgerly-runbooks-edits";
+      var PENDING_KEY = "ledgerly-runbooks-edits-pending";
+      var EDIT_API = "http://localhost:43173/api/runbook-edits";
+      var SERVER_TEXT = "Saved to runbooks/edits.json through the dev server.";
+      var LOCAL_TEXT = "Saved in this browser only. Start the dev server on localhost:43173 to save to runbooks/edits.json.";
+      var statusEl = document.getElementById("save-status");
+      var pushTimer = null;
+      var pushSeq = 0;
+      function readEdits() {
+        try {
+          var raw = localStorage.getItem(EDIT_KEY);
+          var parsed = raw ? JSON.parse(raw) : {};
+          return parsed && typeof parsed === "object" ? parsed : {};
+        } catch (err) {
+          return {};
+        }
+      }
+      function writeEdits(state) {
+        try {
+          localStorage.setItem(EDIT_KEY, JSON.stringify(state));
+        } catch (err) {
+          // Private browsing can reject storage. The server copy is still written.
+        }
+      }
+      function setPending(flag) {
+        try {
+          if (flag) localStorage.setItem(PENDING_KEY, "1");
+          else localStorage.removeItem(PENDING_KEY);
+        } catch (err) {
+          // Storage can be unavailable. The next save still goes to the server.
+        }
+      }
+      function hasPending() {
+        try {
+          return localStorage.getItem(PENDING_KEY) === "1";
+        } catch (err) {
+          return false;
+        }
+      }
+      function showStatus(state, text) {
+        statusEl.setAttribute("data-state", state);
+        statusEl.textContent = text;
+      }
+      function pushToServer(state) {
+        var seq = ++pushSeq;
+        return fetch(EDIT_API, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(state),
+          cache: "no-store",
+          keepalive: true
+        }).then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          setPending(false);
+          if (seq === pushSeq) showStatus("server", SERVER_TEXT);
+        }).catch(function () {
+          setPending(true);
+          if (seq === pushSeq) showStatus("local", LOCAL_TEXT);
+        });
+      }
+      // Saves to localStorage at once. The server write waits 400ms after the last
+      // keystroke, or runs at once when the now flag is set (blur, reset, page hide).
+      function saveEdits(state, now) {
+        writeEdits(state);
+        setPending(true);
+        clearTimeout(pushTimer);
+        showStatus("saving", "Saving…");
+        pushTimer = setTimeout(function () {
+          pushTimer = null;
+          pushToServer(state);
+        }, now ? 0 : 400);
+      }
+      window.addEventListener("pagehide", function () {
+        if (!pushTimer) return;
+        clearTimeout(pushTimer);
+        pushTimer = null;
+        pushToServer(readEdits());
+      });
+      function trimmed(value) {
+        return String(value || "").replace(/^\\s+|\\s+$/g, "");
+      }
+      function fieldText(el) {
+        return trimmed(el.innerText);
+      }
+      function beatKey(article) {
+        return article.closest(".track").getAttribute("data-track") + ":" + article.getAttribute("data-beat");
+      }
+      function isEdited(el) {
+        return fieldText(el) !== trimmed(el.getAttribute("data-default"));
+      }
+      function refreshBeat(article) {
+        var edited = Array.prototype.some.call(article.querySelectorAll("[data-edit]"), isEdited);
+        article.classList.toggle("is-edited", edited);
+        var reset = article.querySelector(".reset-beat");
+        if (reset) reset.hidden = !edited;
+        var track = article.closest(".track");
+        var trackReset = track.querySelector(".reset-track");
+        if (trackReset) trackReset.hidden = !track.querySelector(".beat.is-edited");
+      }
+      function saveField(el, leaving) {
+        var article = el.closest(".beat");
+        var field = el.getAttribute("data-edit");
+        var fallback = trimmed(el.getAttribute("data-default"));
+        var value = fieldText(el);
+        if (leaving && value === "") {
+          el.textContent = fallback;
+          value = fallback;
+        }
+        var state = readEdits();
+        var key = beatKey(article);
+        var entry = state[key] || {};
+        if (value === "" || value === fallback) delete entry[field];
+        else entry[field] = value;
+        if (Object.keys(entry).length) state[key] = entry;
+        else delete state[key];
+        saveEdits(state, leaving);
+        refreshBeat(article);
+      }
+      function editableFrom(target) {
+        return target && target.closest ? target.closest("[data-edit]") : null;
+      }
+
+      function applyEdits(state) {
+        Array.prototype.forEach.call(document.querySelectorAll(".beat"), function (article) {
+          var saved = state[beatKey(article)] || {};
+          Array.prototype.forEach.call(article.querySelectorAll("[data-edit]"), function (el) {
+            var field = el.getAttribute("data-edit");
+            if (typeof saved[field] === "string" && saved[field] !== "") el.textContent = saved[field];
+          });
+          refreshBeat(article);
+        });
+      }
+      // The server copy wins when reachable. Local edits that never reached the server
+      // (pending flag, or an empty server file with local edits) are pushed up instead.
+      // If the server cannot be reached, the browser cache is shown.
+      function loadEdits() {
+        var local = readEdits();
+        showStatus("saving", "Checking for saved edits…");
+        fetch(EDIT_API, { cache: "no-store" }).then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        }).then(function (server) {
+          if (!server || typeof server !== "object" || Array.isArray(server)) throw new Error("bad edits");
+          var localCount = Object.keys(local).length;
+          if (hasPending() || (Object.keys(server).length === 0 && localCount > 0)) {
+            applyEdits(local);
+            saveEdits(local, true);
+            return;
+          }
+          writeEdits(server);
+          applyEdits(server);
+          showStatus("server", SERVER_TEXT);
+        }).catch(function () {
+          applyEdits(local);
+          showStatus("local", LOCAL_TEXT);
+        });
+      }
+      loadEdits();
+
+      document.addEventListener("input", function (event) {
+        var el = editableFrom(event.target);
+        if (el) saveField(el, false);
+      });
+      document.addEventListener("focusout", function (event) {
+        var el = editableFrom(event.target);
+        if (el) saveField(el, true);
+      });
+      document.addEventListener("keydown", function (event) {
+        var el = editableFrom(event.target);
+        if (el && event.key === "Enter" && el.tagName !== "PRE") {
+          event.preventDefault();
+          el.blur();
+        }
+      });
+      document.addEventListener("paste", function (event) {
+        var el = editableFrom(event.target);
+        if (!el) return;
+        event.preventDefault();
+        var text = (event.clipboardData || window.clipboardData).getData("text/plain");
+        if (el.tagName !== "PRE") text = text.replace(/\\s*[\\r\\n]+\\s*/g, " ");
+        document.execCommand("insertText", false, text);
+      });
+
+      // One save covers every card reset here, so the server copy is cleared in one request.
+      function resetArticles(articles) {
+        var state = readEdits();
+        Array.prototype.forEach.call(articles, function (article) {
+          delete state[beatKey(article)];
+          Array.prototype.forEach.call(article.querySelectorAll("[data-edit]"), function (el) {
+            el.textContent = el.getAttribute("data-default") || "";
+          });
+          refreshBeat(article);
+        });
+        saveEdits(state, true);
+      }
+      document.addEventListener("click", function (event) {
+        var target = event.target;
+        if (!target || !target.closest) return;
+        var card = target.closest(".reset-beat");
+        if (card) {
+          resetArticles([card.closest(".beat")]);
+          return;
+        }
+        var track = target.closest(".reset-track");
+        if (track) resetArticles(track.closest(".track").querySelectorAll(".beat"));
       });
     })();
   </script>

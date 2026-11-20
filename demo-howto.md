@@ -4,22 +4,22 @@ Presenter run-of-show for the **101**, **201**, and **301** tracks, not a course
 
 Ledgerly is a small, fictional demo app. It exists to give Grok Build enablement steps a visible surface: code to read, a UI to inspect, a scoped error to fix, and tests to verify. The data is synthetic. Avery Quinn is the operator, the only plan prices are Starter **$49**, Growth **$99**, and Scale **$249**, and the clock is frozen at **23 August 2026** so every run is repeatable.
 
-The pastes below match the copy-paste blocks in `runbooks.html`. `start-ledgerly` renders that file in a Cursor Canvas. The Catalog menu switches tracks. `runbooks.html?track=201` selects 201 and `runbooks.html?track=301` selects 301 when the file is opened on its own. Each beat is independent; jump directly to any step.
+The pastes below match the copy-paste blocks in `runbooks.html`. `start-ledgerly` renders that file in a Cursor Canvas. The Catalog menu switches tracks. Panel titles, Do steps, and Grok Build commands are editable on the page; edits save in that browser, and **Reset this card** or **Reset edits in this track** restores the shipped text. `runbooks.html?track=201` selects 201 and `runbooks.html?track=301` selects 301 when the file is opened on its own. Each beat is independent; jump directly to any step.
 
 ## Jump menu
 
-The 101 track has three sections. Open `runbooks.html` in the Canvas and copy a card for any beat.
+The 101 track has four sections. Open `runbooks.html` in the Canvas and copy a card for any beat.
 
 1. **What is Grok Build?** — [Ask](#ask), [Plan](#plan), [Build in Agent mode](#build-in-agent-mode), [Debug](#debug), check the models
 2. **How do you work with an agent?** — allowlist, verify the email feature, redact, stop, interrupt and steer, continue to the end, review diffs, restore from a checkpoint
 3. **How do you govern an agent?** — [create a rule](#create-a-rule), create a skill, [Canvas](#canvas), [MCP / Figma](#mcp--figma)
+4. **How do you connect an agent to external tools?** — [Jira MCP](#how-do-you-connect-an-agent-to-external-tools), MCP allowlist, list open issues, import plugin from disk
 
-The 201 track has four sections. Open `runbooks.html?track=201` and copy a card for any beat.
+The 201 track has three sections. Open `runbooks.html?track=201` and copy a card for any beat.
 
 1. **How do you manage context?** — rename agents, Ask DDD, check context usage, compare agents, ask across chats
 2. **How do you standardize agent behavior?** — [create-api skill](#create-api-skill), promote it
-3. **How do you connect an agent to external tools?** — [Linear team](#choose-the-linear-team-manual), Linear MCP, list open issues, import plugin from disk
-4. **How do you parallelize a task?** — [open a new agent](#open-the-plan), resolve-dispute plan, `/multitask`, Canvas subagent progress, ledgerly-reviewer check
+3. **How do you parallelize a task?** — [open a new agent](#open-the-plan), resolve-dispute plan, `/multitask`, Canvas subagent progress, ledgerly-reviewer check
 
 The 301 track has four sections. Open `runbooks.html?track=301` and copy a card for any beat. Optional features are checkboxes, checked by default. Uncheck a feature to hide its beats. The choice is saved in the browser.
 
@@ -62,7 +62,7 @@ Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` ski
 
 Check shipped state:
 
-- `npm test` is **2 failed / 85 passed**; the failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`
+- `npm test` is **2 failed / 90 passed**; the failures are `tests/suggested-credit-api.test.ts` and `tests/filter-pills.test.ts`
 - [http://127.0.0.1:43173/disputes/dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043) shows **Suggested credit $400.00** in red, above the Scale price of **$249**
 - The deprecated v1 route returns the $400 claim; v2, the domain helper, and the seed store the correct $249 credit
 - Accept credit posts the catalog credit once. A dispute that is already accepted or declined returns 409.
@@ -224,6 +224,24 @@ Create three slides in Figma Slides outlining how I used Grok Build to develop a
 
 ---
 
+## How do you connect an agent to external tools?
+
+**Before this section:** the Standard bug fix plugin and `stage-linear` still read Linear issues. Use a public or private Linear team ([steps above](#choose-the-linear-team-manual)): Settings → Teams → New team when you need a new one, or leave an existing team public. **Make team private** is optional. Then run `stage-linear`.
+
+Review MCP servers in Customize → MCPs. Enable the Jira MCP server. Check the MCP allowlist under Settings → Agents → Execution and Approvals. Then:
+
+```text
+List the open issues from our issue tracker.
+```
+
+Add the plugin from the local repository (Customize → Plugins → Add → From Local Repository, then `plugins/standard-bug-fix`). Go to Customize → Plugins → Personal. Select Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server. Then:
+
+```text
+Work on a standard bug fix for the issue where clicking overdue does not filter.
+```
+
+---
+
 ## Verify
 
 **Paste:**
@@ -231,12 +249,12 @@ Create three slides in Figma Slides outlining how I used Grok Build to develop a
 ```text
 Run npm test and report which tests passed and which failed. Do not edit any files.
 
-On a clean tree, npm test is 2 failed / 85 passed. tests/suggested-credit-api.test.ts is red because the client selects deprecated v1, and tests/filter-pills.test.ts is red because the pills write state=. Do not change the suggested-credit test, either route, or the seed.
+On a clean tree, npm test is 2 failed / 90 passed. tests/suggested-credit-api.test.ts is red because the client selects deprecated v1, and tests/filter-pills.test.ts is red because the pills write state=. Do not change the suggested-credit test, either route, or the seed.
 ```
 
 **If the client migration ran:** `tests/suggested-credit-api.test.ts` should be green and dsp_1043 should show **$249** from v2, with both routes intact.
 
-**If no migration ran:** `npm test` should remain **2 failed / 85 passed**. That is shipped state, not failed setup.
+**If no migration ran:** `npm test` should remain **2 failed / 90 passed**. That is shipped state, not failed setup.
 
 **Land:** A green check is evidence, not permission to merge. The presenter remains accountable.
 
@@ -256,13 +274,13 @@ npm run demo:reset
 
 **Then:** complete only the script's reported Figma, Cursor user-rule, or Linear MCP actions. The script resets files, recorded rules/skills, Canvas, branches, SQLite, and port 43173.
 
-**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **2 failed / 85 passed**, status pills still writing `state=`.
+**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **2 failed / 90 passed**, status pills still writing `state=`.
 
 ---
 
 ## The 201 track
 
-Open `runbooks.html?track=201`. Four section tabs match the Outline Show headings. Copy a card; Do text and prompts are on the card.
+Open `runbooks.html?track=201`. Three section tabs match the Outline Show headings. Copy a card; Do text and prompts are on the card.
 
 ### How do you manage context?
 
@@ -301,22 +319,6 @@ Record both leftovers for reset:
 ```bash
 npm run demo:session -- record skill "$HOME/.cursor/skills/create-api"
 npm run demo:session -- record project-path .cursor/skills/create-api
-```
-
-### How do you connect an agent to external tools?
-
-Use a public or private Linear team ([steps above](#choose-the-linear-team-manual)): Settings → Teams → New team when you need a new one, or leave an existing team public. **Make team private** is optional. Then run `stage-linear`.
-
-Review MCP servers in Customize → MCPs. Enable the Linear MCP server. Check the MCP allowlist under Settings → Agents → Execution and Approvals. Then:
-
-```text
-List the open issues from our issue tracker.
-```
-
-Add the plugin from the local repository (Customize → Plugins → Add → From Local Repository, then `plugins/standard-bug-fix`). Go to Customize → Plugins → Personal. Select Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server. Then:
-
-```text
-Work on a standard bug fix for the issue where clicking overdue does not filter.
 ```
 
 ### How do you parallelize a task?

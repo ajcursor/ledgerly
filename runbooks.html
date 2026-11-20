@@ -69,6 +69,21 @@
       background: var(--paper-elevated); color: var(--ink); font: inherit; cursor: pointer;
     }
     .copy.done { color: var(--success); border-color: var(--success); }
+    .save-status { margin: 0.5rem 0 0; color: var(--ink-soft); font-size: 0.75rem; }
+    .save-status[data-state="server"] { color: var(--ink); }
+    [data-edit] { border-radius: 0.25rem; cursor: text; }
+    [data-edit]:hover { outline: 1px dashed var(--line); outline-offset: 3px; }
+    [data-edit]:focus { outline: 2px solid var(--indigo); outline-offset: 3px; }
+    .reset-beat, .reset-track {
+      padding: 0.25rem 0.625rem; border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--paper-elevated); color: var(--ink); font: inherit; font-size: 0.75rem; cursor: pointer;
+    }
+    .reset-beat { align-self: flex-start; }
+    .reset-beat[hidden], .reset-track[hidden] { display: none; }
+    .edit-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
+      margin: 0.75rem 0 0; color: var(--ink-soft); font-size: 0.75rem;
+    }
     pre {
       white-space: pre-wrap; background: var(--muted);
       font: 0.75rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -101,6 +116,7 @@
     <p class="eyebrow">Demo catalog</p>
     <h1>Runbooks</h1>
     <p class="lede">Choose a track, jump to a section, and copy the next beat into Grok Build. Link a track directly with <code>?track=201</code> or <code>?track=301</code>.</p>
+    <p class="save-status" id="save-status" role="status" data-state="saving">Checking for saved edits…</p>
     <label for="track">Catalog</label>
     <select id="track">
           <option value="101">101</option>
@@ -111,77 +127,88 @@
     <div class="track" data-track="101">
       <h2>101</h2>
       <p class="lede">You will explore different ways to work in Grok Build, use modes and models for the right tasks, apply rules and skills to ensure consistent quality, and complete at least one task with an agent.</p>
+      <div class="edit-bar">
+        <span>Click a panel title, instruction, or Grok Build command to edit it. Edits save to <code>runbooks/edits.json</code> when the dev server is running.</span>
+        <button type="button" class="reset-track" hidden>Reset edits in this track</button>
+      </div>
       <nav class="tabs" aria-label="101 sections">
         <a href="#101-first-prompt">What is Grok Build?</a>
         <a href="#101-work-with-agent">How do you work with an agent?</a>
         <a href="#101-govern-agent">How do you govern an agent?</a>
+        <a href="#101-mcp-more-info">How do you connect an agent to external tools?</a>
       </nav>
       <section id="101-first-prompt">
         <h3>What is Grok Build?</h3>
         <div class="beats">
         <article class="beat" data-beat="ask">
-          <h4>Ask</h4>
+          <h4 data-edit="title" data-default="Ask" contenteditable="true">Ask</h4>
           <div class="do-box">
-            <ul><li>Let’s learn more about the application with Ask mode.</li></ul>
+            <ul><li data-edit="step-0" data-default="Let’s learn more about the application with Ask mode." contenteditable="true">Let’s learn more about the application with Ask mode.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/ask Tell me what this application does in 3 sentences</pre>
+            <pre data-edit="prompt-0" data-default="/ask Tell me what this application does in 3 sentences" contenteditable="true">/ask Tell me what this application does in 3 sentences</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="plan">
-          <h4>Plan</h4>
+          <h4 data-edit="title" data-default="Plan" contenteditable="true">Plan</h4>
           <div class="do-box">
-            <ul><li>Map your approach to building a new feature in Plan mode.</li></ul>
+            <ul><li data-edit="step-0" data-default="Map your approach to building a new feature in Plan mode." contenteditable="true">Map your approach to building a new feature in Plan mode.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/plan I want a new feature to update the customer email in the invoice detail customer card. Don’t implement email validation.</pre>
+            <pre data-edit="prompt-0" data-default="/plan I want a new feature to update the customer email in the invoice detail customer card. Don’t implement email validation." contenteditable="true">/plan I want a new feature to update the customer email in the invoice detail customer card. Don’t implement email validation.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="agent-build">
-          <h4>Build in Agent mode</h4>
+          <h4 data-edit="title" data-default="Build in Agent mode" contenteditable="true">Build in Agent mode</h4>
           <div class="do-box">
-            <ul><li>Build the feature in Agent mode. Build the plan locally. Check the feature in the UI.</li></ul>
+            <ul><li data-edit="step-0" data-default="Build the feature in Agent mode. Build the plan locally. Check the feature in the UI." contenteditable="true">Build the feature in Agent mode. Build the plan locally. Check the feature in the UI.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="debug">
-          <h4>Debug</h4>
+          <h4 data-edit="title" data-default="Debug" contenteditable="true">Debug</h4>
           <div class="do-box">
-            <ul><li>Investigate the failing test using Debug mode. Debug mode is useful because the agent investigates the codebase and presents some hypothesis on the root cause. I can choose to reproduce the bug and attempt to fix based on the agent’s hypotheses.</li></ul>
+            <ul><li data-edit="step-0" data-default="Investigate the failing test using Debug mode. Debug mode is useful because the agent investigates the codebase and presents some hypothesis on the root cause. I can choose to reproduce the bug and attempt to fix based on the agent’s hypotheses." contenteditable="true">Investigate the failing test using Debug mode. Debug mode is useful because the agent investigates the codebase and presents some hypothesis on the root cause. I can choose to reproduce the bug and attempt to fix based on the agent’s hypotheses.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/debug the failing test</pre>
+            <pre data-edit="prompt-0" data-default="/debug the failing test" contenteditable="true">/debug the failing test</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="model-fast">
-          <h4>Check the models</h4>
+          <h4 data-edit="title" data-default="Check the models" contenteditable="true">Check the models</h4>
           <div class="do-box">
-            <ul><li>Check the models available for use. Select Auto in the chat and review the models available for use.</li></ul>
+            <ul><li data-edit="step-0" data-default="Check the models available for use. Select Auto in the chat and review the models available for use." contenteditable="true">Check the models available for use. Select Auto in the chat and review the models available for use.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="fix">
-          <h4>Plan to fix the bug</h4>
+          <h4 data-edit="title" data-default="Plan to fix the bug" contenteditable="true">Plan to fix the bug</h4>
           <div class="do-box">
-            <ul><li>Use shift-tab to toggle to Agent mode.</li></ul>
+            <ul><li data-edit="step-0" data-default="Use shift-tab to toggle to Agent mode." contenteditable="true">Use shift-tab to toggle to Agent mode.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Fix the failing test.</pre>
+            <pre data-edit="prompt-0" data-default="Fix the failing test." contenteditable="true">Fix the failing test.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -189,67 +216,75 @@
         <h3>How do you work with an agent?</h3>
         <div class="beats">
         <article class="beat" data-beat="allowlist">
-          <h4>Run Mode Allowlist</h4>
+          <h4 data-edit="title" data-default="Run Mode Allowlist" contenteditable="true">Run Mode Allowlist</h4>
           <div class="do-box">
-            <ul><li>Let’s change how our agent asks for approvals by configuring an allowlist - a known set of commands that Grok Build can run without asking for review. Go to Settings &gt; Agents &gt; Executions &amp; Approvals &gt; Run Mode &gt; Allowlist.</li></ul>
+            <ul><li data-edit="step-0" data-default="Let’s change how our agent asks for approvals by configuring an allowlist - a known set of commands that Grok Build can run without asking for review. Go to Settings &gt; Agents &gt; Executions &amp; Approvals &gt; Run Mode &gt; Allowlist." contenteditable="true">Let’s change how our agent asks for approvals by configuring an allowlist - a known set of commands that Grok Build can run without asking for review. Go to Settings &gt; Agents &gt; Executions &amp; Approvals &gt; Run Mode &gt; Allowlist.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="verify-email">
-          <h4>Verify the email feature</h4>
+          <h4 data-edit="title" data-default="Verify the email feature" contenteditable="true">Verify the email feature</h4>
           <div class="do-box">
-            <ul><li>Go to http://localhost:43173/invoices/inv_1048. Find the edit email feature you implemented in the Customer box.</li></ul>
+            <ul><li data-edit="step-0" data-default="Go to http://localhost:43173/invoices/inv_1048. Find the edit email feature you implemented in the Customer box." contenteditable="true">Go to http://localhost:43173/invoices/inv_1048. Find the edit email feature you implemented in the Customer box.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="start-and-stop">
-          <h4>Redact (partial)</h4>
+          <h4 data-edit="title" data-default="Redact (partial)" contenteditable="true">Redact (partial)</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Redact the customer email in the UI. The first two characters and domain are plaintext. When I click to type in the box, clear it and save the new email.</pre>
+            <pre data-edit="prompt-0" data-default="Redact the customer email in the UI. The first two characters and domain are plaintext. When I click to type in the box, clear it and save the new email." contenteditable="true">Redact the customer email in the UI. The first two characters and domain are plaintext. When I click to type in the box, clear it and save the new email.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="stop">
-          <h4>Stop the prompt</h4>
+          <h4 data-edit="title" data-default="Stop the prompt" contenteditable="true">Stop the prompt</h4>
           <div class="do-box">
-            <ul><li>Stop the prompt with the Stop button in the chat.</li></ul>
+            <ul><li data-edit="step-0" data-default="Stop the prompt with the Stop button in the chat." contenteditable="true">Stop the prompt with the Stop button in the chat.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="interrupt-steer">
-          <h4>Interrupt and steer</h4>
+          <h4 data-edit="title" data-default="Interrupt and steer" contenteditable="true">Interrupt and steer</h4>
           <div class="do-box">
-            <ul><li>Steer the prompt. Show how the agent pauses for your approval. Continue running after reviewing the first file.</li></ul>
+            <ul><li data-edit="step-0" data-default="Steer the prompt. Show how the agent pauses for your approval. Continue running after reviewing the first file." contenteditable="true">Steer the prompt. Show how the agent pauses for your approval. Continue running after reviewing the first file.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Redact the customer email in the UI. Show it in plaintext when I click the box to edit it. Stop every time you change a file for me to review.</pre>
+            <pre data-edit="prompt-0" data-default="Redact the customer email in the UI. Show it in plaintext when I click the box to edit it. Stop every time you change a file for me to review." contenteditable="true">Redact the customer email in the UI. Show it in plaintext when I click the box to edit it. Stop every time you change a file for me to review.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="continue-no-approval">
-          <h4>Continue to the end</h4>
+          <h4 data-edit="title" data-default="Continue to the end" contenteditable="true">Continue to the end</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Continue to the end, do not wait for my approval.</pre>
+            <pre data-edit="prompt-0" data-default="Continue to the end, do not wait for my approval." contenteditable="true">Continue to the end, do not wait for my approval.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="diffs">
-          <h4>Review diffs</h4>
+          <h4 data-edit="title" data-default="Review diffs" contenteditable="true">Review diffs</h4>
           <div class="do-box">
-            <ul><li>Select Changes in the right hand panel. Show diffs from agent’s last turn.</li></ul>
+            <ul><li data-edit="step-0" data-default="Select Changes in the right hand panel. Show diffs from agent’s last turn." contenteditable="true">Select Changes in the right hand panel. Show diffs from agent’s last turn.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="checkpoint-restore">
-          <h4>Restore from a checkpoint</h4>
+          <h4 data-edit="title" data-default="Restore from a checkpoint" contenteditable="true">Restore from a checkpoint</h4>
           <div class="do-box">
-            <ul><li>If I want to revert the code, I can restore from a checkpoint. Scroll back to a prompt before updating the feature. Select the restore icon next to the prompt.</li></ul>
+            <ul><li data-edit="step-0" data-default="If I want to revert the code, I can restore from a checkpoint. Scroll back to a prompt before updating the feature. Select the restore icon next to the prompt." contenteditable="true">If I want to revert the code, I can restore from a checkpoint. Scroll back to a prompt before updating the feature. Select the restore icon next to the prompt.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -257,76 +292,143 @@
         <h3>How do you govern an agent?</h3>
         <div class="beats">
         <article class="beat" data-beat="rule">
-          <h4>Create a user rule</h4>
+          <h4 data-edit="title" data-default="Create a user rule" contenteditable="true">Create a user rule</h4>
           <div class="do-box">
-            <ul><li>Let’s create a user rule so the agent doesn’t try to improve the invoice UI without our approval. Use /create-rule, a built-in skill, to create a rule. Go to Customize &gt; Rules &gt; User to view the rule.</li></ul>
+            <ul><li data-edit="step-0" data-default="Let’s create a user rule so the agent doesn’t try to improve the invoice UI without our approval. Use /create-rule, a built-in skill, to create a rule. Go to Customize &gt; Rules &gt; User to view the rule." contenteditable="true">Let’s create a user rule so the agent doesn’t try to improve the invoice UI without our approval. Use /create-rule, a built-in skill, to create a rule. Go to Customize &gt; Rules &gt; User to view the rule.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/create-rule Preserve the invoice view. Do not rename, restyle, or rearrange invoice screens unless the user names the **exact** new copy (or a specific layout change). This is a personal rule.</pre>
+            <pre data-edit="prompt-0" data-default="/create-rule Preserve the invoice view. Do not rename, restyle, or rearrange invoice screens unless the user names the **exact** new copy (or a specific layout change). This is a personal rule." contenteditable="true">/create-rule Preserve the invoice view. Do not rename, restyle, or rearrange invoice screens unless the user names the **exact** new copy (or a specific layout change). This is a personal rule.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="test-rule">
-          <h4>Test the rule</h4>
+          <h4 data-edit="title" data-default="Test the rule" contenteditable="true">Test the rule</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Change &quot;Line Items&quot; in the UI to something else.</pre>
+            <pre data-edit="prompt-0" data-default="Change &quot;Line Items&quot; in the UI to something else." contenteditable="true">Change &quot;Line Items&quot; in the UI to something else.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="skill">
-          <h4>Create a user skill</h4>
+          <h4 data-edit="title" data-default="Create a user skill" contenteditable="true">Create a user skill</h4>
           <div class="do-box">
-            <ul><li>Let’s create a user skill that tells me the domain breakdown and available APIs. Go to Customize &gt; Skills to view the skill.</li></ul>
+            <ul><li data-edit="step-0" data-default="Let’s create a user skill that tells me the domain breakdown and available APIs. Go to Customize &gt; Skills to view the skill." contenteditable="true">Let’s create a user skill that tells me the domain breakdown and available APIs. Go to Customize &gt; Skills to view the skill.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/create-skill Use domain-driven design to break down the domains in this application and match it to available APIs or data schemas. This is a personal skill.</pre>
+            <pre data-edit="prompt-0" data-default="/create-skill Use domain-driven design to break down the domains in this application and match it to available APIs or data schemas. This is a personal skill." contenteditable="true">/create-skill Use domain-driven design to break down the domains in this application and match it to available APIs or data schemas. This is a personal skill.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="test-skill">
-          <h4>Test the skill</h4>
+          <h4 data-edit="title" data-default="Test the skill" contenteditable="true">Test the skill</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Use domain-driven design on this application. Do not edit files.</pre>
+            <pre data-edit="prompt-0" data-default="Use domain-driven design on this application. Do not edit files." contenteditable="true">Use domain-driven design on this application. Do not edit files.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="canvas">
-          <h4>Canvas</h4>
+          <h4 data-edit="title" data-default="Canvas" contenteditable="true">Canvas</h4>
           <div class="do-box">
-            <ul><li>Use Canvas to generate interactive artifacts that render next to the chat.</li></ul>
+            <ul><li data-edit="step-0" data-default="Use Canvas to generate interactive artifacts that render next to the chat." contenteditable="true">Use Canvas to generate interactive artifacts that render next to the chat.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Create a canvas explaining what we did today.</pre>
+            <pre data-edit="prompt-0" data-default="Create a canvas explaining what we did today." contenteditable="true">Create a canvas explaining what we did today.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="mcp">
-          <h4>MCP / Figma</h4>
+          <h4 data-edit="title" data-default="MCP / Figma" contenteditable="true">MCP / Figma</h4>
           <div class="do-box">
-            <ul><li>Ask Grok Build to create a slideshow in Figma using MCP Servers. Find an MCP server for slideshow generation in Grok Build. Go to Customize &gt; MCPs &gt; Figma.</li></ul>
+            <ul><li data-edit="step-0" data-default="Ask Grok Build to create a slideshow in Figma using MCP Servers. Find an MCP server for slideshow generation in Grok Build. Go to Customize &gt; MCPs &gt; Figma." contenteditable="true">Ask Grok Build to create a slideshow in Figma using MCP Servers. Find an MCP server for slideshow generation in Grok Build. Go to Customize &gt; MCPs &gt; Figma.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Create three slides in Figma Slides outlining how I used Grok Build to develop a new feature. I want to use this as part of my demo showcase.</pre>
+            <pre data-edit="prompt-0" data-default="Create three slides in Figma Slides outlining how I used Grok Build to develop a new feature. I want to use this as part of my demo showcase." contenteditable="true">Create three slides in Figma Slides outlining how I used Grok Build to develop a new feature. I want to use this as part of my demo showcase.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
+        </article>
+        </div>
+      </section>
+      <section id="101-mcp-more-info">
+        <h3>How do you connect an agent to external tools?</h3>
+        <div class="beats">
+        <article class="beat" data-beat="add-jira-mcp">
+          <h4 data-edit="title" data-default="Enable Jira MCP" contenteditable="true">Enable Jira MCP</h4>
+          <div class="do-box">
+            <ul><li data-edit="step-0" data-default="Let’s start the issue tracker’s MCP server. For this workshop, that is Jira. Get a ticket for this project. Review MCP servers in Customize &gt; MCPs. Enable the Jira MCP server." contenteditable="true">Let’s start the issue tracker’s MCP server. For this workshop, that is Jira. Get a ticket for this project. Review MCP servers in Customize &gt; MCPs. Enable the Jira MCP server.</li></ul>
+          </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
+        </article>
+        <article class="beat" data-beat="mcp-allowlist">
+          <h4 data-edit="title" data-default="Check MCP allowlist" contenteditable="true">Check MCP allowlist</h4>
+          <div class="do-box">
+            <ul><li data-edit="step-0" data-default="Go to Settings &gt; Agents &gt; Execution and Approvals &gt; Allowlist Options &gt; MCP Allowlist to check valid MCP servers and tools from your administrator." contenteditable="true">Go to Settings &gt; Agents &gt; Execution and Approvals &gt; Allowlist Options &gt; MCP Allowlist to check valid MCP servers and tools from your administrator.</li></ul>
+          </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
+        </article>
+        <article class="beat" data-beat="ask-jira-bug">
+          <h4 data-edit="title" data-default="List open issues" contenteditable="true">List open issues</h4>
+          <div class="do-box">
+            <ul><li data-edit="step-0" data-default="Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Jira MCP server." contenteditable="true">Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Jira MCP server.</li></ul>
+          </div>
+          <div class="paste">
+            <div class="paste-head">
+              <span>Paste in Grok Build</span>
+              <button type="button" class="copy">Copy</button>
+            </div>
+            <pre data-edit="prompt-0" data-default="List the open issues from our issue tracker." contenteditable="true">List the open issues from our issue tracker.</pre>
+          </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
+        </article>
+        <article class="beat" data-beat="add-local-plugin">
+          <h4 data-edit="title" data-default="Add plugin" contenteditable="true">Add plugin</h4>
+          <div class="do-box">
+            <ul><li data-edit="step-0" data-default="A teammate created a plugin for standardizing bug fixes. Go to Customize &gt; Plugins &gt; Add &gt; From Local Repository. Find the plugins/standard-bug-fix file directory and add it." contenteditable="true">A teammate created a plugin for standardizing bug fixes. Go to Customize &gt; Plugins &gt; Add &gt; From Local Repository. Find the plugins/standard-bug-fix file directory and add it.</li></ul>
+          </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
+        </article>
+        <article class="beat" data-beat="check-plugin">
+          <h4 data-edit="title" data-default="Enable Standard bug fix plugin" contenteditable="true">Enable Standard bug fix plugin</h4>
+          <div class="do-box">
+            <ul><li data-edit="step-0" data-default="Go to Customize &gt; Plugins. Go to Personal. Click Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server." contenteditable="true">Go to Customize &gt; Plugins. Go to Personal. Click Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server.</li></ul>
+          </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
+        </article>
+        <article class="beat" data-beat="standard-bug-fix">
+          <h4 data-edit="title" data-default="Standard bug fix" contenteditable="true">Standard bug fix</h4>
+          <div class="do-box">
+            <ul><li data-edit="step-0" data-default="Let’s fix the bug and update the issue with the standard template. Go to the issue in Jira and review the comments following the bug template." contenteditable="true">Let’s fix the bug and update the issue with the standard template. Go to the issue in Jira and review the comments following the bug template.</li></ul>
+          </div>
+          <div class="paste">
+            <div class="paste-head">
+              <span>Paste in Grok Build</span>
+              <button type="button" class="copy">Copy</button>
+            </div>
+            <pre data-edit="prompt-0" data-default="Work on a standard bug fix for the issue where clicking overdue does not filter." contenteditable="true">Work on a standard bug fix for the issue where clicking overdue does not filter.</pre>
+          </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -335,85 +437,95 @@
     <div class="track" data-track="201">
       <h2>201</h2>
       <p class="lede">You will curate what belongs in an agent&#39;s context, encode conventions as project skills, connect a curated set of MCP servers, and split one task across parallel agents.</p>
+      <div class="edit-bar">
+        <span>Click a panel title, instruction, or Grok Build command to edit it. Edits save to <code>runbooks/edits.json</code> when the dev server is running.</span>
+        <button type="button" class="reset-track" hidden>Reset edits in this track</button>
+      </div>
       <nav class="tabs" aria-label="201 sections">
         <a href="#201-target-context">How do you manage context?</a>
         <a href="#201-standardize-behavior">How do you standardize agent behavior?</a>
-        <a href="#201-mcp-more-info">How do you connect an agent to external tools?</a>
         <a href="#201-parallelize-task">How do you parallelize a task?</a>
       </nav>
       <section id="201-target-context">
         <h3>How do you manage context?</h3>
         <div class="beats">
         <article class="beat" data-beat="rename-agent-1-all">
-          <h4>Rename Agent 1 All</h4>
+          <h4 data-edit="title" data-default="Rename Agent 1 All" contenteditable="true">Rename Agent 1 All</h4>
           <div class="do-box">
-            <ul><li>Open one agent and ask it for information about the entire codebase.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open one agent and ask it for information about the entire codebase." contenteditable="true">Open one agent and ask it for information about the entire codebase.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/rename-chat Agent 1 All</pre>
+            <pre data-edit="prompt-0" data-default="/rename-chat Agent 1 All" contenteditable="true">/rename-chat Agent 1 All</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="ask-ddd-all">
-          <h4>Ask DDD of the application</h4>
+          <h4 data-edit="title" data-default="Ask DDD of the application" contenteditable="true">Ask DDD of the application</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/ask what is the domain driven design of the application.</pre>
+            <pre data-edit="prompt-0" data-default="/ask what is the domain driven design of the application." contenteditable="true">/ask what is the domain driven design of the application.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="rename-agent-2-target">
-          <h4>Rename Agent 2 Target</h4>
+          <h4 data-edit="title" data-default="Rename Agent 2 Target" contenteditable="true">Rename Agent 2 Target</h4>
           <div class="do-box">
-            <ul><li>Open a second agent for a new targeted context window.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open a second agent for a new targeted context window." contenteditable="true">Open a second agent for a new targeted context window.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/rename-chat Agent 2 Target</pre>
+            <pre data-edit="prompt-0" data-default="/rename-chat Agent 2 Target" contenteditable="true">/rename-chat Agent 2 Target</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="ask-ddd-invoice-table">
-          <h4>Ask DDD of the invoice table</h4>
+          <h4 data-edit="title" data-default="Ask DDD of the invoice table" contenteditable="true">Ask DDD of the invoice table</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/ask what is the domain driven design of the @invoice-table.tsx</pre>
+            <pre data-edit="prompt-0" data-default="/ask what is the domain driven design of the @invoice-table.tsx" contenteditable="true">/ask what is the domain driven design of the @invoice-table.tsx</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="context-usage">
-          <h4>Check context usage</h4>
+          <h4 data-edit="title" data-default="Check context usage" contenteditable="true">Check context usage</h4>
           <div class="do-box">
-            <ul><li>Go to Agent 1 All chat. Click the Context Usage indicator below the chat. Go to Agent 2 Target. Click the Context Usage indicator below the chat.</li></ul>
+            <ul><li data-edit="step-0" data-default="Go to Agent 1 All chat. Click the Context Usage indicator below the chat. Go to Agent 2 Target. Click the Context Usage indicator below the chat." contenteditable="true">Go to Agent 1 All chat. Click the Context Usage indicator below the chat. Go to Agent 2 Target. Click the Context Usage indicator below the chat.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="compare-agents">
-          <h4>Compare agents</h4>
+          <h4 data-edit="title" data-default="Compare agents" contenteditable="true">Compare agents</h4>
           <div class="do-box">
-            <ul><li>Agent 1 maps all the domains in the whole codebase. Its context window shows X%. Agent 2 maps half of the domains based on the targeted context. Its context window shows Y%. The difference in context window may not be significant but can affect larger repositories.</li></ul>
+            <ul><li data-edit="step-0" data-default="Agent 1 maps all the domains in the whole codebase. Its context window shows X%. Agent 2 maps half of the domains based on the targeted context. Its context window shows Y%. The difference in context window may not be significant but can affect larger repositories." contenteditable="true">Agent 1 maps all the domains in the whole codebase. Its context window shows X%. Agent 2 maps half of the domains based on the targeted context. Its context window shows Y%. The difference in context window may not be significant but can affect larger repositories.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="ask-cross-context">
-          <h4>Ask across agents</h4>
+          <h4 data-edit="title" data-default="Ask across agents" contenteditable="true">Ask across agents</h4>
           <div class="do-box">
-            <ul><li>Agent 1 mapped all domains; Agent 2 can reuse that summary. Go to Agent 2 Target chat.</li></ul>
+            <ul><li data-edit="step-0" data-default="Agent 1 mapped all domains; Agent 2 can reuse that summary. Go to Agent 2 Target chat." contenteditable="true">Agent 1 mapped all domains; Agent 2 can reuse that summary. Go to Agent 2 Target chat.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/ask @Agent 1 All Does refactoring the table change anything across all contexts?</pre>
+            <pre data-edit="prompt-0" data-default="/ask @Agent 1 All Does refactoring the table change anything across all contexts?" contenteditable="true">/ask @Agent 1 All Does refactoring the table change anything across all contexts?</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -421,85 +533,32 @@
         <h3>How do you standardize agent behavior?</h3>
         <div class="beats">
         <article class="beat" data-beat="create-api-personal-skill">
-          <h4>Create personal create-api skill</h4>
+          <h4 data-edit="title" data-default="Create personal create-api skill" contenteditable="true">Create personal create-api skill</h4>
           <div class="do-box">
-            <ul><li>Open a new agent. It scans the entire repository for the pattern. Create a personal skill for how to create a new API. Open skill in ~/.cursor/skills.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open a new agent. It scans the entire repository for the pattern. Create a personal skill for how to create a new API. Open skill in ~/.cursor/skills." contenteditable="true">Open a new agent. It scans the entire repository for the pattern. Create a personal skill for how to create a new API. Open skill in ~/.cursor/skills.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/create-skill for how to create a new API. Follow the standards in this repo. This is a personal skill named create-api.</pre>
+            <pre data-edit="prompt-0" data-default="/create-skill for how to create a new API. Follow the standards in this repo. This is a personal skill named create-api." contenteditable="true">/create-skill for how to create a new API. Follow the standards in this repo. This is a personal skill named create-api.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="promote-create-api-project">
-          <h4>Promote create-api to project</h4>
+          <h4 data-edit="title" data-default="Promote create-api to project" contenteditable="true">Promote create-api to project</h4>
           <div class="do-box">
-            <ul><li>Promote the create-api skill so teammates can use it. Open skill in .cursor/skills. Review the other project skills for this repository, such as add-dashboard-widget, draft-collection-email, or write-prisma-query.</li></ul>
+            <ul><li data-edit="step-0" data-default="Promote the create-api skill so teammates can use it. Open skill in .cursor/skills. Review the other project skills for this repository, such as add-dashboard-widget, draft-collection-email, or write-prisma-query." contenteditable="true">Promote the create-api skill so teammates can use it. Open skill in .cursor/skills. Review the other project skills for this repository, such as add-dashboard-widget, draft-collection-email, or write-prisma-query.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Promote the create-api skill to this project.</pre>
+            <pre data-edit="prompt-0" data-default="Promote the create-api skill to this project." contenteditable="true">Promote the create-api skill to this project.</pre>
           </div>
-        </article>
-        </div>
-      </section>
-      <section id="201-mcp-more-info">
-        <h3>How do you connect an agent to external tools?</h3>
-        <div class="beats">
-        <article class="beat" data-beat="add-linear-mcp">
-          <h4>Enable Linear MCP</h4>
-          <div class="do-box">
-            <ul><li>Let’s start the issue tracker’s MCP server. For this workshop, that is Linear. Get a ticket for this project. Review MCP servers in Customize &gt; MCPs. Enable the Linear MCP server.</li></ul>
-          </div>
-        </article>
-        <article class="beat" data-beat="mcp-allowlist">
-          <h4>Check MCP allowlist</h4>
-          <div class="do-box">
-            <ul><li>Go to Settings &gt; Agents &gt; Execution and Approvals &gt; Allowlist Options &gt; MCP Allowlist to check valid MCP servers and tools from your administrator.</li></ul>
-          </div>
-        </article>
-        <article class="beat" data-beat="ask-linear-bug">
-          <h4>List open issues</h4>
-          <div class="do-box">
-            <ul><li>Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Linear MCP server.</li></ul>
-          </div>
-          <div class="paste">
-            <div class="paste-head">
-              <span>Paste in Grok Build</span>
-              <button type="button" class="copy">Copy</button>
-            </div>
-            <pre>List the open issues from our issue tracker.</pre>
-          </div>
-        </article>
-        <article class="beat" data-beat="add-local-plugin">
-          <h4>Add plugin</h4>
-          <div class="do-box">
-            <ul><li>A teammate created a plugin for standardizing bug fixes. Go to Customize &gt; Plugins &gt; Add &gt; From Local Repository. Find the plugins/standard-bug-fix file directory and add it.</li></ul>
-          </div>
-        </article>
-        <article class="beat" data-beat="check-plugin">
-          <h4>Enable Standard bug fix plugin</h4>
-          <div class="do-box">
-            <ul><li>Go to Customize &gt; Plugins. Go to Personal. Click Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server.</li></ul>
-          </div>
-        </article>
-        <article class="beat" data-beat="standard-bug-fix">
-          <h4>Standard bug fix</h4>
-          <div class="do-box">
-            <ul><li>Let’s fix the bug and update the issue with the standard template. Go to the issue in Linear and review the comments following the bug template.</li></ul>
-          </div>
-          <div class="paste">
-            <div class="paste-head">
-              <span>Paste in Grok Build</span>
-              <button type="button" class="copy">Copy</button>
-            </div>
-            <pre>Work on a standard bug fix for the issue where clicking overdue does not filter.</pre>
-          </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -507,67 +566,74 @@
         <h3>How do you parallelize a task?</h3>
         <div class="beats">
         <article class="beat" data-beat="open-new-agent">
-          <h4>Open a new agent</h4>
+          <h4 data-edit="title" data-default="Open a new agent" contenteditable="true">Open a new agent</h4>
           <div class="do-box">
-            <ul><li>Open a new agent.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open a new agent." contenteditable="true">Open a new agent.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="open-resolve-dispute-plan">
-          <h4>Open resolve-dispute plan</h4>
+          <h4 data-edit="title" data-default="Open resolve-dispute plan" contenteditable="true">Open resolve-dispute plan</h4>
           <div class="do-box">
-            <ul><li>Open .cursor/plans/resolve-dispute.md. Review the plan and how it splits data, API, and UI tasks.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open .cursor/plans/resolve-dispute.md. Review the plan and how it splits data, API, and UI tasks." contenteditable="true">Open .cursor/plans/resolve-dispute.md. Review the plan and how it splits data, API, and UI tasks.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="open-ledgerly-reviewer">
-          <h4>Open ledgerly-reviewer</h4>
+          <h4 data-edit="title" data-default="Open ledgerly-reviewer" contenteditable="true">Open ledgerly-reviewer</h4>
           <div class="do-box">
-            <ul><li>Open .cursor/agents/ledgerly-reviewer.md</li></ul>
+            <ul><li data-edit="step-0" data-default="Open .cursor/agents/ledgerly-reviewer.md" contenteditable="true">Open .cursor/agents/ledgerly-reviewer.md</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="open-dispatch-subagents-skill">
-          <h4>Open dispatch-subagents skill</h4>
+          <h4 data-edit="title" data-default="Open dispatch-subagents skill" contenteditable="true">Open dispatch-subagents skill</h4>
           <div class="do-box">
-            <ul><li>Open .cursor/skills/dispatch-subagents/SKILL.md.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open .cursor/skills/dispatch-subagents/SKILL.md." contenteditable="true">Open .cursor/skills/dispatch-subagents/SKILL.md.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="multitask-resolve-dispute">
-          <h4>Multitask resolve-dispute</h4>
+          <h4 data-edit="title" data-default="Multitask resolve-dispute" contenteditable="true">Multitask resolve-dispute</h4>
           <div class="do-box">
-            <ul><li>Build the feature using the /multitask command.</li></ul>
+            <ul><li data-edit="step-0" data-default="Build the feature using the /multitask command." contenteditable="true">Build the feature using the /multitask command.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/multitask @resolve-dispute.md</pre>
+            <pre data-edit="prompt-0" data-default="/multitask @resolve-dispute.md" contenteditable="true">/multitask @resolve-dispute.md</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="canvas-subagent-progress">
-          <h4>Canvas subagent progress</h4>
+          <h4 data-edit="title" data-default="Canvas subagent progress" contenteditable="true">Canvas subagent progress</h4>
           <div class="do-box">
-            <ul><li>Use Canvas to keep track of the progress of subagents and their tasks. Review Canvas with subagent progress and worktree conflicts.</li></ul>
+            <ul><li data-edit="step-0" data-default="Use Canvas to keep track of the progress of subagents and their tasks. Review Canvas with subagent progress and worktree conflicts." contenteditable="true">Use Canvas to keep track of the progress of subagents and their tasks. Review Canvas with subagent progress and worktree conflicts.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Update Canvas with subagent progress and models used. Make a list of worktree conflicts as you encounter them.</pre>
+            <pre data-edit="prompt-0" data-default="Update Canvas with subagent progress and models used. Make a list of worktree conflicts as you encounter them." contenteditable="true">Update Canvas with subagent progress and models used. Make a list of worktree conflicts as you encounter them.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="ledgerly-reviewer-check">
-          <h4>ledgerly-reviewer check</h4>
+          <h4 data-edit="title" data-default="ledgerly-reviewer check" contenteditable="true">ledgerly-reviewer check</h4>
           <div class="do-box">
-            <ul><li>Use the specialized reviewer subagent to check the completed task.</li></ul>
+            <ul><li data-edit="step-0" data-default="Use the specialized reviewer subagent to check the completed task." contenteditable="true">Use the specialized reviewer subagent to check the completed task.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>ledgerly-reviewer check my work</pre>
+            <pre data-edit="prompt-0" data-default="ledgerly-reviewer check my work" contenteditable="true">ledgerly-reviewer check my work</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -595,6 +661,10 @@
           Automations
         </label>
       </fieldset>
+      <div class="edit-bar">
+        <span>Click a panel title, instruction, or Grok Build command to edit it. Edits save to <code>runbooks/edits.json</code> when the dev server is running.</span>
+        <button type="button" class="reset-track" hidden>Reset edits in this track</button>
+      </div>
       <nav class="tabs" aria-label="301 sections">
         <a href="#301-break-down-tasks">How do you orchestrate tasks across agents?</a>
         <a href="#301-plan-to-pr">How do multiple agents go from plan to reviewable code?</a>
@@ -605,46 +675,50 @@
         <h3>How do you orchestrate tasks across agents?</h3>
         <div class="beats">
         <article class="beat" data-beat="get-command-center-issues">
-          <h4>Get the issues for the collections command center from the issue tracker.</h4>
+          <h4 data-edit="title" data-default="Get the issues for the collections command center from the issue tracker." contenteditable="true">Get the issues for the collections command center from the issue tracker.</h4>
           <p class="say">The Linear MCP server returns a list of nine issues to create the collections command center.</p>
           <div class="do-box">
-            <ul><li>Start a new agent for the command center plan.</li></ul>
+            <ul><li data-edit="step-0" data-default="Start a new agent for the command center plan." contenteditable="true">Start a new agent for the command center plan.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/ask List open issues for the collections command center in Linear.</pre>
+            <pre data-edit="prompt-0" data-default="/ask List open issues for the collections command center in Linear." contenteditable="true">/ask List open issues for the collections command center in Linear.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="plan-command-center">
-          <h4>Plan the collections command center in a separate agent.</h4>
+          <h4 data-edit="title" data-default="Plan the collections command center in a separate agent." contenteditable="true">Plan the collections command center in a separate agent.</h4>
           <p class="say">We are going to run this first and handle the manual part in parallel. This agent only plans. It builds nothing until we come back to it.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/plan the collections command center from its issues. List the tasks, the files each touches, and the open questions.</pre>
+            <pre data-edit="prompt-0" data-default="/plan the collections command center from its issues. List the tasks, the files each touches, and the open questions." contenteditable="true">/plan the collections command center from its issues. List the tasks, the files each touches, and the open questions.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="open-local-agent">
-          <h4>Start a keyboard walkthrough for the accessibility audit in a new agent.</h4>
+          <h4 data-edit="title" data-default="Start a keyboard walkthrough for the accessibility audit in a new agent." contenteditable="true">Start a keyboard walkthrough for the accessibility audit in a new agent.</h4>
           <div class="do-box">
-            <ul><li>Start a new agent for the keyboard walkthrough.</li></ul>
+            <ul><li data-edit="step-0" data-default="Start a new agent for the keyboard walkthrough." contenteditable="true">Start a new agent for the keyboard walkthrough.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="show-problem-by-hand">
-          <h4>Show the problem by hand.</h4>
+          <h4 data-edit="title" data-default="Show the problem by hand." contenteditable="true">Show the problem by hand.</h4>
           <p class="say">Focus is the control the keyboard is on right now. When you press Tab, focus moves to the next button, link, or field. A visible outline usually shows where it is, so a keyboard user always knows what Enter will do.
 Watch the page. After a couple of presses the outline disappears. Focus is still on something, but I can&#39;t tell what, so a keyboard user is now lost.</p>
           <div class="do-box">
-            <ol><li>Open Browser to http://localhost:43173/invoices.</li><li>Press Tab a few times on the invoices page.</li></ol>
+            <ol><li data-edit="step-0" data-default="Open Browser to http://localhost:43173/invoices." contenteditable="true">Open Browser to http://localhost:43173/invoices.</li><li data-edit="step-1" data-default="Press Tab a few times on the invoices page." contenteditable="true">Press Tab a few times on the invoices page.</li></ol>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="create-accessibility-manual-reviewer">
-          <h4>Checking every page like this by hand takes a lot of time and judgment, so let&#39;s build a subagent that does it for us.</h4>
+          <h4 data-edit="title" data-default="Checking every page like this by hand takes a lot of time and judgment, so let&#39;s build a subagent that does it for us." contenteditable="true">Checking every page like this by hand takes a lot of time and judgment, so let&#39;s build a subagent that does it for us.</h4>
           <p class="say">CI catches missing labels, which break screen readers, and low contrast, which makes text hard to read.
 A keyboard walkthrough takes judgment, so this subagent uses the page the way a keyboard user would. Reuse it any time you change the UI.</p>
           <div class="paste">
@@ -652,68 +726,75 @@ A keyboard walkthrough takes judgment, so this subagent uses the page the way a 
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, readonly: false.</pre>
+            <pre data-edit="prompt-0" data-default="/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, readonly: false." contenteditable="true">/create-subagent accessibility-manual-reviewer that walks pages by keyboard in the Browser, since CI runs automated tests. Report tab order, focus, trap, Escape, and navigation failures with screenshots. Set model: fast, readonly: false.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-cloud-agent" data-feature="Cloud Agents">
-          <h4>Move to a Cloud Agent.</h4>
+          <h4 data-edit="title" data-default="Move to a Cloud Agent." contenteditable="true">Move to a Cloud Agent.</h4>
           <p class="say">Rather than run all of these subagents locally, move everything to a Cloud Agent on a remote environment and build everything on an isolated branch.
 Once it is done, check its work.</p>
           <div class="do-box">
-            <ol><li>Click Continue on Cloud to move this to a Cloud Agent.</li><li>Click Include Changes.</li></ol>
+            <ol><li data-edit="step-0" data-default="Click Continue on Cloud to move this to a Cloud Agent." contenteditable="true">Click Continue on Cloud to move this to a Cloud Agent.</li><li data-edit="step-1" data-default="Click Include Changes." contenteditable="true">Click Include Changes.</li></ol>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="start-audit-agent">
-          <h4>Start a new agent to audit accessibility.</h4>
+          <h4 data-edit="title" data-default="Start a new agent to audit accessibility." contenteditable="true">Start a new agent to audit accessibility.</h4>
           <p class="say">A new agent keeps the audit separate from the command center plan.</p>
           <div class="do-box">
-            <ul><li>Start a new local agent.</li></ul>
+            <ul><li data-edit="step-0" data-default="Start a new local agent." contenteditable="true">Start a new local agent.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="multitask-walkthroughs">
-          <h4>Show /multitask for small coordinated jobs.</h4>
+          <h4 data-edit="title" data-default="Show /multitask for small coordinated jobs." contenteditable="true">Show /multitask for small coordinated jobs.</h4>
           <p class="say">The coordinator gives each task its own subagent: a keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite.</p>
           <div class="do-box">
-            <ul><li>Open Browser to http://localhost:43173/invoices.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open Browser to http://localhost:43173/invoices." contenteditable="true">Open Browser to http://localhost:43173/invoices.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/multitask Split into three subagents: accessibility-manual-reviewer checks @components/notice-bell.tsx on the invoices page (click, Tab once, Escape, stop at one failure), one runs accessibility tests, one runs app tests.</pre>
+            <pre data-edit="prompt-0" data-default="/multitask Split into three subagents: accessibility-manual-reviewer checks @components/notice-bell.tsx on the invoices page (click, Tab once, Escape, stop at one failure), one runs accessibility tests, one runs app tests." contenteditable="true">/multitask Split into three subagents: accessibility-manual-reviewer checks @components/notice-bell.tsx on the invoices page (click, Tab once, Escape, stop at one failure), one runs accessibility tests, one runs app tests.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="review-subagents">
-          <h4>Review the subagents.</h4>
+          <h4 data-edit="title" data-default="Review the subagents." contenteditable="true">Review the subagents.</h4>
           <p class="say">Stop one task if it drifts. When each agent completes, you get a set of recommendations.</p>
           <div class="do-box">
-            <ul><li>Watch the Working indicator above the chat box.</li></ul>
+            <ul><li data-edit="step-0" data-default="Watch the Working indicator above the chat box." contenteditable="true">Watch the Working indicator above the chat box.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="summarize-subagents">
-          <h4>Check the output of the subagents.</h4>
+          <h4 data-edit="title" data-default="Check the output of the subagents." contenteditable="true">Check the output of the subagents.</h4>
           <p class="say">The coordinator summarizes the failures from the keyboard walkthrough of the invoices page, the accessibility test suite, and the application test suite.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Give me a one-sentence summary for each subagent.</pre>
+            <pre data-edit="prompt-0" data-default="Give me a one-sentence summary for each subagent." contenteditable="true">Give me a one-sentence summary for each subagent.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="linear-issue-fallback">
-          <h4>Fallback: reference repo issues</h4>
+          <h4 data-edit="title" data-default="Fallback: reference repo issues" contenteditable="true">Fallback: reference repo issues</h4>
           <div class="do-box">
-            <ul><li>If an agent cannot access the Linear MCP server, use the issue descriptions in the repository.</li></ul>
+            <ul><li data-edit="step-0" data-default="If an agent cannot access the Linear MCP server, use the issue descriptions in the repository." contenteditable="true">If an agent cannot access the Linear MCP server, use the issue descriptions in the repository.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Reference issues from @runbooks/linear-field-demos.ts instead of Linear.</pre>
+            <pre data-edit="prompt-0" data-default="Reference issues from @runbooks/linear-field-demos.ts instead of Linear." contenteditable="true">Reference issues from @runbooks/linear-field-demos.ts instead of Linear.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -721,40 +802,44 @@ Once it is done, check its work.</p>
         <h3>How do multiple agents go from plan to reviewable code?</h3>
         <div class="beats">
         <article class="beat" data-beat="optional-start-project" data-feature="Projects">
-          <h4>Start a new Project.</h4>
+          <h4 data-edit="title" data-default="Start a new Project." contenteditable="true">Start a new Project.</h4>
           <p class="say">Starting a new Project creates a long-running Cloud Agent that acts as a coordinator.
 Run the remaining commands in the Project. Note that responses to prompts may differ from responses in an individual agent.</p>
           <div class="do-box">
-            <ol><li>Start a new Project.</li><li>Name it {{ INSERT COMPANY HERE, default is Ledgerly }}.</li></ol>
+            <ol><li data-edit="step-0" data-default="Start a new Project." contenteditable="true">Start a new Project.</li><li data-edit="step-1" data-default="Name it {{ INSERT COMPANY HERE, default is Ledgerly }}." contenteditable="true">Name it {{ INSERT COMPANY HERE, default is Ledgerly }}.</li></ol>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-stage-project" data-feature="Projects">
-          <h4>Stage the Project.</h4>
+          <h4 data-edit="title" data-default="Stage the Project." contenteditable="true">Stage the Project.</h4>
           <p class="say">Make clear to the Project that each agent runs in its own worktree to isolate work and avoid conflicts.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Run each agent in its own worktree to avoid conflicts, and parallelize where possible.</pre>
+            <pre data-edit="prompt-0" data-default="Run each agent in its own worktree to avoid conflicts, and parallelize where possible." contenteditable="true">Run each agent in its own worktree to avoid conflicts, and parallelize where possible.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-assign-project" data-feature="Projects">
-          <h4>Use Projects to assign tasks to agents.</h4>
+          <h4 data-edit="title" data-default="Use Projects to assign tasks to agents." contenteditable="true">Use Projects to assign tasks to agents.</h4>
           <p class="say">Let Projects decide how best to assign tasks and complete work.</p>
           <div class="do-box">
-            <ul><li>Run the following prompts from the Project without starting new agents.</li></ul>
+            <ul><li data-edit="step-0" data-default="Run the following prompts from the Project without starting new agents." contenteditable="true">Run the following prompts from the Project without starting new agents.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="open-plan-agent">
-          <h4>Start a new agent.</h4>
+          <h4 data-edit="title" data-default="Start a new agent." contenteditable="true">Start a new agent.</h4>
           <p class="say">I want to fix the keyboard findings that do not share a file.</p>
           <div class="do-box">
-            <ul><li>Open a new local agent.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open a new local agent." contenteditable="true">Open a new local agent.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="plan-remediation">
-          <h4>Start a plan to fix the walkthrough failures on a separate worktree.</h4>
+          <h4 data-edit="title" data-default="Start a plan to fix the walkthrough failures on a separate worktree." contenteditable="true">Start a plan to fix the walkthrough failures on a separate worktree.</h4>
           <p class="say">Plan the in-scope findings, one task per finding, each on its own worktree. If the plan asks questions, choose to run tasks in parallel and write updates to the issue tracker.
 By starting the work on a separate worktree, you avoid editing the working code on the main branch. If you do not let the agent automatically approve changes on the worktree, you may have to manually approve each file change.</p>
           <div class="paste">
@@ -762,65 +847,72 @@ By starting the work on a separate worktree, you avoid editing the working code 
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/plan the in-scope keyboard fixes in @.cursor/plans/keyboard-walkthrough-audit.md. One task per finding, in parallel, each on its own worktree with auto-approved changes.</pre>
+            <pre data-edit="prompt-0" data-default="/plan the in-scope keyboard fixes in @.cursor/plans/keyboard-walkthrough-audit.md. One task per finding, in parallel, each on its own worktree with auto-approved changes." contenteditable="true">/plan the in-scope keyboard fixes in @.cursor/plans/keyboard-walkthrough-audit.md. One task per finding, in parallel, each on its own worktree with auto-approved changes.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="review-plan">
-          <h4>Review the plan.</h4>
+          <h4 data-edit="title" data-default="Review the plan." contenteditable="true">Review the plan.</h4>
           <p class="say">The plan assigns tasks to workers and notes which ones run in parallel.</p>
           <div class="do-box">
-            <ul><li>Review the plan.</li></ul>
+            <ul><li data-edit="step-0" data-default="Review the plan." contenteditable="true">Review the plan.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="build-plan">
-          <h4>Build the plan.</h4>
+          <h4 data-edit="title" data-default="Build the plan." contenteditable="true">Build the plan.</h4>
           <div class="do-box">
-            <ul><li>Click Build Locally.</li></ul>
+            <ul><li data-edit="step-0" data-default="Click Build Locally." contenteditable="true">Click Build Locally.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-build-cloud" data-feature="Cloud Agents">
-          <h4>Use Cloud Agents to build the plan if you do not have Projects.</h4>
+          <h4 data-edit="title" data-default="Use Cloud Agents to build the plan if you do not have Projects." contenteditable="true">Use Cloud Agents to build the plan if you do not have Projects.</h4>
           <div class="do-box">
-            <ul><li>Build the plan with Cloud Agents.</li></ul>
+            <ul><li data-edit="step-0" data-default="Build the plan with Cloud Agents." contenteditable="true">Build the plan with Cloud Agents.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="side-chat">
-          <h4>Ask a side question while the coordinator remediates the findings.</h4>
+          <h4 data-edit="title" data-default="Ask a side question while the coordinator remediates the findings." contenteditable="true">Ask a side question while the coordinator remediates the findings.</h4>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/side</pre>
+            <pre data-edit="prompt-0" data-default="/side" contenteditable="true">/side</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="ask-subagent-progress">
-          <h4>Ask what the first subagent is remediating.</h4>
+          <h4 data-edit="title" data-default="Ask what the first subagent is remediating." contenteditable="true">Ask what the first subagent is remediating.</h4>
           <p class="say">If you want to know what a subagent is doing, you can open a side chat and ask without blocking the coordinator.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/ask What is the first subagent remediating? Answer with the finding and the files it changes.</pre>
+            <pre data-edit="prompt-0" data-default="/ask What is the first subagent remediating? Answer with the finding and the files it changes." contenteditable="true">/ask What is the first subagent remediating? Answer with the finding and the files it changes.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="consolidate-pr">
-          <h4>Consolidate and open a reviewable PR.</h4>
+          <h4 data-edit="title" data-default="Consolidate and open a reviewable PR." contenteditable="true">Consolidate and open a reviewable PR.</h4>
           <p class="say">Move finished worktrees back deliberately. Resolve conflicts on purpose.</p>
           <div class="do-box">
-            <ul><li>Open the PR. Show the summary a coworker would read first.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open the PR. Show the summary a coworker would read first." contenteditable="true">Open the PR. Show the summary a coworker would read first.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Consolidate the completed tasks into one branch so reviewers get one PR. Open a PR with what each task changed and what a human should verify.</pre>
+            <pre data-edit="prompt-0" data-default="Consolidate the completed tasks into one branch so reviewers get one PR. Open a PR with what each task changed and what a human should verify." contenteditable="true">Consolidate the completed tasks into one branch so reviewers get one PR. Open a PR with what each task changed and what a human should verify.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-project-notes" data-feature="Projects">
-          <h4>Keep track of the Project.</h4>
+          <h4 data-edit="title" data-default="Keep track of the Project." contenteditable="true">Keep track of the Project.</h4>
           <p class="say">As you continue working on the Project, it keeps track of your requests to agents.
 You can review tasks in project notes and shared files in context.</p>
           <div class="paste">
@@ -828,8 +920,9 @@ You can review tasks in project notes and shared files in context.</p>
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Show me the project notes and context.</pre>
+            <pre data-edit="prompt-0" data-default="Show me the project notes and context." contenteditable="true">Show me the project notes and context.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -837,68 +930,73 @@ You can review tasks in project notes and shared files in context.</p>
         <h3>How do you scale AI code reviews?</h3>
         <div class="beats">
         <article class="beat" data-beat="checkout-fixes-branch">
-          <h4>Start a new agent.</h4>
+          <h4 data-edit="title" data-default="Start a new agent." contenteditable="true">Start a new agent.</h4>
           <p class="say">With many lines of accessibility fixes in this PR, I want to identify the most important files to review.</p>
           <div class="do-box">
-            <ul><li>Open a new local agent.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open a new local agent." contenteditable="true">Open a new local agent.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Check out the branch for the keyboard fixes PR.</pre>
+            <pre data-edit="prompt-0" data-default="Check out the branch for the keyboard fixes PR." contenteditable="true">Check out the branch for the keyboard fixes PR.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="run-reviewer-subagent">
-          <h4>Run the change reviewer subagent before you conduct manual review.</h4>
+          <h4 data-edit="title" data-default="Run the change reviewer subagent before you conduct manual review." contenteditable="true">Run the change reviewer subagent before you conduct manual review.</h4>
           <p class="say">The change reviewer uses readonly: false so it can run git diff, but its instructions stop it from editing files. The reviewer and the author stay separate.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Use the change reviewer subagent to review the remediation PR. List each issue with its file, line, and severity.</pre>
+            <pre data-edit="prompt-0" data-default="Use the change reviewer subagent to review the remediation PR. List each issue with its file, line, and severity." contenteditable="true">Use the change reviewer subagent to review the remediation PR. List each issue with its file, line, and severity.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="check-closer-inspection">
-          <h4>Identify any changes requiring closer inspection.</h4>
+          <h4 data-edit="title" data-default="Identify any changes requiring closer inspection." contenteditable="true">Identify any changes requiring closer inspection.</h4>
           <p class="say">The plan includes a step that sounds reasonable but blocks Tab navigation everywhere. The change reviewer flags it as high severity, with the file and line, so we never keep it.</p>
           <div class="do-box">
-            <ul><li>Check the change reviewer’s output for any issues requiring closer inspection.</li></ul>
+            <ul><li data-edit="step-0" data-default="Check the change reviewer’s output for any issues requiring closer inspection." contenteditable="true">Check the change reviewer’s output for any issues requiring closer inspection.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Fix the findings from the change reviewer.</pre>
+            <pre data-edit="prompt-0" data-default="Fix the findings from the change reviewer." contenteditable="true">Fix the findings from the change reviewer.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="review-highest-risk">
-          <h4>Review the high-risk changes.</h4>
+          <h4 data-edit="title" data-default="Review the high-risk changes." contenteditable="true">Review the high-risk changes.</h4>
           <p class="say">The change reviewer subagent clears the noise so your time goes where judgment matters.</p>
           <div class="do-box">
-            <ul><li>Open the highest-risk change and read it line by line.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open the highest-risk change and read it line by line." contenteditable="true">Open the highest-risk change and read it line by line.</li></ul>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/ask Which change in this PR has the highest risk? List the files and lines I need to review.</pre>
+            <pre data-edit="prompt-0" data-default="/ask Which change in this PR has the highest risk? List the files and lines I need to review." contenteditable="true">/ask Which change in this PR has the highest risk? List the files and lines I need to review.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-bugbot" data-feature="Bugbot">
-          <h4>Run Bugbot.</h4>
+          <h4 data-edit="title" data-default="Run Bugbot." contenteditable="true">Run Bugbot.</h4>
           <p class="say">Run Bugbot to check for code quality. Review its suggestions for changes.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>/review-bugbot this remediation PR</pre>
+            <pre data-edit="prompt-0" data-default="/review-bugbot this remediation PR" contenteditable="true">/review-bugbot this remediation PR</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -906,60 +1004,66 @@ You can review tasks in project notes and shared files in context.</p>
         <h3>How do coworkers share ownership safely?</h3>
         <div class="beats">
         <article class="beat" data-beat="open-ownership-agent">
-          <h4>Start a new agent.</h4>
+          <h4 data-edit="title" data-default="Start a new agent." contenteditable="true">Start a new agent.</h4>
           <p class="say">I want to turn some of the review findings in this PR into the most reliable fix: a rule, skill, subagent, test, or human check.</p>
           <div class="do-box">
-            <ul><li>Open a new local agent.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open a new local agent." contenteditable="true">Open a new local agent.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="shift-left-findings">
-          <h4>Identify the most reliable fix for each review finding.</h4>
+          <h4 data-edit="title" data-default="Identify the most reliable fix for each review finding." contenteditable="true">Identify the most reliable fix for each review finding.</h4>
           <p class="say">You choose which ones to turn into a rule, skill, subagent, test, or human check for your coworkers to reuse.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Turn repeat findings from this PR&#39;s review comments and change reviewer into reusable fixes so they stop recurring. Draft the most deterministic fix for each: a rule, skill, subagent, test, or human check.</pre>
+            <pre data-edit="prompt-0" data-default="Turn repeat findings from this PR&#39;s review comments and change reviewer into reusable fixes so they stop recurring. Draft the most deterministic fix for each: a rule, skill, subagent, test, or human check." contenteditable="true">Turn repeat findings from this PR&#39;s review comments and change reviewer into reusable fixes so they stop recurring. Draft the most deterministic fix for each: a rule, skill, subagent, test, or human check.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-reviewer-automation" data-feature="Automations">
-          <h4>Create an Automation.</h4>
+          <h4 data-edit="title" data-default="Create an Automation." contenteditable="true">Create an Automation.</h4>
           <div class="do-box">
-            <ol><li>Go to the Automations tab.</li><li>Click New Automation.</li><li>Name it Reviewer.</li><li>Select the demo repository.</li><li>Click Triggers &gt; PR opened, then select the demo repository and set the author to Anyone.</li><li>Add “Use the change reviewer subagent to review this PR and comment with each issue&#39;s file, line, and severity.” to agent instructions.</li><li>Add “Comment on Pull Request” to tools.</li><li>Click Save.</li></ol>
+            <ol><li data-edit="step-0" data-default="Go to the Automations tab." contenteditable="true">Go to the Automations tab.</li><li data-edit="step-1" data-default="Click New Automation." contenteditable="true">Click New Automation.</li><li data-edit="step-2" data-default="Name it Reviewer." contenteditable="true">Name it Reviewer.</li><li data-edit="step-3" data-default="Select the demo repository." contenteditable="true">Select the demo repository.</li><li data-edit="step-4" data-default="Click Triggers &gt; PR opened, then select the demo repository and set the author to Anyone." contenteditable="true">Click Triggers &gt; PR opened, then select the demo repository and set the author to Anyone.</li><li data-edit="step-5" data-default="Add “Use the change reviewer subagent to review this PR and comment with each issue&#39;s file, line, and severity.” to agent instructions." contenteditable="true">Add “Use the change reviewer subagent to review this PR and comment with each issue&#39;s file, line, and severity.” to agent instructions.</li><li data-edit="step-6" data-default="Add “Comment on Pull Request” to tools." contenteditable="true">Add “Comment on Pull Request” to tools.</li><li data-edit="step-7" data-default="Click Save." contenteditable="true">Click Save.</li></ol>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="optional-trigger-automation" data-feature="Automations">
-          <h4>Trigger the PR Automation.</h4>
+          <h4 data-edit="title" data-default="Trigger the PR Automation." contenteditable="true">Trigger the PR Automation.</h4>
           <p class="say">Opening any PR triggers the Reviewer Automation, so I&#39;ll create one and watch the check run.</p>
           <div class="do-box">
-            <ol><li>Start a new local agent.</li><li>Open the PR for the accessibility test suite fixes and review the status check for Automation: Reviewer.</li></ol>
+            <ol><li data-edit="step-0" data-default="Start a new local agent." contenteditable="true">Start a new local agent.</li><li data-edit="step-1" data-default="Open the PR for the accessibility test suite fixes and review the status check for Automation: Reviewer." contenteditable="true">Open the PR for the accessibility test suite fixes and review the status check for Automation: Reviewer.</li></ol>
           </div>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Run the accessibility test suite and fix its failures on a separate worktree. Open a PR when done.</pre>
+            <pre data-edit="prompt-0" data-default="Run the accessibility test suite and fix its failures on a separate worktree. Open a PR when done." contenteditable="true">Run the accessibility test suite and fix its failures on a separate worktree. Open a PR when done.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="return-to-plan">
-          <h4>Return to the collections command center plan.</h4>
+          <h4 data-edit="title" data-default="Return to the collections command center plan." contenteditable="true">Return to the collections command center plan.</h4>
           <p class="say">Now I’m going back to the collections command center plan. Before I start the work, I’ll check the keyboard fixes PR for conflicts.</p>
           <div class="do-box">
-            <ul><li>Open the command center planning agent in the Agent Window. Don’t start a new plan.</li></ul>
+            <ul><li data-edit="step-0" data-default="Open the command center planning agent in the Agent Window. Don’t start a new plan." contenteditable="true">Open the command center planning agent in the Agent Window. Don’t start a new plan.</li></ul>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         <article class="beat" data-beat="list-conflict-files">
-          <h4>Check other PRs for files and comments that conflict with the next project.</h4>
+          <h4 data-edit="title" data-default="Check other PRs for files and comments that conflict with the next project." contenteditable="true">Check other PRs for files and comments that conflict with the next project.</h4>
           <p class="say">Use the context in other PRs to identify possible conflicts before you start work.</p>
           <div class="paste">
             <div class="paste-head">
               <span>Paste in Grok Build</span>
               <button type="button" class="copy">Copy</button>
             </div>
-            <pre>Review the open PRs in this repository and flag any that have file conflicts or comments that may affect the collections command center feature.</pre>
+            <pre data-edit="prompt-0" data-default="Review the open PRs in this repository and flag any that have file conflicts or comments that may affect the collections command center feature." contenteditable="true">Review the open PRs in this repository and flag any that have file conflicts or comments that may affect the collections command center feature.</pre>
           </div>
+          <button type="button" class="reset-beat" hidden>Reset this card</button>
         </article>
         </div>
       </section>
@@ -1058,7 +1162,7 @@ You can review tasks in project notes and shared files in context.</p>
       document.addEventListener("click", function (event) {
         var button = event.target.closest(".copy");
         if (!button) return;
-        var text = button.closest(".paste").querySelector("pre").textContent;
+        var text = button.closest(".paste").querySelector("pre").innerText;
         var write = navigator.clipboard && window.isSecureContext
           ? navigator.clipboard.writeText(text).catch(function () { return fallbackCopy(text); })
           : fallbackCopy(text);
@@ -1067,6 +1171,213 @@ You can review tasks in project notes and shared files in context.</p>
           button.classList.add("done");
           setTimeout(function () { button.textContent = "Copy"; button.classList.remove("done"); }, 1600);
         }, function () {});
+      });
+
+      var EDIT_KEY = "ledgerly-runbooks-edits";
+      var PENDING_KEY = "ledgerly-runbooks-edits-pending";
+      var EDIT_API = "http://localhost:43173/api/runbook-edits";
+      var SERVER_TEXT = "Saved to runbooks/edits.json through the dev server.";
+      var LOCAL_TEXT = "Saved in this browser only. Start the dev server on localhost:43173 to save to runbooks/edits.json.";
+      var statusEl = document.getElementById("save-status");
+      var pushTimer = null;
+      var pushSeq = 0;
+      function readEdits() {
+        try {
+          var raw = localStorage.getItem(EDIT_KEY);
+          var parsed = raw ? JSON.parse(raw) : {};
+          return parsed && typeof parsed === "object" ? parsed : {};
+        } catch (err) {
+          return {};
+        }
+      }
+      function writeEdits(state) {
+        try {
+          localStorage.setItem(EDIT_KEY, JSON.stringify(state));
+        } catch (err) {
+          // Private browsing can reject storage. The server copy is still written.
+        }
+      }
+      function setPending(flag) {
+        try {
+          if (flag) localStorage.setItem(PENDING_KEY, "1");
+          else localStorage.removeItem(PENDING_KEY);
+        } catch (err) {
+          // Storage can be unavailable. The next save still goes to the server.
+        }
+      }
+      function hasPending() {
+        try {
+          return localStorage.getItem(PENDING_KEY) === "1";
+        } catch (err) {
+          return false;
+        }
+      }
+      function showStatus(state, text) {
+        statusEl.setAttribute("data-state", state);
+        statusEl.textContent = text;
+      }
+      function pushToServer(state) {
+        var seq = ++pushSeq;
+        return fetch(EDIT_API, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(state),
+          cache: "no-store",
+          keepalive: true
+        }).then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          setPending(false);
+          if (seq === pushSeq) showStatus("server", SERVER_TEXT);
+        }).catch(function () {
+          setPending(true);
+          if (seq === pushSeq) showStatus("local", LOCAL_TEXT);
+        });
+      }
+      // Saves to localStorage at once. The server write waits 400ms after the last
+      // keystroke, or runs at once when the now flag is set (blur, reset, page hide).
+      function saveEdits(state, now) {
+        writeEdits(state);
+        setPending(true);
+        clearTimeout(pushTimer);
+        showStatus("saving", "Saving…");
+        pushTimer = setTimeout(function () {
+          pushTimer = null;
+          pushToServer(state);
+        }, now ? 0 : 400);
+      }
+      window.addEventListener("pagehide", function () {
+        if (!pushTimer) return;
+        clearTimeout(pushTimer);
+        pushTimer = null;
+        pushToServer(readEdits());
+      });
+      function trimmed(value) {
+        return String(value || "").replace(/^\s+|\s+$/g, "");
+      }
+      function fieldText(el) {
+        return trimmed(el.innerText);
+      }
+      function beatKey(article) {
+        return article.closest(".track").getAttribute("data-track") + ":" + article.getAttribute("data-beat");
+      }
+      function isEdited(el) {
+        return fieldText(el) !== trimmed(el.getAttribute("data-default"));
+      }
+      function refreshBeat(article) {
+        var edited = Array.prototype.some.call(article.querySelectorAll("[data-edit]"), isEdited);
+        article.classList.toggle("is-edited", edited);
+        var reset = article.querySelector(".reset-beat");
+        if (reset) reset.hidden = !edited;
+        var track = article.closest(".track");
+        var trackReset = track.querySelector(".reset-track");
+        if (trackReset) trackReset.hidden = !track.querySelector(".beat.is-edited");
+      }
+      function saveField(el, leaving) {
+        var article = el.closest(".beat");
+        var field = el.getAttribute("data-edit");
+        var fallback = trimmed(el.getAttribute("data-default"));
+        var value = fieldText(el);
+        if (leaving && value === "") {
+          el.textContent = fallback;
+          value = fallback;
+        }
+        var state = readEdits();
+        var key = beatKey(article);
+        var entry = state[key] || {};
+        if (value === "" || value === fallback) delete entry[field];
+        else entry[field] = value;
+        if (Object.keys(entry).length) state[key] = entry;
+        else delete state[key];
+        saveEdits(state, leaving);
+        refreshBeat(article);
+      }
+      function editableFrom(target) {
+        return target && target.closest ? target.closest("[data-edit]") : null;
+      }
+
+      function applyEdits(state) {
+        Array.prototype.forEach.call(document.querySelectorAll(".beat"), function (article) {
+          var saved = state[beatKey(article)] || {};
+          Array.prototype.forEach.call(article.querySelectorAll("[data-edit]"), function (el) {
+            var field = el.getAttribute("data-edit");
+            if (typeof saved[field] === "string" && saved[field] !== "") el.textContent = saved[field];
+          });
+          refreshBeat(article);
+        });
+      }
+      // The server copy wins when reachable. Local edits that never reached the server
+      // (pending flag, or an empty server file with local edits) are pushed up instead.
+      // If the server cannot be reached, the browser cache is shown.
+      function loadEdits() {
+        var local = readEdits();
+        showStatus("saving", "Checking for saved edits…");
+        fetch(EDIT_API, { cache: "no-store" }).then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        }).then(function (server) {
+          if (!server || typeof server !== "object" || Array.isArray(server)) throw new Error("bad edits");
+          var localCount = Object.keys(local).length;
+          if (hasPending() || (Object.keys(server).length === 0 && localCount > 0)) {
+            applyEdits(local);
+            saveEdits(local, true);
+            return;
+          }
+          writeEdits(server);
+          applyEdits(server);
+          showStatus("server", SERVER_TEXT);
+        }).catch(function () {
+          applyEdits(local);
+          showStatus("local", LOCAL_TEXT);
+        });
+      }
+      loadEdits();
+
+      document.addEventListener("input", function (event) {
+        var el = editableFrom(event.target);
+        if (el) saveField(el, false);
+      });
+      document.addEventListener("focusout", function (event) {
+        var el = editableFrom(event.target);
+        if (el) saveField(el, true);
+      });
+      document.addEventListener("keydown", function (event) {
+        var el = editableFrom(event.target);
+        if (el && event.key === "Enter" && el.tagName !== "PRE") {
+          event.preventDefault();
+          el.blur();
+        }
+      });
+      document.addEventListener("paste", function (event) {
+        var el = editableFrom(event.target);
+        if (!el) return;
+        event.preventDefault();
+        var text = (event.clipboardData || window.clipboardData).getData("text/plain");
+        if (el.tagName !== "PRE") text = text.replace(/\s*[\r\n]+\s*/g, " ");
+        document.execCommand("insertText", false, text);
+      });
+
+      // One save covers every card reset here, so the server copy is cleared in one request.
+      function resetArticles(articles) {
+        var state = readEdits();
+        Array.prototype.forEach.call(articles, function (article) {
+          delete state[beatKey(article)];
+          Array.prototype.forEach.call(article.querySelectorAll("[data-edit]"), function (el) {
+            el.textContent = el.getAttribute("data-default") || "";
+          });
+          refreshBeat(article);
+        });
+        saveEdits(state, true);
+      }
+      document.addEventListener("click", function (event) {
+        var target = event.target;
+        if (!target || !target.closest) return;
+        var card = target.closest(".reset-beat");
+        if (card) {
+          resetArticles([card.closest(".beat")]);
+          return;
+        }
+        var track = target.closest(".reset-track");
+        if (track) resetArticles(track.closest(".track").querySelectorAll(".beat"));
       });
     })();
   </script>

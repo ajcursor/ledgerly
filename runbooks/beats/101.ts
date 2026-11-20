@@ -167,4 +167,54 @@ export const RUNBOOK_SECTIONS_101 = [
       },
     ],
   },
+  {
+    id: "mcp-more-info",
+    title: "How do you connect an agent to external tools?",
+    beats: [
+      {
+        id: "add-jira-mcp",
+        title: "Enable Jira MCP",
+        promptType: "none",
+        detail:
+          "Let’s start the issue tracker’s MCP server. For this workshop, that is Jira. Get a ticket for this project. Review MCP servers in Customize > MCPs. Enable the Jira MCP server.",
+      },
+      {
+        id: "mcp-allowlist",
+        title: "Check MCP allowlist",
+        promptType: "none",
+        detail:
+          "Go to Settings > Agents > Execution and Approvals > Allowlist Options > MCP Allowlist to check valid MCP servers and tools from your administrator.",
+      },
+      {
+        id: "ask-jira-bug",
+        title: "List open issues",
+        promptType: "adaptable",
+        detail:
+          "Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Jira MCP server.",
+        example: "List the open issues from our issue tracker.",
+      },
+      {
+        id: "add-local-plugin",
+        title: "Add plugin",
+        promptType: "none",
+        detail:
+          "A teammate created a plugin for standardizing bug fixes. Go to Customize > Plugins > Add > From Local Repository. Find the plugins/standard-bug-fix file directory and add it.",
+      },
+      {
+        id: "check-plugin",
+        title: "Enable Standard bug fix plugin",
+        promptType: "none",
+        detail:
+          "Go to Customize > Plugins. Go to Personal. Click Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server.",
+      },
+      {
+        id: "standard-bug-fix",
+        title: "Standard bug fix",
+        promptType: "adaptable",
+        detail:
+          "Let’s fix the bug and update the issue with the standard template. Go to the issue in Jira and review the comments following the bug template.",
+        example: "Work on a standard bug fix for the issue where clicking overdue does not filter.",
+      },
+    ],
+  },
 ] as const satisfies readonly DemoSection[];

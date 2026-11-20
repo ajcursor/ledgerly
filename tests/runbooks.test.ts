@@ -52,7 +52,7 @@ describe("runbook catalog", () => {
     expect(skill).toContain(track101?.description ?? "");
 
     expect(runbookBeatSequence("101")).toBe(
-      "Ask → Plan → Build in Agent mode → Debug → Check the models → Plan to fix the bug → Run Mode Allowlist → Verify the email feature → Redact (partial) → Stop the prompt → Interrupt and steer → Continue to the end → Review diffs → Restore from a checkpoint → Create a user rule → Test the rule → Create a user skill → Test the skill → Canvas → MCP / Figma",
+      "Ask → Plan → Build in Agent mode → Debug → Check the models → Plan to fix the bug → Run Mode Allowlist → Verify the email feature → Redact (partial) → Stop the prompt → Interrupt and steer → Continue to the end → Review diffs → Restore from a checkpoint → Create a user rule → Test the rule → Create a user skill → Test the skill → Canvas → MCP / Figma → Enable Jira MCP → Check MCP allowlist → List open issues → Add plugin → Enable Standard bug fix plugin → Standard bug fix",
     );
 
     expect(beats101.map((beat) => beat.id)).toEqual([
@@ -76,6 +76,12 @@ describe("runbook catalog", () => {
       "test-skill",
       "canvas",
       "mcp",
+      "add-jira-mcp",
+      "mcp-allowlist",
+      "ask-jira-bug",
+      "add-local-plugin",
+      "check-plugin",
+      "standard-bug-fix",
     ]);
 
     const beat = (id: (typeof beats101)[number]["id"]) => beats101.find((entry) => entry.id === id);
@@ -168,10 +174,45 @@ describe("runbook catalog", () => {
     expect(beat("ask")?.promptType).toBe("reusable");
     expect(beat("plan")?.promptType).toBe("adaptable");
     expect(beat("agent-build")?.promptType).toBe("none");
+    expect(beat("add-jira-mcp")?.title).toBe("Enable Jira MCP");
+    expect(beat("add-jira-mcp")?.promptType).toBe("none");
+    expect(beat("add-jira-mcp")?.example).toBeUndefined();
+    expect(beat("add-jira-mcp")?.detail).toBe(
+      "Let’s start the issue tracker’s MCP server. For this workshop, that is Jira. Get a ticket for this project. Review MCP servers in Customize > MCPs. Enable the Jira MCP server.",
+    );
+    expect(beat("mcp-allowlist")?.promptType).toBe("none");
+    expect(beat("mcp-allowlist")?.example).toBeUndefined();
+    expect(beat("mcp-allowlist")?.detail).toBe(
+      "Go to Settings > Agents > Execution and Approvals > Allowlist Options > MCP Allowlist to check valid MCP servers and tools from your administrator.",
+    );
+    expect(beat("ask-jira-bug")?.title).toBe("List open issues");
+    expect(beat("ask-jira-bug")?.promptType).toBe("adaptable");
+    expect(beat("ask-jira-bug")?.detail).toBe(
+      "Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Jira MCP server.",
+    );
+    expect(beat("ask-jira-bug")?.example).toBe("List the open issues from our issue tracker.");
+    expect(beat("add-local-plugin")?.promptType).toBe("none");
+    expect(beat("add-local-plugin")?.example).toBeUndefined();
+    expect(beat("check-plugin")?.promptType).toBe("none");
+    expect(beat("check-plugin")?.example).toBeUndefined();
+    expect(beat("standard-bug-fix")?.promptType).toBe("adaptable");
+    expect(beat("standard-bug-fix")?.detail).toBe(
+      "Let’s fix the bug and update the issue with the standard template. Go to the issue in Jira and review the comments following the bug template.",
+    );
+    expect(beat("standard-bug-fix")?.example).toBe(
+      "Work on a standard bug fix for the issue where clicking overdue does not filter.",
+    );
     expect(RUNBOOK_SECTIONS_101.map((section) => section.title)).toEqual([
       "What is Grok Build?",
       "How do you work with an agent?",
       "How do you govern an agent?",
+      "How do you connect an agent to external tools?",
+    ]);
+    expect(RUNBOOK_SECTIONS_101.map((section) => section.id)).toEqual([
+      "first-prompt",
+      "work-with-agent",
+      "govern-agent",
+      "mcp-more-info",
     ]);
     expect(
       RUNBOOK_SECTIONS_101.find((section) => section.id === "work-with-agent")?.beats.map(
@@ -200,13 +241,11 @@ describe("runbook catalog", () => {
     expect(RUNBOOK_SECTIONS_201.map((section) => section.title)).toEqual([
       "How do you manage context?",
       "How do you standardize agent behavior?",
-      "How do you connect an agent to external tools?",
       "How do you parallelize a task?",
     ]);
     expect(RUNBOOK_SECTIONS_201.map((section) => section.id)).toEqual([
       "target-context",
       "standardize-behavior",
-      "mcp-more-info",
       "parallelize-task",
     ]);
 
@@ -220,12 +259,6 @@ describe("runbook catalog", () => {
       "ask-cross-context",
       "create-api-personal-skill",
       "promote-create-api-project",
-      "add-linear-mcp",
-      "mcp-allowlist",
-      "ask-linear-bug",
-      "add-local-plugin",
-      "check-plugin",
-      "standard-bug-fix",
       "open-new-agent",
       "open-resolve-dispute-plan",
       "open-ledgerly-reviewer",
@@ -282,35 +315,6 @@ describe("runbook catalog", () => {
       "Promote the create-api skill so teammates can use it. Open skill in .cursor/skills. Review the other project skills for this repository, such as add-dashboard-widget, draft-collection-email, or write-prisma-query.",
     );
     expect(beat("promote-create-api-project")?.example).toBe("Promote the create-api skill to this project.");
-    expect(beat("add-linear-mcp")?.detail).toBe(
-      "Let’s start the issue tracker’s MCP server. For this workshop, that is Linear. Get a ticket for this project. Review MCP servers in Customize > MCPs. Enable the Linear MCP server.",
-    );
-    expect(beat("add-linear-mcp")?.example).toBeUndefined();
-    expect(beat("mcp-allowlist")?.promptType).toBe("none");
-    expect(beat("mcp-allowlist")?.example).toBeUndefined();
-    expect(beat("mcp-allowlist")?.detail).toBe(
-      "Go to Settings > Agents > Execution and Approvals > Allowlist Options > MCP Allowlist to check valid MCP servers and tools from your administrator.",
-    );
-    expect(beat("ask-linear-bug")?.detail).toBe(
-      "Open a new agent. Someone reported a bug and it was logged in our issue tracker. I want more information on it. Review the tool calls to the Linear MCP server.",
-    );
-    expect(beat("ask-linear-bug")?.example).toBe("List the open issues from our issue tracker.");
-    expect(beat("add-local-plugin")?.promptType).toBe("none");
-    expect(beat("add-local-plugin")?.example).toBeUndefined();
-    expect(beat("add-local-plugin")?.detail).toBe(
-      "A teammate created a plugin for standardizing bug fixes. Go to Customize > Plugins > Add > From Local Repository. Find the plugins/standard-bug-fix file directory and add it.",
-    );
-    expect(beat("check-plugin")?.promptType).toBe("none");
-    expect(beat("check-plugin")?.example).toBeUndefined();
-    expect(beat("check-plugin")?.detail).toBe(
-      "Go to Customize > Plugins. Go to Personal. Click Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server.",
-    );
-    expect(beat("standard-bug-fix")?.detail).toBe(
-      "Let’s fix the bug and update the issue with the standard template. Go to the issue in Linear and review the comments following the bug template.",
-    );
-    expect(beat("standard-bug-fix")?.example).toBe(
-      "Work on a standard bug fix for the issue where clicking overdue does not filter.",
-    );
     expect(beat("open-new-agent")?.title).toBe("Open a new agent");
     expect(beat("open-new-agent")?.promptType).toBe("none");
     expect(beat("open-new-agent")?.example).toBeUndefined();
@@ -353,9 +357,6 @@ describe("runbook catalog", () => {
     expect(beat("ask-cross-context")?.promptType).toBe("reusable");
     expect(beat("create-api-personal-skill")?.promptType).toBe("reusable");
     expect(beat("promote-create-api-project")?.promptType).toBe("reusable");
-    expect(beat("add-linear-mcp")?.promptType).toBe("none");
-    expect(beat("ask-linear-bug")?.promptType).toBe("adaptable");
-    expect(beat("standard-bug-fix")?.promptType).toBe("adaptable");
     expect(beat("open-new-agent")?.promptType).toBe("none");
     expect(beat("multitask-resolve-dispute")?.promptType).toBe("reusable");
     expect(beat("canvas-subagent-progress")?.promptType).toBe("adaptable");
@@ -854,7 +855,7 @@ describe("runbook catalog", () => {
     expect(between.slice(0, firstPrompt)).not.toContain("Middle one.");
   });
 
-  it("keeps the static runbooks page in sync with the beats", () => {
+  it("keeps the static runbooks page in sync with the beats", async () => {
     const committed = readFileSync(join(root, STATIC_RUNBOOKS_PATH), "utf8");
     expect(committed, "run `npm run runbooks:export` to regenerate runbooks.html").toBe(
       renderRunbooksHtml(),
@@ -870,6 +871,54 @@ describe("runbook catalog", () => {
     expect(committed).toContain("ids.indexOf(data.track) !== -1");
     expect(committed).toContain("show(data.track, false)");
     expect(committed).toContain("Canvas srcdoc pages cannot update their about:srcdoc URL.");
+    expect(committed).toContain('<section id="101-mcp-more-info">');
+    expect(committed).not.toContain('id="201-mcp-more-info"');
+    // Panel titles, Do steps, and Grok Build commands are editable and saved per browser.
+    expect(committed).toContain('data-edit="title"');
+    expect(committed).toContain('data-edit="step-0"');
+    expect(committed).toContain('data-edit="prompt-0"');
+    expect(committed).toContain('class="reset-beat"');
+    expect(committed).toContain('class="reset-track"');
+    expect(committed).toContain('var EDIT_KEY = "ledgerly-runbooks-edits";');
+    expect(committed).toContain("writeEdits(state);");
+    // Edits also persist on the server in runbooks/edits.json through the dev server route.
+    expect(committed).toContain('var EDIT_API = "http://localhost:43173/api/runbook-edits";');
+    expect(committed).toContain('id="save-status"');
+    expect(committed).toContain("function loadEdits()");
+    expect(committed).toContain("saveEdits(state, leaving);");
+    expect(committed).toContain("keepalive: true");
+
+    const editsFile = join(root, "runbooks/edits.json");
+    const editsBefore = readFileSync(editsFile, "utf8");
+    expect(JSON.parse(editsBefore)).toEqual(expect.any(Object));
+    const { GET, PUT } = await import("@/app/api/runbook-edits/route");
+    const put = (body: unknown, origin?: string, type = "application/json") =>
+      PUT(
+        new Request("http://localhost:43173/api/runbook-edits", {
+          method: "PUT",
+          headers: { "Content-Type": type, ...(origin ? { Origin: origin } : {}) },
+          body: typeof body === "string" ? body : JSON.stringify(body),
+        }),
+      );
+    // Bad keys, fields, and values return 400 and never touch the file.
+    expect((await put({ "999:ask": { title: "x" } })).status).toBe(400);
+    expect((await put('{"101:ask":{"__proto__":"x"}}')).status).toBe(400);
+    expect((await put({ "101:ask": { title: "x" }, "../etc": {} })).status).toBe(400);
+    expect((await put({ "101:ask": { "step-x": "x" } })).status).toBe(400);
+    expect((await put({ "101:ask": { title: "" } })).status).toBe(400);
+    expect((await put({ "101:ask": { title: "x".repeat(4001) } })).status).toBe(400);
+    expect((await put({ "101:ask": { title: "bad\u0007" } })).status).toBe(400);
+    expect((await put("[1,2]")).status).toBe(400);
+    expect((await put("{not json")).status).toBe(400);
+    expect((await put({}, undefined, "text/plain")).status).toBe(415);
+    expect((await put({}, "https://evil.example")).status).toBe(403);
+    expect(readFileSync(editsFile, "utf8")).toBe(editsBefore);
+    // Reads return the stored object, and an allowed origin gets CORS headers.
+    const read = await GET(new Request("http://localhost:43173/api/runbook-edits", { headers: { Origin: "null" } }));
+    expect(read.status).toBe(200);
+    expect(read.headers.get("Access-Control-Allow-Origin")).toBe("null");
+    expect(await read.json()).toEqual(expect.any(Object));
+    expect((await GET(new Request("http://localhost:43173/api/runbook-edits", { headers: { Origin: "https://evil.example" } }))).status).toBe(403);
   });
 
   it("does not resolve the retired advanced track", () => {
@@ -889,7 +938,7 @@ describe("runbook catalog", () => {
     }
   });
 
-  it("points docs, skills, and rules at runbooks.html and documents the 101, 201, and 301 tracks", () => {
+  it("points docs, skills, and rules at runbooks.html and documents the 101, 201, and 301 tracks", async () => {
     const files = {
       readme: readFileSync(join(root, "README.md"), "utf8"),
       howto: readFileSync(join(root, "demo-howto.md"), "utf8"),
@@ -959,8 +1008,10 @@ describe("runbook catalog", () => {
       plan: readFileSync(join(root, ".cursor/plans/resolve-dispute.md"), "utf8"),
     };
     const passedCounts = new Set<string>();
+    const countByFile: Record<string, string[]> = {};
     for (const [name, contents] of Object.entries(countSources)) {
       const matches = [...contents.matchAll(countPattern)].map((match) => match[1]);
+      countByFile[name] = matches;
       expect(matches.length, `${name} is missing a "2 failed / <n> passed" count`).toBeGreaterThan(
         0,
       );

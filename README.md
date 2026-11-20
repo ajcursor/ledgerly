@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173, seeds only when the database is missing or empty, and opens `runbooks.html` in a Cursor Canvas.
 
-`npm test` is **2 failed / 85 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **2 failed / 90 passed** on a clean tree — `tests/suggested-credit-api.test.ts` (the v1 suggested-credit client) and `tests/filter-pills.test.ts` (status pills write `state=` while the pages read `status`). The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
 
 ### Planted demo issues
 
@@ -32,7 +32,7 @@ These are intentional. Leave them for the demo, and do not ship them outside dem
 
 ## Switchable demo bugs
 
-`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 85 passed**.
+`lib/demo/bugs.ts` is the registry. `demo/bugs.json` is the same list for later Linear issues and support transcripts. With nothing set, the run keeps today's behavior: `credit_v1` and `filter_state` on, and **2 failed / 90 passed**.
 
 `DEMO_BUGS` is a comma-separated list and replaces the default. An empty value turns every bug off. `DEMO_SCENARIO` is `known`, `ambiguous`, `new`, or `all` and is used only when `DEMO_BUGS` is unset. `DEMO_BUGS_FILE` points at a JSON file with `{ "bugs": ["..."] }` or `{ "scenario": "known" }` and is used only when both of those are unset. Presets live in `demo/scenarios/`.
 
@@ -49,11 +49,11 @@ Each bug's test asserts the correct behavior, so the test is red while the bug i
 `overdue_count` shares the `invoice-filter` fingerprint with `filter_state`, so a support match can land in the ambiguous band. Kinds follow the triage bands: known at 0.80 or above, ambiguous from 0.60 to 0.79, new below 0.60.
 
 ```bash
-# Default. credit_v1 and filter_state. 2 failed / 85 passed.
+# Default. credit_v1 and filter_state. 2 failed / 90 passed.
 npm test
 npm run demo:reset
 
-# Known bugs only. Same set as the default. 2 failed / 85 passed.
+# Known bugs only. Same set as the default. 2 failed / 90 passed.
 DEMO_SCENARIO=known npm test
 npm run demo:reset -- --scenario=known
 
@@ -61,7 +61,7 @@ npm run demo:reset -- --scenario=known
 DEMO_SCENARIO=ambiguous npm test
 npm run demo:reset -- --scenario=ambiguous
 
-# New bugs. Closed-dispute credit and line rounding. 2 failed / 85 passed.
+# New bugs. Closed-dispute credit and line rounding. 2 failed / 90 passed.
 DEMO_SCENARIO=new npm test
 npm run demo:reset -- --scenario=new
 
@@ -173,6 +173,7 @@ Open `runbooks.html` in the Canvas (track 101), copy a card, and paste it in Gro
 1. **What is Grok Build?** — Ask, Plan, Build in Agent mode, Debug, and check the models.
 2. **How do you work with an agent?** — Run Mode allowlist, verify the email feature, redact, stop, interrupt and steer, continue to the end, review diffs, restore from a checkpoint.
 3. **How do you govern an agent?** — create and test a rule, create and test a skill, Canvas, MCP / Figma.
+4. **How do you connect an agent to external tools?** — Jira MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. The plugin and `stage-linear` still use Linear: pick a public or private Linear team, then run `stage-linear`.
 
 ## The 201 track
 
@@ -180,8 +181,7 @@ Open `runbooks.html?track=201`, or switch to 201 with the Catalog menu in the Ca
 
 1. **How do you manage context?** — rename agents, Ask DDD (whole app vs `@invoice-table.tsx`), check context usage, compare agents, ask across chats.
 2. **How do you standardize agent behavior?** — personal create-api skill, promote it to the project.
-3. **How do you connect an agent to external tools?** — Linear MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. Use a public or private Linear team, then run `stage-linear`.
-4. **How do you parallelize a task?** — open a new agent, open the resolve-dispute plan, ledgerly-reviewer, dispatch-subagents skill, `/multitask`, Canvas subagent progress, ledgerly-reviewer check.
+3. **How do you parallelize a task?** — open a new agent, open the resolve-dispute plan, ledgerly-reviewer, dispatch-subagents skill, `/multitask`, Canvas subagent progress, ledgerly-reviewer check.
 
 ## The 301 track
 
